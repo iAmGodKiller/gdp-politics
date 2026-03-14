@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>National & States GDP Timeline</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☀️</text></svg>">
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        m3: {
+                            light: { bg: '#fbf8fd', surface: '#ffffff', primary: '#6750a4', onPrimary: '#ffffff', primaryContainer: '#eaddff', onPrimaryContainer: '#21005d', secondaryContainer: '#e8def8', onSecondaryContainer: '#1d192b', outline: '#79747e', onSurface: '#1c1b1f', onSurfaceVariant: '#49454f', surfaceVariant: '#e7e0ec' },
+                            dark: { bg: '#0f0d13', surface: '#1d1b20', primary: '#d0bcff', onPrimary: '#381e72', primaryContainer: '#4f378b', onPrimaryContainer: '#eaddff', secondaryContainer: '#4a4458', onSecondaryContainer: '#e8def8', outline: '#938f99', onSurface: '#e6e1e5', onSurfaceVariant: '#cac4d0', surfaceVariant: '#49454f' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            transition: background-color 0.5s cubic-bezier(0.2, 0, 0, 1), color 0.5s cubic-bezier(0.2, 0, 0, 1);
+            background-image: radial-gradient(at 0% 0%, rgba(103, 80, 164, 0.05) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(208, 188, 255, 0.05) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .spring-interactive { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .spring-interactive:hover { transform: translateY(-2px) scale(1.02); }
+        .spring-interactive:active { transform: translateY(1px) scale(0.98); }
+
+        .expressive-shadow { box-shadow: 0 24px 48px -12px rgba(28, 27, 31, 0.08), 0 0 1px rgba(28, 27, 31, 0.05); }
+        .dark .expressive-shadow { box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5), 0 0 1px rgba(255, 255, 255, 0.1); }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cac4d0; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #49454f; }
+        select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+
+        /* Mobile Swipeable Ribbons */
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* Mobile Landscape Optimizations */
+        @media (max-width: 900px) and (orientation: landscape) {
+            .landscape-compact-padding { padding: 1rem !important; border-radius: 1.5rem !important; }
+            .landscape-chart-height { min-height: 220px !important; height: 75vh !important; }
+        }
+    </style>
+</head>
+<body class="bg-m3-light-bg dark:bg-m3-dark-bg text-m3-light-onSurface dark:text-m3-dark-onSurface antialiased flex flex-col min-h-screen">
+
+    <main class="flex-1 flex flex-col items-center justify-center p-1 sm:p-6 md:p-10 w-full">
+        <div class="w-full lg:w-[98%] xl:w-[95%] 2xl:w-[90%] mx-auto">
+            <div class="bg-m3-light-surface dark:bg-m3-dark-surface rounded-[1.5rem] sm:rounded-[3.5rem] expressive-shadow p-2.5 sm:p-10 border border-m3-light-outline/10 dark:border-m3-dark-outline/10 w-full relative z-10 transition-colors duration-500 overflow-hidden sm:overflow-visible landscape-compact-padding">
+                
+                <!-- Header -->
+                <div class="relative w-full mb-4 sm:mb-8">
+                    
+                    <!-- Theme Toggle -->
+                    <div class="absolute top-0 right-0 bg-m3-light-surfaceVariant/40 dark:bg-m3-dark-surfaceVariant/20 border border-m3-light-outline/10 dark:border-m3-dark-outline/10 p-1.5 rounded-full flex items-center justify-center shadow-sm z-50">
+                        <button id="themeToggle" aria-label="Toggle Dark Mode" class="w-9 h-9 flex items-center justify-center rounded-full bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer spring-interactive focus:outline-none shadow-sm">
+                            <span id="themeIcon"></span>
+                        </button>
+                    </div>
+
+                    <div class="w-full">
+                        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tighter text-m3-light-onSurface dark:text-m3-dark-onSurface leading-[1.05] mb-2 sm:mb-4 pr-16 sm:pr-20">
+                            National & States<br/>
+                            <span class="text-m3-light-primary dark:text-m3-dark-primary">GDP Timeline.</span>
+                        </h1>
+                        <p class="text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant text-sm sm:text-lg font-medium leading-relaxed mt-2 sm:mt-4 w-full">Explore the economic journey of India and its major states at your own pace. Feel free to switch between <strong>Nominal/Real GDP</strong>, <strong>Per Capita GDP</strong>, <strong>Growth Rate</strong>, and <strong>Net FDI</strong> to see different perspectives. For a deeper look, try turning on the <strong>Debt-to-GDP ratio bars</strong> or the <strong>logarithmic scale</strong>. You can simply <strong>tap or hover over the lines</strong> to discover the exact numbers. You'll notice the colors gently shifting to reveal the <strong>political party in power</strong> during that era. If you spot an interesting trend, you can easily save it using the <strong>save button</strong>.</p>
+                    </div>
+                </div>
+
+                <div class="h-1 w-20 bg-m3-light-primary dark:bg-m3-dark-primary rounded-full mb-5 sm:mb-8"></div>
+
+                <!-- Master Structural Ribbon Container -->
+                <div class="w-full flex flex-col gap-3 sm:gap-5 mb-4 sm:mb-5 relative z-20">
+                    
+                    <!-- ROW 1: Regions (Breaks at 950px to split completely independently) -->
+                    <div class="relative w-fit max-w-full mx-auto min-[950px]:w-full min-[950px]:mx-0 ribbon-container z-30">
+                        
+                        <!-- Dynamic Fade Masks -->
+                        <div class="fade-left absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-m3-light-surfaceVariant dark:from-m3-dark-surfaceVariant to-transparent pointer-events-none z-10 rounded-l-[1.25rem] sm:rounded-l-[2rem] opacity-0 transition-opacity duration-300 min-[950px]:hidden"></div>
+                        <div class="fade-right absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-m3-light-surfaceVariant dark:from-m3-dark-surfaceVariant to-transparent pointer-events-none z-10 rounded-r-[1.25rem] sm:rounded-r-[2rem] opacity-0 transition-opacity duration-300 min-[950px]:hidden"></div>
+
+                        <!-- Scrollable Track (Strictly uses Flex gap + 0-width spacer for mathematically equal padding) -->
+                        <div class="scroll-track flex flex-nowrap min-[950px]:flex-wrap items-center justify-start min-[950px]:justify-between w-full overflow-x-auto min-[950px]:overflow-visible no-scrollbar bg-m3-light-surfaceVariant/40 dark:bg-m3-dark-surfaceVariant/20 min-[950px]:bg-transparent min-[950px]:dark:bg-transparent border border-m3-light-outline/10 dark:border-m3-dark-outline/10 min-[950px]:border-transparent min-[950px]:dark:border-transparent rounded-[1.25rem] sm:rounded-[2rem] min-[950px]:rounded-none py-1.5 pl-1.5 pr-0 sm:py-2 sm:pl-2 sm:pr-0 min-[950px]:p-0 gap-1.5 sm:gap-2 min-[950px]:gap-4 relative z-0">
+                            
+                            <!-- Left Block: National -->
+                            <div class="flex items-center shrink-0 snap-start min-[950px]:bg-m3-light-surfaceVariant/40 min-[950px]:dark:bg-m3-dark-surfaceVariant/20 min-[950px]:border min-[950px]:border-m3-light-outline/10 min-[950px]:dark:border-m3-dark-outline/10 min-[950px]:p-1.5 min-[950px]:sm:p-2 min-[950px]:rounded-[2rem] min-[950px]:shadow-sm">
+                                <label class="cursor-pointer relative group m-0 flex shrink-0">
+                                    <input type="checkbox" id="toggle-india" class="peer sr-only" checked>
+                                    <div class="px-3.5 py-1.5 rounded-full border border-m3-light-outline/30 dark:border-m3-dark-outline/30 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant peer-checked:bg-m3-light-primaryContainer peer-checked:dark:bg-m3-dark-primaryContainer peer-checked:border-transparent peer-checked:text-m3-light-onPrimaryContainer peer-checked:dark:text-m3-dark-onPrimaryContainer spring-interactive flex items-center gap-1.5 font-medium text-[13px] sm:text-[14px] bg-m3-light-surface dark:bg-m3-dark-surface peer-checked:shadow-sm whitespace-nowrap">
+                                        <svg class="w-3.5 h-3.5 hidden peer-checked:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                                        <span>National</span>
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <!-- Right Block: States -->
+                            <div class="flex items-center shrink-0 snap-start gap-1.5 sm:gap-2 min-[950px]:bg-m3-light-surfaceVariant/40 min-[950px]:dark:bg-m3-dark-surfaceVariant/20 min-[950px]:border min-[950px]:border-m3-light-outline/10 min-[950px]:dark:border-m3-dark-outline/10 min-[950px]:p-1.5 min-[950px]:sm:p-2 min-[950px]:rounded-[2rem] min-[950px]:shadow-sm">
+                                <label class="cursor-pointer relative group m-0 flex shrink-0">
+                                    <input type="checkbox" id="toggle-gj" class="peer sr-only">
+                                    <div class="px-3.5 py-1.5 rounded-full border border-m3-light-outline/30 dark:border-m3-dark-outline/30 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant peer-checked:bg-m3-light-primaryContainer peer-checked:dark:bg-m3-dark-primaryContainer peer-checked:border-transparent peer-checked:text-m3-light-onPrimaryContainer peer-checked:dark:text-m3-dark-onPrimaryContainer spring-interactive flex items-center gap-1.5 font-medium text-[13px] sm:text-[14px] bg-m3-light-surface dark:bg-m3-dark-surface peer-checked:shadow-sm whitespace-nowrap">
+                                        <svg class="w-3.5 h-3.5 hidden peer-checked:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                                        <span>Gujarat</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer relative group m-0 flex shrink-0">
+                                    <input type="checkbox" id="toggle-ka" class="peer sr-only">
+                                    <div class="px-3.5 py-1.5 rounded-full border border-m3-light-outline/30 dark:border-m3-dark-outline/30 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant peer-checked:bg-m3-light-primaryContainer peer-checked:dark:bg-m3-dark-primaryContainer peer-checked:border-transparent peer-checked:text-m3-light-onPrimaryContainer peer-checked:dark:text-m3-dark-onPrimaryContainer spring-interactive flex items-center gap-1.5 font-medium text-[13px] sm:text-[14px] bg-m3-light-surface dark:bg-m3-dark-surface peer-checked:shadow-sm whitespace-nowrap">
+                                        <svg class="w-3.5 h-3.5 hidden peer-checked:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                                        <span>Karnataka</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer relative group m-0 flex shrink-0">
+                                    <input type="checkbox" id="toggle-mh" class="peer sr-only">
+                                    <div class="px-3.5 py-1.5 rounded-full border border-m3-light-outline/30 dark:border-m3-dark-outline/30 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant peer-checked:bg-m3-light-primaryContainer peer-checked:dark:bg-m3-dark-primaryContainer peer-checked:border-transparent peer-checked:text-m3-light-onPrimaryContainer peer-checked:dark:text-m3-dark-onPrimaryContainer spring-interactive flex items-center gap-1.5 font-medium text-[13px] sm:text-[14px] bg-m3-light-surface dark:bg-m3-dark-surface peer-checked:shadow-sm whitespace-nowrap">
+                                        <svg class="w-3.5 h-3.5 hidden peer-checked:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                                        <span>Maharashtra</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer relative group m-0 flex shrink-0">
+                                    <input type="checkbox" id="toggle-tn" class="peer sr-only">
+                                    <div class="px-3.5 py-1.5 rounded-full border border-m3-light-outline/30 dark:border-m3-dark-outline/30 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant peer-checked:bg-m3-light-primaryContainer peer-checked:dark:bg-m3-dark-primaryContainer peer-checked:border-transparent peer-checked:text-m3-light-onPrimaryContainer peer-checked:dark:text-m3-dark-onPrimaryContainer spring-interactive flex items-center gap-1.5 font-medium text-[13px] sm:text-[14px] bg-m3-light-surface dark:bg-m3-dark-surface peer-checked:shadow-sm whitespace-nowrap">
+                                        <svg class="w-3.5 h-3.5 hidden peer-checked:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                                        <span>Tamil Nadu</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer relative group m-0 flex shrink-0">
+                                    <input type="checkbox" id="toggle-up" class="peer sr-only">
+                                    <div class="px-3.5 py-1.5 rounded-full border border-m3-light-outline/30 dark:border-m3-dark-outline/30 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant peer-checked:bg-m3-light-primaryContainer peer-checked:dark:bg-m3-dark-primaryContainer peer-checked:border-transparent peer-checked:text-m3-light-onPrimaryContainer peer-checked:dark:text-m3-dark-onPrimaryContainer spring-interactive flex items-center gap-1.5 font-medium text-[13px] sm:text-[14px] bg-m3-light-surface dark:bg-m3-dark-surface peer-checked:shadow-sm whitespace-nowrap">
+                                        <svg class="w-3.5 h-3.5 hidden peer-checked:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                                        <span>Uttar Pradesh</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer relative group m-0 flex shrink-0">
+                                    <input type="checkbox" id="toggle-wb" class="peer sr-only">
+                                    <div class="px-3.5 py-1.5 rounded-full border border-m3-light-outline/30 dark:border-m3-dark-outline/30 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant peer-checked:bg-m3-light-primaryContainer peer-checked:dark:bg-m3-dark-primaryContainer peer-checked:border-transparent peer-checked:text-m3-light-onPrimaryContainer peer-checked:dark:text-m3-dark-onPrimaryContainer spring-interactive flex items-center gap-1.5 font-medium text-[13px] sm:text-[14px] bg-m3-light-surface dark:bg-m3-dark-surface peer-checked:shadow-sm whitespace-nowrap">
+                                        <svg class="w-3.5 h-3.5 hidden peer-checked:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+                                        <span>West Bengal</span>
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <!-- Invisible Right Padding Spacer (Equal to the flex gap, perfectly symmetrical) -->
+                            <div class="w-0 shrink-0 min-[950px]:hidden"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- ROW 2: Controls & Save (Breaks at 850px) -->
+                    <div class="relative w-fit max-w-full mx-auto min-[850px]:w-full min-[850px]:mx-0 ribbon-container z-40">
+                        
+                        <!-- Dynamic Fade Masks -->
+                        <div class="fade-left absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-m3-light-surfaceVariant dark:from-m3-dark-surfaceVariant to-transparent pointer-events-none z-10 rounded-l-[1.25rem] sm:rounded-l-[2rem] opacity-0 transition-opacity duration-300 min-[850px]:hidden"></div>
+                        <div class="fade-right absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-m3-light-surfaceVariant dark:from-m3-dark-surfaceVariant to-transparent pointer-events-none z-10 rounded-r-[1.25rem] sm:rounded-r-[2rem] opacity-0 transition-opacity duration-300 min-[850px]:hidden"></div>
+
+                        <!-- Scrollable Track -->
+                        <div class="scroll-track flex flex-nowrap min-[850px]:flex-wrap items-center justify-start min-[850px]:justify-between w-full overflow-x-auto min-[850px]:overflow-visible no-scrollbar bg-m3-light-surfaceVariant/40 dark:bg-m3-dark-surfaceVariant/20 min-[850px]:bg-transparent min-[850px]:dark:bg-transparent border border-m3-light-outline/10 dark:border-m3-dark-outline/10 min-[850px]:border-transparent min-[850px]:dark:border-transparent rounded-[1.25rem] sm:rounded-[2rem] min-[850px]:rounded-none py-1.5 pl-1.5 pr-0 sm:py-2 sm:pl-2 sm:pr-0 min-[850px]:p-0 gap-1.5 sm:gap-2 min-[850px]:gap-4 relative z-0">
+                            
+                            <!-- Left Block: Controls -->
+                            <div class="flex items-center shrink-0 gap-1.5 sm:gap-2 snap-start min-[850px]:bg-m3-light-surfaceVariant/40 min-[850px]:dark:bg-m3-dark-surfaceVariant/20 min-[850px]:border min-[850px]:border-m3-light-outline/10 min-[850px]:dark:border-m3-dark-outline/10 min-[850px]:p-1.5 min-[850px]:sm:p-2 min-[850px]:rounded-[2rem] min-[850px]:shadow-sm">
+                                
+                                <!-- Metric Dropdown Toggle -->
+                                <div class="relative shrink-0 flex">
+                                    <button id="metricDropdownBtn" class="bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer px-3.5 py-1.5 rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive flex items-center justify-between gap-2 outline-none whitespace-nowrap border border-m3-light-outline/5 dark:border-m3-dark-outline/5 focus:border-m3-light-primary dark:focus:border-m3-dark-primary shadow-sm w-auto">
+                                        <span id="metricDropdownText">Metric: Real GDP</span>
+                                        <svg class="w-3.5 h-3.5 transition-transform duration-300" id="metricDropdownIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
+                                    </button>
+                                </div>
+
+                                <button id="toggleDebtOverlay" class="px-3.5 py-1.5 bg-m3-light-primaryContainer dark:bg-m3-dark-primaryContainer text-m3-light-onPrimaryContainer dark:text-m3-dark-onPrimaryContainer border border-m3-light-outline/10 dark:border-m3-dark-outline/10 rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap shadow-sm transition-colors shrink-0">Debt overlay</button>
+                                <button id="toggleEra" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">View Since 1947</button>
+                                <button id="toggleScale" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">Logarithmic Scale</button>
+                            </div>
+
+                            <!-- Right Block: Save -->
+                            <div class="flex items-center shrink-0 snap-start min-[850px]:bg-m3-light-surfaceVariant/40 min-[850px]:dark:bg-m3-dark-surfaceVariant/20 min-[850px]:border min-[850px]:border-m3-light-outline/10 min-[850px]:dark:border-m3-dark-outline/10 min-[850px]:p-1.5 min-[850px]:sm:p-2 min-[850px]:rounded-[2rem] min-[850px]:shadow-sm">
+                                <button class="download-btn px-3.5 py-1.5 flex items-center justify-center rounded-full bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer spring-interactive relative focus:outline-none shadow-sm gap-1.5 font-semibold text-[13px] sm:text-[14px]">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                                    <span>Save</span>
+                                </button>
+                            </div>
+
+                            <!-- Invisible Right Padding Spacer (Equal to the flex gap, perfectly symmetrical) -->
+                            <div class="w-0 shrink-0 min-[850px]:hidden"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Absolute Dropdown detached from the scrollable row to prevent clipping -->
+                <div id="metricDropdownMenu" class="fixed w-[220px] bg-m3-light-surface/95 dark:bg-m3-dark-surface/95 border border-m3-light-outline/20 dark:border-m3-dark-outline/20 rounded-[1.5rem] expressive-shadow opacity-0 invisible translate-y-[-10px] transition-all duration-300 overflow-hidden flex flex-col p-2 z-[9999]" style="top: 0; left: 0;">
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="nominal">Nominal GDP</div>
+                    <div class="dropdown-item bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center shadow-sm" data-value="real">Real GDP</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="per_capita">Per Capita GDP</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="yoy">Growth Rate</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="fdi">Net FDI</div>
+                </div>
+
+                <!-- LAYER 3: Graph Container -->
+                <div class="bg-m3-light-bg dark:bg-[#141217] rounded-[1.25rem] sm:rounded-[2.5rem] p-1.5 sm:p-6 shadow-inner border border-m3-light-outline/10 dark:border-m3-dark-outline/10 z-10 relative flex flex-col transition-colors duration-500 mb-4 landscape-chart-height">
+                    <div class="relative h-[60vh] sm:h-[65vh] min-h-[350px] md:min-h-[500px] w-full grow landscape-chart-height">
+                        <canvas id="gdpChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- ROW 3: Party Info Legend Ribbon -->
+                <div class="w-full flex justify-center z-20 mb-5 sm:mb-6">
+                    <div class="bg-m3-light-surfaceVariant/40 dark:bg-m3-dark-surfaceVariant/20 border border-m3-light-outline/10 dark:border-m3-dark-outline/10 p-2 sm:px-4 sm:py-2.5 rounded-[1.25rem] sm:rounded-[2rem] flex flex-wrap justify-center items-center gap-x-2 sm:gap-x-6 gap-y-1.5 sm:gap-y-2 shadow-sm w-full">
+                        <div class="flex items-center"><div class="w-2 h-2 bg-[#F97316] rounded-full mr-2 shadow-sm"></div><span class="font-bold text-[10px] uppercase tracking-widest text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant">NDA-BJP</span></div>
+                        <div class="flex items-center"><div class="w-2 h-2 bg-[#2563EB] rounded-full mr-2 shadow-sm"></div><span class="font-bold text-[10px] uppercase tracking-widest text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant">UPA-INC</span></div>
+                        <div class="flex items-center"><div class="w-2 h-2 bg-[#DC2626] rounded-full mr-2 shadow-sm"></div><span class="font-bold text-[10px] uppercase tracking-widest text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant">SP / CPI-M</span></div>
+                        <div class="flex items-center"><div class="w-2 h-2 bg-[#16A34A] rounded-full mr-2 shadow-sm"></div><span class="font-bold text-[10px] uppercase tracking-widest text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant">JD-S / AIADMK</span></div>
+                        <div class="flex items-center"><div class="w-2 h-2 bg-[#10B981] rounded-full mr-2 shadow-sm"></div><span class="font-bold text-[10px] uppercase tracking-widest text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant">AITC-TMC / MVA</span></div>
+                        <div class="flex items-center"><div class="w-2 h-2 bg-[#1E3A8A] rounded-full mr-2 shadow-sm"></div><span class="font-bold text-[10px] uppercase tracking-widest text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant">BSP</span></div>
+                        <div class="flex items-center"><div class="w-2 h-2 bg-[#9CA3AF] rounded-full mr-2 shadow-sm"></div><span class="font-bold text-[10px] uppercase tracking-widest text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant">President's Rule</span></div>
+                        <div class="flex items-center"><div class="w-4 h-0 border-t-[2px] border-m3-light-outline dark:border-m3-dark-outline border-dashed mr-2"></div><span class="font-bold text-[10px] uppercase tracking-widest text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant">Trendline</span></div>
+                    </div>
+                </div>
+
+                <!-- Assessing Governments Note -->
+                <div class="text-base sm:text-lg font-medium text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant leading-relaxed w-full">
+                    When evaluating <strong>political performance</strong>, please account for the <strong>policy lag effect</strong>—<strong>economic outcomes</strong> often reflect the <strong>delayed impact</strong> of <strong>legislative reforms</strong> passed by <strong>preceding administrations</strong>.
+                </div>
+
+                <div class="mt-5 sm:mt-8 px-2 sm:px-4 text-xs sm:text-sm text-m3-light-onSurfaceVariant/80 dark:text-m3-dark-onSurfaceVariant/80 leading-relaxed font-medium z-10 relative border-t border-m3-light-outline/10 dark:border-m3-dark-outline/10 pt-4 sm:pt-6">
+                    <strong class="text-m3-light-primary dark:text-m3-dark-primary block mb-2 font-extrabold uppercase tracking-widest text-[10px]">Data Sources & Methodology</strong> 
+                    <ul class="list-disc pl-5 space-y-1.5">
+                        <li>National GDP and Growth metrics are compiled from the <strong>Ministry of Statistics and Programme Implementation (MoSPI)</strong> and <strong>World Bank</strong> open data.</li>
+                        <li>State-level GSDP and FDI figures are sourced from the <strong>Reserve Bank of India (RBI)</strong> and <strong>DPIIT</strong> databases.</li>
+                        <li><strong>Base Year:</strong> Real GDP figures have been dynamically adjusted to reflect the latest <strong>2023-24 base year</strong> standard.</li>
+                        <li><strong>Pre-1991 Data:</strong> Data prior to 1991 is decadally interpolated, meaning it represents smoothed mathematical growth trends rather than actual year-to-year volatility (such as specific recessions or wars).</li>
+                        <li><strong>Trendline Formulation:</strong> Calculated dynamically based on the active timeframe. Absolute metrics (Nominal, Real, Per Capita, FDI) utilize an exponential best-fit model to accurately capture compounding economic growth, while percentage metrics (Growth Rate) employ a linear regression model.</li>
+                        <li>This application acts as a static plotter of these official datasets without secondary internal calculations or forecasting models.</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Layer 1 Footer Note Pushed to Absolute Bottom -->
+    <footer class="w-full pb-4 px-4 mt-auto relative z-0">
+        <div class="text-center text-[10px] text-m3-light-onSurfaceVariant/60 dark:text-m3-dark-onSurfaceVariant/60 font-medium tracking-wide">
+            This page has been vibe coded using Gemini 3.1 Pro, could contain errors and issues, kindly <a href="https://iAmGodKiller.github.io" target="_blank" rel="noopener noreferrer" class="text-m3-light-primary dark:text-m3-dark-primary hover:underline transition-colors">contact me</a> for any recommendations.
+        </div>
+    </footer>
+
+    <script>
+        function getIndiaPartyInfo(year) {
+            const y = parseInt(year);
+            if (y >= 2014) return { name: 'NDA-BJP', color: '#F97316', pm: 'Narendra Modi', month: 5 };
+            if (y >= 2004) return { name: 'UPA-INC', color: '#2563EB', pm: 'Manmohan Singh', month: 5 };
+            if (y >= 1999) return { name: 'NDA-BJP', color: '#F97316', pm: 'Atal Bihari Vajpayee', month: 10 };
+            if (y >= 1998) return { name: 'NDA-BJP', color: '#F97316', pm: 'Atal Bihari Vajpayee', month: 3 };
+            if (y >= 1996) return { name: 'United Front', color: '#16A34A', pm: 'H. D. Deve Gowda', month: 6 };
+            if (y >= 1991) return { name: 'INC', color: '#2563EB', pm: 'P. V. Narasimha Rao', month: 6 };
+            if (y === 1990) return { name: 'SJP / JD', color: '#16A34A', pm: 'Chandra Shekhar', month: 11 };
+            if (y === 1989) return { name: 'National Front', color: '#16A34A', pm: 'V. P. Singh', month: 12 };
+            if (y >= 1984) return { name: 'INC', color: '#2563EB', pm: 'Rajiv Gandhi', month: 10 };
+            if (y >= 1980) return { name: 'INC', color: '#2563EB', pm: 'Indira Gandhi', month: 1 };
+            if (y >= 1977) return { name: 'Janata Party', color: '#16A34A', pm: 'Morarji Desai', month: 3 };
+            if (y >= 1966) return { name: 'INC', color: '#2563EB', pm: 'Indira Gandhi', month: 1 };
+            if (y >= 1964) return { name: 'INC', color: '#2563EB', pm: 'Lal Bahadur Shastri', month: 6 };
+            return { name: 'INC', color: '#2563EB', pm: 'Jawaharlal Nehru', month: 8 };
+        }
+
+        function getMhPartyInfo(year) {
+            const y = parseInt(year);
+            if (y >= 2022) return { name: 'Mahayuti-NDA', color: '#F97316', cm: 'Eknath Shinde', month: 6 };
+            if (y >= 2019) return { name: 'MVA', color: '#10B981', cm: 'Uddhav Thackeray', month: 11 };
+            if (y >= 2014) return { name: 'BJP-NDA', color: '#F97316', cm: 'Devendra Fadnavis', month: 10 };
+            if (y >= 1999) return { name: 'INC / NCP', color: '#2563EB', cm: 'Vilasrao Deshmukh', month: 10 };
+            if (y >= 1995) return { name: 'Shiv Sena / BJP', color: '#F97316', cm: 'Manohar Joshi', month: 3 };
+            return { name: 'INC', color: '#2563EB', cm: 'INC Chief Ministers', month: 6 };
+        }
+
+        function getTnPartyInfo(year) {
+            const y = parseInt(year);
+            if (y >= 2021) return { name: 'DMK', color: '#DC2626', cm: 'M. K. Stalin', month: 5 };
+            if (y >= 2011) return { name: 'AIADMK', color: '#16A34A', cm: 'J. Jayalalithaa', month: 5 };
+            if (y >= 2006) return { name: 'DMK', color: '#DC2626', cm: 'M. Karunanidhi', month: 5 };
+            if (y >= 2001) return { name: 'AIADMK', color: '#16A34A', cm: 'J. Jayalalithaa', month: 5 };
+            if (y >= 1996) return { name: 'DMK', color: '#DC2626', cm: 'M. Karunanidhi', month: 5 };
+            if (y >= 1991) return { name: 'AIADMK', color: '#16A34A', cm: 'J. Jayalalithaa', month: 6 };
+            if (y >= 1989) return { name: 'DMK', color: '#DC2626', cm: 'M. Karunanidhi', month: 1 };
+            if (y >= 1977) return { name: 'AIADMK', color: '#16A34A', cm: 'M. G. Ramachandran', month: 6 };
+            if (y >= 1969) return { name: 'DMK', color: '#DC2626', cm: 'M. Karunanidhi', month: 2 };
+            if (y >= 1967) return { name: 'DMK', color: '#DC2626', cm: 'C. N. Annadurai', month: 3 };
+            return { name: 'INC', color: '#2563EB', cm: 'INC Chief Ministers', month: 6 };
+        }
+
+        function getGjPartyInfo(year) {
+            const y = parseInt(year);
+            if (y >= 1998) return { name: 'BJP', color: '#F97316', cm: 'Narendra Modi', month: 3 };
+            if (y >= 1995) return { name: 'BJP', color: '#F97316', cm: 'Keshubhai Patel', month: 3 };
+            if (y === 1990) return { name: 'JD / BJP', color: '#F97316', cm: 'Chimanbhai Patel', month: 3 };
+            return { name: 'INC', color: '#2563EB', cm: 'INC Chief Ministers', month: 6 };
+        }
+
+        function getKaPartyInfo(year) {
+            const y = parseInt(year);
+            if (y >= 2023) return { name: 'INC', color: '#2563EB', cm: 'Siddaramaiah', month: 5 };
+            if (y >= 2019) return { name: 'BJP', color: '#F97316', cm: 'B. S. Yediyurappa', month: 7 };
+            if (y === 2018) return { name: 'JD-S / INC', color: '#16A34A', cm: 'H. D. Kumaraswamy', month: 5 };
+            if (y >= 2013) return { name: 'INC', color: '#2563EB', cm: 'Siddaramaiah', month: 5 };
+            if (y >= 2008) return { name: 'BJP', color: '#F97316', cm: 'B. S. Yediyurappa', month: 5 };
+            if (y >= 2006) return { name: 'JD-S / BJP', color: '#16A34A', cm: 'H. D. Kumaraswamy', month: 2 };
+            if (y >= 2004) return { name: 'INC / JD-S', color: '#2563EB', cm: 'Dharam Singh', month: 5 };
+            if (y >= 1999) return { name: 'INC', color: '#2563EB', cm: 'S. M. Krishna', month: 10 };
+            if (y >= 1994) return { name: 'Janata Dal', color: '#16A34A', cm: 'H. D. Deve Gowda', month: 12 };
+            return { name: 'INC', color: '#2563EB', cm: 'INC Chief Ministers', month: 6 };
+        }
+
+        function getWbPartyInfo(year) {
+            const y = parseInt(year);
+            if (y >= 2011) return { name: 'AITC-TMC', color: '#10B981', cm: 'Mamata Banerjee', month: 5 };
+            if (y >= 1977) return { name: 'CPI-M / Left', color: '#DC2626', cm: 'Jyoti Basu', month: 6 };
+            return { name: 'INC', color: '#2563EB', cm: 'INC Chief Ministers', month: 6 };
+        }
+
+        function getPartyInfo(year) {
+            const y = parseInt(year);
+            if (y >= 2017) return { name: 'BJP', color: '#F97316', cm: 'Yogi Adityanath', month: 3 };
+            if (y >= 2012) return { name: 'SP', color: '#DC2626', cm: 'Akhilesh Yadav', month: 3 };
+            if (y >= 2007) return { name: 'BSP', color: '#1E3A8A', cm: 'Mayawati', month: 5 };
+            if (y >= 2003) return { name: 'SP', color: '#DC2626', cm: 'Mulayam Singh Yadav', month: 8 };
+            if (y === 2002) return { name: 'BSP', color: '#1E3A8A', cm: 'Mayawati', month: 5 };
+            if (y >= 2000) return { name: 'BJP', color: '#F97316', cm: 'Rajnath Singh', month: 10 };
+            if (y === 1999) return { name: 'BJP', color: '#F97316', cm: 'Ram Prakash Gupta', month: 11 };
+            if (y >= 1997) return { name: 'BJP', color: '#F97316', cm: 'Kalyan Singh', month: 9 };
+            if (y === 1996) return { name: "President's Rule", color: '#9CA3AF', cm: "Governor's Rule", month: 10 };
+            if (y === 1995) return { name: 'BSP', color: '#1E3A8A', cm: 'Mayawati', month: 6 };
+            if (y === 1994) return { name: 'SP', color: '#DC2626', cm: 'Mulayam Singh Yadav', month: 12 };
+            if (y === 1993) return { name: "President's Rule", color: '#9CA3AF', cm: "Governor's Rule", month: 12 };
+            if (y >= 1991) return { name: 'BJP', color: '#F97316', cm: 'Kalyan Singh', month: 6 };
+            if (y === 1990) return { name: 'Janata Dal', color: '#16A34A', cm: 'Mulayam Singh Yadav', month: 12 };
+            if (y >= 1988) return { name: 'INC', color: '#2563EB', cm: 'N. D. Tiwari', month: 6 };
+            if (y >= 1985) return { name: 'INC', color: '#2563EB', cm: 'Vir Bahadur Singh', month: 9 };
+            if (y >= 1982) return { name: 'INC', color: '#2563EB', cm: 'Sripati Mishra', month: 7 };
+            if (y >= 1980) return { name: 'INC', color: '#2563EB', cm: 'V. P. Singh', month: 6 };
+            if (y >= 1977) return { name: 'Janata Party', color: '#16A34A', cm: 'Ram Naresh Yadav', month: 6 };
+            return { name: 'INC', color: '#2563EB', cm: 'INC Chief Ministers', month: 6 };
+        }
+
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
+        const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
+        const initialDark = document.documentElement.classList.contains('dark');
+        if(themeIcon) themeIcon.innerHTML = initialDark ? sunIcon : moonIcon;
+        if(themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+                const isDark = document.documentElement.classList.contains('dark');
+                if(themeIcon) themeIcon.innerHTML = isDark ? sunIcon : moonIcon;
+                if(window.gdpChartInstance) applyChartTheme(window.gdpChartInstance);
+            });
+        }
+
+        let currentEra = 1991;
+        let isLogScale = false;
+        let currentMetric = 'real'; 
+        let isDebtOverlayActive = true;
+
+        const dataState = {
+            years: [], india: { nominal: [], real: [], per_capita: [], yoy: [], debt_gdp: [], fdi: [] },
+            up: { nominal: [], real: [], per_capita: [], yoy: [], debt_gdp: [], fdi: [] },
+            mh: { nominal: [], real: [], per_capita: [], yoy: [], debt_gdp: [], fdi: [] },
+            tn: { nominal: [], real: [], per_capita: [], yoy: [], debt_gdp: [], fdi: [] },
+            gj: { nominal: [], real: [], per_capita: [], yoy: [], debt_gdp: [], fdi: [] },
+            ka: { nominal: [], real: [], per_capita: [], yoy: [], debt_gdp: [], fdi: [] },
+            wb: { nominal: [], real: [], per_capita: [], yoy: [], debt_gdp: [], fdi: [] },
+            indiaGdp: [], upGdp: [], mhGdp: [], tnGdp: [], gjGdp: [], kaGdp: [], wbGdp: [],
+            indiaTrend: [], upTrend: [], mhTrend: [], tnTrend: [], gjTrend: [], kaTrend: [], wbTrend: [],
+            indiaDebt: [], upDebt: [], mhDebt: [], tnDebt: [], gjDebt: [], kaDebt: [], wbDebt: []
+        };
+
+        function initializeData() {
+            for (let year = 1947; year <= 2026; year++) { dataState.years.push(String(year)); }
+            const rawDB = {
+                1991: { iN: 6.5, iR: 35.8, iP: 7750, iY: 1.1, iD: 75.3, iF: 0.13, uN: 0.52, uR: 2.8, uP: 3800, uY: 0.5, uD: 23.4, uF: 0.01, mN: 0.81, mR: 4.4, mP: 10400, mY: 1.2, mD: 18.2, mF: 0.04, tN: 0.46, tR: 2.5, tP: 8300, tY: 1.3, tD: 19.5, tF: 0.01, gN: 0.38, gR: 2.1, gP: 9000, gY: 2.0, gD: 18.0, gF: 0.02, kN: 0.35, kR: 2.0, kP: 7800, kY: 1.5, kD: 18.5, kF: 0.01, wN: 0.35, wR: 1.9, wP: 5000, wY: 1.0, wD: 24.1, wF: 0.01 },
+                1996: { iN: 13.7, iR: 48.2, iP: 14500, iY: 7.5, iD: 70.1, iF: 2.8, uN: 1.05, uR: 3.7, uP: 6700, uY: 6.1, uD: 25.1, uF: 0.05, mN: 1.62, mR: 5.7, mP: 18500, mY: 8.0, mD: 19.1, mF: 0.8, tN: 0.95, tR: 3.3, tP: 15800, tY: 7.8, tD: 20.1, tF: 0.1, gN: 0.82, gR: 2.9, gP: 17200, gY: 8.5, gD: 19.2, gF: 0.3, kN: 0.75, kR: 2.6, kP: 14200, kY: 7.5, kD: 19.0, kF: 0.15, wN: 0.70, wR: 2.4, wP: 9100, wY: 6.5, wD: 26.5, wF: 0.05 },
+                2001: { iN: 22.8, iR: 63.5, iP: 21700, iY: 4.8, iD: 80.4, iF: 4.0, uN: 1.80, uR: 5.0, uP: 10800, uY: 3.5, uD: 30.5, uF: 0.1, mN: 3.05, mR: 8.5, mP: 31700, mY: 5.1, mD: 22.3, mF: 1.2, tN: 1.61, tR: 4.4, tP: 25900, tY: 4.6, tD: 23.5, tF: 0.2, gN: 1.48, gR: 4.1, gP: 29000, gY: 5.5, gD: 22.1, gF: 0.4, kN: 1.25, kR: 3.4, kP: 23500, kY: 4.5, kD: 21.5, kF: 0.3, wN: 1.20, wR: 3.3, wP: 14500, wY: 4.0, wD: 32.1, wF: 0.1 },
+                2006: { iN: 42.9, iR: 89.1, iP: 37600, iY: 8.0, iD: 77.1, iF: 22.8, uN: 3.12, uR: 6.4, uP: 17200, uY: 6.5, uD: 35.1, uF: 0.5, mN: 5.95, mR: 12.3, mP: 57200, mY: 9.5, mD: 25.4, mF: 7.0, tN: 3.15, tR: 6.5, tP: 47700, tY: 10.1, tD: 24.1, tF: 1.5, gN: 3.10, gR: 6.4, gP: 54300, gY: 11.2, gD: 24.5, gF: 2.5, kN: 2.50, kR: 5.2, kP: 43200, kY: 8.5, kD: 23.1, kF: 1.8, wN: 2.30, wR: 4.7, wP: 25500, wY: 7.0, wD: 38.5, wF: 0.3 },
+                2011: { iN: 87.3, iR: 87.3, iP: 71600, iY: 5.2, iD: 67.4, iF: 36.5, uN: 7.24, uR: 7.2, uP: 36300, uY: 5.1, uD: 32.1, uF: 1.0, mN: 12.8, mR: 12.8, mP: 114000, mY: 5.5, mD: 20.1, mF: 10.5, tN: 7.51, tR: 7.5, tP: 104000, tY: 6.1, tD: 21.1, tF: 2.2, gN: 6.15, gR: 6.15, gP: 101000, gY: 6.8, gD: 21.0, gF: 4.0, kN: 6.03, kR: 6.03, kP: 98000, kY: 5.5, kD: 20.5, kF: 3.5, wN: 5.20, wR: 5.20, wP: 57000, wY: 4.5, wD: 36.2, wF: 0.5 },
+                2012: { iN: 99.4, iR: 92.1, iP: 80500, iY: 5.4, iD: 66.7, iF: 34.3, uN: 8.22, uR: 7.6, uP: 40500, uY: 5.0, uD: 31.5, uF: 0.9, mN: 14.4, mR: 13.4, mP: 127000, mY: 5.6, mD: 19.5, mF: 10.0, tN: 8.55, tR: 7.9, tP: 117000, tY: 5.8, tD: 20.5, tF: 2.0, gN: 7.24, gR: 6.70, gP: 117000, gY: 6.5, gD: 20.8, gF: 3.8, kN: 6.95, kR: 6.44, kP: 112000, kY: 5.8, kD: 20.1, kF: 3.0, wN: 5.90, wR: 5.46, wP: 64000, wY: 5.0, wD: 35.5, wF: 0.4 },
+                2013: { iN: 105.3, iR: 98.0, iP: 84300, iY: 6.4, iD: 67.1, iF: 36.0, uN: 9.44, uR: 8.7, uP: 45700, uY: 6.1, uD: 31.8, uF: 1.1, mN: 16.5, mR: 15.3, mP: 143000, mY: 6.7, mD: 19.8, mF: 10.8, tN: 9.71, tR: 9.0, tP: 131000, tY: 6.8, tD: 21.0, tF: 2.3, gN: 8.05, gR: 7.49, gP: 128000, gY: 7.5, gD: 21.2, gF: 4.2, kN: 8.16, kR: 7.59, kP: 129000, kY: 6.5, kD: 20.6, kF: 3.6, wN: 6.73, wR: 6.26, wP: 72000, wY: 5.5, wD: 35.8, wF: 0.6 },
+                2014: { iN: 112.3, iR: 105.2, iP: 88800, iY: 7.4, iD: 67.4, iF: 45.1, uN: 10.1, uR: 9.4, uP: 48200, uY: 7.2, uD: 31.2, uF: 1.3, mN: 17.9, mR: 16.7, mP: 153000, mY: 7.6, mD: 19.2, mF: 13.5, tN: 10.9, tR: 10.2, tP: 145000, tY: 7.8, tD: 20.8, tF: 2.8, gN: 8.95, gR: 8.38, gP: 140000, gY: 8.5, gD: 21.0, gF: 5.0, kN: 9.21, kR: 8.62, kP: 144000, kY: 7.5, kD: 20.3, kF: 4.5, wN: 7.18, wR: 6.72, wP: 76000, wY: 6.0, wD: 35.1, wF: 0.7 },
+                2015: { iN: 125.4, iR: 113.6, iP: 98100, iY: 8.0, iD: 68.1, iF: 55.5, uN: 11.5, uR: 10.4, uP: 54100, uY: 7.8, uD: 30.5, uF: 1.5, mN: 19.6, mR: 17.7, mP: 165000, mY: 8.2, mD: 18.5, mF: 16.5, tN: 12.1, tR: 10.9, tP: 159000, tY: 8.4, tD: 20.2, tF: 3.5, gN: 10.2, gR: 9.24, gP: 157000, gY: 9.5, gD: 20.5, gF: 6.5, kN: 10.4, kR: 9.42, kP: 160000, kY: 8.2, kD: 19.8, kF: 5.8, wN: 7.97, wR: 7.22, wP: 84000, wY: 6.2, wD: 34.5, wF: 0.9 },
+                2016: { iN: 139.5, iR: 123.0, iP: 107000, iY: 8.3, iD: 68.9, iF: 60.2, uN: 13.3, uR: 11.7, uP: 61500, uY: 8.1, uD: 30.1, uF: 1.8, mN: 21.8, mR: 19.2, mP: 181000, mY: 8.5, mD: 18.1, mF: 18.0, tN: 13.3, tR: 11.7, tP: 173000, tY: 8.7, tD: 20.0, tF: 4.0, gN: 11.5, gR: 10.1, gP: 175000, gY: 9.8, gD: 20.1, gF: 7.0, kN: 12.0, kR: 10.5, kP: 182000, kY: 8.8, kD: 19.5, kF: 6.5, wN: 8.72, wR: 7.69, wP: 91000, wY: 6.5, wD: 34.0, wF: 1.0 },
+                2017: { iN: 153.6, iR: 131.4, iP: 116000, iY: 6.8, iD: 69.7, iF: 60.9, uN: 14.3, uR: 12.2, uP: 65100, uY: 6.6, uD: 31.2, uF: 1.9, mN: 24.1, mR: 20.6, mP: 198000, mY: 7.0, mD: 18.8, mF: 18.2, tN: 14.6, tR: 12.5, tP: 187000, tY: 7.1, tD: 21.2, tF: 4.2, gN: 13.1, gR: 11.2, gP: 197000, gY: 8.2, gD: 20.8, gF: 7.5, kN: 13.5, kR: 11.5, kP: 202000, kY: 7.4, kD: 20.1, kF: 7.0, wN: 9.99, wR: 8.54, wP: 103000, wY: 5.8, wD: 35.1, wF: 1.1 },
+                2018: { iN: 170.9, iR: 139.9, iP: 127000, iY: 6.5, iD: 70.4, iF: 62.0, uN: 15.8, uR: 12.9, uP: 70800, uY: 6.3, uD: 32.5, uF: 2.0, mN: 26.6, mR: 21.7, mP: 216000, mY: 6.8, mD: 19.5, mF: 18.5, tN: 16.3, tR: 13.3, tP: 206000, tY: 6.9, tD: 22.5, tF: 4.5, gN: 14.9, gR: 12.2, gP: 220000, gY: 7.8, gD: 21.5, gF: 8.0, kN: 15.3, kR: 12.5, kP: 226000, kY: 7.0, kD: 21.0, kF: 7.5, wN: 11.7, wR: 9.58, wP: 119000, wY: 6.0, wD: 36.5, wF: 1.2 },
+                2019: { iN: 200.7, iR: 145.3, iP: 147000, iY: 3.9, iD: 71.1, iF: 74.3, uN: 17.0, uR: 12.3, uP: 75100, uY: 3.7, uD: 33.1, uF: 2.5, mN: 28.1, mR: 20.3, mP: 226000, mY: 4.1, mD: 20.1, mF: 22.5, tN: 17.9, tR: 12.9, tP: 224000, tY: 4.3, tD: 23.1, tF: 5.5, gN: 16.4, gR: 11.8, gP: 240000, gY: 4.8, gD: 22.1, gF: 10.0, kN: 16.2, kR: 11.7, kP: 236000, kY: 4.2, kD: 21.5, kF: 9.5, wN: 12.5, wR: 9.04, wP: 126000, wY: 3.5, wD: 37.1, wF: 1.5 },
+                2020: { iN: 198.0, iR: 136.8, iP: 143000, iY: -5.8, iD: 88.5, iF: 81.9, uN: 16.4, uR: 11.3, uP: 71200, uY: -5.2, uD: 38.5, uF: 2.5, mN: 27.1, mR: 18.7, mP: 215000, mY: -6.5, mD: 25.5, mF: 2.8, tN: 18.4, tR: 12.7, tP: 227000, tY: -4.8, tD: 28.5, tF: 2.5, gN: 16.5, gR: 11.4, gP: 238000, gY: -4.2, gD: 26.5, gF: 2.5, kN: 16.6, kR: 11.4, kP: 238000, kY: -3.8, kD: 25.5, kF: 2.5, wN: 13.5, wR: 9.33, wP: 135000, wY: -2.5, wD: 42.5, wF: 2.5 },
+                2021: { iN: 236.6, iR: 150.0, iP: 169000, iY: 9.7, iD: 84.2, iF: 84.8, uN: 19.1, uR: 12.1, uP: 81300, uY: 9.1, uD: 36.2, uF: 3.0, mN: 31.0, mR: 19.6, mP: 248000, mY: 10.5, mD: 23.2, mF: 26.0, tN: 21.2, tR: 13.4, tP: 259000, tY: 9.2, tD: 26.2, tF: 6.5, gN: 19.3, gR: 12.2, gP: 274000, gY: 11.2, gD: 24.2, gF: 12.0, kN: 19.6, kR: 12.4, kP: 278000, kY: 9.5, kD: 23.2, kF: 11.5, wN: 14.8, wR: 9.38, wP: 146000, wY: 7.5, wD: 40.2, wF: 2.0 },
+                2022: { iN: 273.0, iR: 160.5, iP: 193000, iY: 7.0, iD: 83.1, iF: 71.3, uN: 20.5, uR: 12.0, uP: 86400, uY: 6.7, uD: 35.1, uF: 2.5, mN: 35.2, mR: 20.6, mP: 279000, mY: 7.2, mD: 22.1, mF: 21.0, tN: 23.6, tR: 13.8, tP: 286000, tY: 7.4, tD: 25.1, tF: 5.0, gN: 22.0, gR: 12.9, gP: 309000, gY: 8.5, gD: 23.1, gF: 10.0, kN: 22.3, kR: 13.1, kP: 314000, kY: 7.2, kD: 22.1, kF: 9.0, wN: 16.0, wR: 9.40, wP: 156000, wY: 5.5, wD: 39.1, wF: 1.5 },
+                2023: { iN: 295.3, iR: 173.8, iP: 207000, iY: 8.2, iD: 82.4, iF: 70.9, uN: 22.5, uR: 13.2, uP: 94100, uY: 7.8, uD: 34.5, uF: 2.4, mN: 38.7, mR: 22.7, mP: 304000, mY: 8.5, mD: 21.5, mF: 20.8, tN: 26.0, tR: 15.3, tP: 312000, tY: 8.6, tD: 24.5, tF: 4.8, gN: 22.6, gR: 13.3, gP: 315000, gY: 9.2, gD: 22.5, gF: 9.8, kN: 22.6, kR: 13.3, kP: 315000, kY: 8.4, kD: 21.5, kF: 8.8, wN: 15.3, wR: 9.01, wP: 148000, wY: 6.5, wD: 38.5, wF: 1.4 },
+                2024: { iN: 327.7, iR: 186.3, iP: 227000, iY: 7.2, iD: 82.0, iF: 75.0, uN: 25.4, uR: 14.4, uP: 105000, uY: 6.9, uD: 34.1, uF: 2.7, mN: 42.6, mR: 24.2, mP: 332000, mY: 7.5, mD: 21.1, mF: 22.0, tN: 28.3, tR: 16.0, tP: 338000, tY: 7.4, tD: 24.1, tF: 5.2, gN: 24.8, gR: 14.1, gP: 342000, gY: 8.5, gD: 22.1, gF: 10.5, kN: 25.0, kR: 14.2, kP: 345000, kY: 7.2, kD: 21.1, kF: 9.5, wN: 17.1, wR: 9.72, wP: 164000, wY: 5.8, wD: 38.1, wF: 1.6 },
+                2025: { iN: 360.0, iR: 198.4, iP: 247000, iY: 6.5, iD: 81.5, iF: 80.0, uN: 30.2, uR: 16.6, uP: 123000, uY: 6.5, uD: 33.8, uF: 3.0, mN: 47.0, mR: 25.9, mP: 364000, mY: 6.5, mD: 20.8, mF: 23.5, tN: 31.5, tR: 17.3, tP: 374000, tY: 6.5, tD: 23.8, tF: 5.8, gN: 28.5, gR: 15.7, gP: 389000, gY: 6.5, gD: 21.8, gF: 11.2, kN: 28.1, kR: 15.4, kP: 384000, kY: 6.5, kD: 20.8, kF: 10.5, wN: 18.8, wR: 10.3, wP: 178000, wY: 6.5, wD: 37.8, wF: 1.8 },
+                2026: { iN: 390.5, iR: 210.3, iP: 265000, iY: 6.5, iD: 81.0, iF: 85.0, uN: 33.5, uR: 18.0, uP: 135000, uY: 6.5, uD: 33.5, uF: 3.3, mN: 51.5, mR: 27.5, mP: 395000, mY: 6.5, mD: 20.5, mF: 25.0, tN: 34.5, tR: 18.5, tP: 405000, tY: 6.5, tD: 23.5, tF: 6.5, gN: 31.5, gR: 16.9, gP: 425000, gY: 6.5, gD: 21.5, gF: 12.0, kN: 30.5, kR: 16.4, kP: 410000, kY: 6.5, kD: 20.5, kF: 11.5, wN: 20.5, wR: 11.0, wP: 192000, wY: 6.5, wD: 37.5, wF: 2.0 },
+                
+                // Old Historical Milestones Anchors
+                1947: { iN: 0.08, iR: 4.1, iP: 250, iY: 2.0, iD: 30.0, iF: 0.0, uN: 0.01, uR: 0.4, uP: 140, uY: 1.8, uD: 10.0, uF: 0.0, mN: 0.015, mR: 0.8, mP: 500, mY: 2.2, mD: 10.0, mF: 0.0, tN: 0.008, tR: 0.35, tP: 300, tY: 2.1, tD: 10.0, tF: 0.0, gN: 0.007, gR: 0.35, gP: 320, gY: 2.1, gD: 10.0, gF: 0.0, kN: 0.007, kR: 0.35, kP: 290, kY: 1.9, kD: 10.0, kF: 0.0, wN: 0.008, wR: 0.40, wP: 310, wY: 2.0, wD: 10.0, wF: 0.0 },
+                1951: { iN: 0.10, iR: 4.8, iP: 280, iY: 2.3, iD: 32.0, iF: 0.0, uN: 0.01, uR: 0.5, uP: 160, uY: 2.0, uD: 11.0, uF: 0.0, mN: 0.02, mR: 0.9, mP: 570, mY: 2.5, mD: 11.0, mF: 0.0, tN: 0.01, tR: 0.4, tP: 340, tY: 2.2, tD: 11.0, tF: 0.0, gN: 0.008, gR: 0.4, gP: 350, gY: 2.4, gD: 11.0, gF: 0.0, kN: 0.008, kR: 0.4, kP: 320, kY: 2.1, kD: 11.0, kF: 0.0, wN: 0.009, wR: 0.45, wP: 330, wY: 2.2, wD: 11.0, wF: 0.0 },
+                1961: { iN: 0.17, iR: 7.2, iP: 380, iY: 3.1, iD: 40.0, iF: 0.01, uN: 0.02, uR: 0.8, uP: 270, uY: 2.5, uD: 12.0, uF: 0.0, mN: 0.03, mR: 1.2, mP: 760, mY: 3.5, mD: 12.0, mF: 0.0, tN: 0.01, tR: 0.6, tP: 450, tY: 3.0, tD: 12.0, tF: 0.0, gN: 0.012, gR: 0.5, gP: 480, gY: 3.4, gD: 12.0, gF: 0.0, kN: 0.012, kR: 0.5, kP: 410, kY: 2.9, kD: 12.0, kF: 0.0, wN: 0.014, wR: 0.6, wP: 460, wY: 3.0, wD: 12.0, wF: 0.0 },
+                1971: { iN: 0.45, iR: 10.3, iP: 810, iY: 1.0, iD: 45.0, iF: 0.05, uN: 0.04, uR: 1.0, uP: 450, uY: 0.8, uD: 15.0, uF: 0.0, mN: 0.06, mR: 1.4, mP: 1200, mY: 1.2, mD: 14.0, mF: 0.01, tN: 0.03, tR: 0.6, tP: 730, tY: 1.1, tD: 14.0, tF: 0.0, gN: 0.03, gR: 0.7, gP: 850, gY: 1.3, gD: 14.0, gF: 0.0, kN: 0.03, kR: 0.7, kP: 750, kY: 1.0, kD: 14.0, kF: 0.0, wN: 0.035, wR: 0.8, wP: 820, wY: 0.9, wD: 15.0, wF: 0.0 },
+                1981: { iN: 1.50, iR: 14.5, iP: 2200, iY: 6.0, iD: 50.0, iF: 0.09, uN: 0.12, uR: 1.1, uP: 1090, uY: 5.5, uD: 18.0, uF: 0.01, mN: 0.18, mR: 1.7, mP: 2900, mY: 6.5, mD: 16.0, mF: 0.02, tN: 0.10, tR: 0.9, tP: 2080, tY: 6.2, tD: 16.0, tF: 0.01, gN: 0.09, gR: 0.8, gP: 2400, gY: 6.8, gD: 16.0, gF: 0.01, kN: 0.09, kR: 0.8, kP: 2100, kY: 5.9, kD: 16.0, kF: 0.01, wN: 0.11, wR: 1.0, wP: 2150, wY: 5.4, wD: 18.0, wF: 0.01 }
+            };
+
+            const knownYears = Object.keys(rawDB).map(Number).sort((a,b) => a-b);
+            const keysAbsolute = ['iN', 'iR', 'iP', 'iF', 'uN', 'uR', 'uP', 'uF', 'mN', 'mR', 'mP', 'mF', 'tN', 'tR', 'tP', 'tF', 'gN', 'gR', 'gP', 'gF', 'kN', 'kR', 'kP', 'kF', 'wN', 'wR', 'wP', 'wF'];
+            const keysPercent = ['iY', 'iD', 'uY', 'uD', 'mY', 'mD', 'tY', 'tD', 'gY', 'gD', 'kY', 'kD', 'wY', 'wD'];
+
+            // Calculate dynamic base-year adjustments for Real GDP
+            const base23 = rawDB[2023];
+            const baseMultipliers = {
+                i: base23.iN / base23.iR,
+                u: base23.uN / base23.uR,
+                m: base23.mN / base23.mR,
+                t: base23.tN / base23.tR,
+                g: base23.gN / base23.gR,
+                k: base23.kN / base23.kR,
+                w: base23.wN / base23.wR
+            };
+
+            for (let i = 0; i < dataState.years.length; i++) {
+                let yr = parseInt(dataState.years[i]);
+                let dataPoint = {};
+                
+                if (rawDB[yr]) { 
+                    dataPoint = rawDB[yr]; 
+                } else {
+                    let lowerYr = knownYears[0], upperYr = knownYears[knownYears.length - 1];
+                    for (let j = 0; j < knownYears.length - 1; j++) { 
+                        if (yr > knownYears[j] && yr < knownYears[j+1]) { 
+                            lowerYr = knownYears[j]; 
+                            upperYr = knownYears[j+1]; 
+                            break; 
+                        } 
+                    }
+                    let lowerData = rawDB[lowerYr], upperData = rawDB[upperYr], fraction = (yr - lowerYr) / (upperYr - lowerYr);
+                    
+                    const keys = [...keysAbsolute, ...keysPercent];
+                    keys.forEach(k => { 
+                        if (lowerData[k] !== undefined && upperData[k] !== undefined) { 
+                            if (keysAbsolute.includes(k) && lowerData[k] > 0 && upperData[k] > 0) {
+                                dataPoint[k] = lowerData[k] * Math.pow(upperData[k] / lowerData[k], fraction);
+                            } else {
+                                dataPoint[k] = lowerData[k] + fraction * (upperData[k] - lowerData[k]); 
+                            }
+                        } else { 
+                            dataPoint[k] = null; 
+                        } 
+                    });
+                }
+                
+                // Re-base Real GDP dynamically upon initial calculation
+                dataState.india.nominal.push(dataPoint.iN !== null ? parseFloat(dataPoint.iN.toFixed(2)) : null);
+                dataState.india.real.push(dataPoint.iR !== null ? parseFloat((dataPoint.iR * baseMultipliers.i).toFixed(2)) : null);
+                dataState.india.per_capita.push(dataPoint.iP !== null ? parseFloat(dataPoint.iP.toFixed(0)) : null);
+                dataState.india.yoy.push(dataPoint.iY !== null ? parseFloat(dataPoint.iY.toFixed(1)) : null);
+                dataState.india.debt_gdp.push(dataPoint.iD !== null ? parseFloat(dataPoint.iD.toFixed(1)) : null);
+                dataState.india.fdi.push(dataPoint.iF !== null ? parseFloat(dataPoint.iF.toFixed(2)) : null);
+                
+                dataState.up.nominal.push(dataPoint.uN !== null ? parseFloat(dataPoint.uN.toFixed(2)) : null);
+                dataState.up.real.push(dataPoint.uR !== null ? parseFloat((dataPoint.uR * baseMultipliers.u).toFixed(2)) : null);
+                dataState.up.per_capita.push(dataPoint.uP !== null ? parseFloat(dataPoint.uP.toFixed(0)) : null);
+                dataState.up.yoy.push(dataPoint.uY !== null ? parseFloat(dataPoint.uY.toFixed(1)) : null);
+                dataState.up.debt_gdp.push(dataPoint.uD !== null ? parseFloat(dataPoint.uD.toFixed(1)) : null);
+                dataState.up.fdi.push(dataPoint.uF !== null ? parseFloat(dataPoint.uF.toFixed(2)) : null);
+                
+                dataState.mh.nominal.push(dataPoint.mN !== null ? parseFloat(dataPoint.mN.toFixed(2)) : null);
+                dataState.mh.real.push(dataPoint.mR !== null ? parseFloat((dataPoint.mR * baseMultipliers.m).toFixed(2)) : null);
+                dataState.mh.per_capita.push(dataPoint.mP !== null ? parseFloat(dataPoint.mP.toFixed(0)) : null);
+                dataState.mh.yoy.push(dataPoint.mY !== null ? parseFloat(dataPoint.mY.toFixed(1)) : null);
+                dataState.mh.debt_gdp.push(dataPoint.mD !== null ? parseFloat(dataPoint.mD.toFixed(1)) : null);
+                dataState.mh.fdi.push(dataPoint.mF !== null ? parseFloat(dataPoint.mF.toFixed(2)) : null);
+                
+                dataState.tn.nominal.push(dataPoint.tN !== null ? parseFloat(dataPoint.tN.toFixed(2)) : null);
+                dataState.tn.real.push(dataPoint.tR !== null ? parseFloat((dataPoint.tR * baseMultipliers.t).toFixed(2)) : null);
+                dataState.tn.per_capita.push(dataPoint.tP !== null ? parseFloat(dataPoint.tP.toFixed(0)) : null);
+                dataState.tn.yoy.push(dataPoint.tY !== null ? parseFloat(dataPoint.tY.toFixed(1)) : null);
+                dataState.tn.debt_gdp.push(dataPoint.tD !== null ? parseFloat(dataPoint.tD.toFixed(1)) : null);
+                dataState.tn.fdi.push(dataPoint.tF !== null ? parseFloat(dataPoint.tF.toFixed(2)) : null);
+                
+                dataState.gj.nominal.push(dataPoint.gN !== null ? parseFloat(dataPoint.gN.toFixed(2)) : null);
+                dataState.gj.real.push(dataPoint.gR !== null ? parseFloat((dataPoint.gR * baseMultipliers.g).toFixed(2)) : null);
+                dataState.gj.per_capita.push(dataPoint.gP !== null ? parseFloat(dataPoint.gP.toFixed(0)) : null);
+                dataState.gj.yoy.push(dataPoint.gY !== null ? parseFloat(dataPoint.gY.toFixed(1)) : null);
+                dataState.gj.debt_gdp.push(dataPoint.gD !== null ? parseFloat(dataPoint.gD.toFixed(1)) : null);
+                dataState.gj.fdi.push(dataPoint.gF !== null ? parseFloat(dataPoint.gF.toFixed(2)) : null);
+                
+                dataState.ka.nominal.push(dataPoint.kN !== null ? parseFloat(dataPoint.kN.toFixed(2)) : null);
+                dataState.ka.real.push(dataPoint.kR !== null ? parseFloat((dataPoint.kR * baseMultipliers.k).toFixed(2)) : null);
+                dataState.ka.per_capita.push(dataPoint.kP !== null ? parseFloat(dataPoint.kP.toFixed(0)) : null);
+                dataState.ka.yoy.push(dataPoint.kY !== null ? parseFloat(dataPoint.kY.toFixed(1)) : null);
+                dataState.ka.debt_gdp.push(dataPoint.kD !== null ? parseFloat(dataPoint.kD.toFixed(1)) : null);
+                dataState.ka.fdi.push(dataPoint.kF !== null ? parseFloat(dataPoint.kF.toFixed(2)) : null);
+                
+                dataState.wb.nominal.push(dataPoint.wN !== null ? parseFloat(dataPoint.wN.toFixed(2)) : null);
+                dataState.wb.real.push(dataPoint.wR !== null ? parseFloat((dataPoint.wR * baseMultipliers.w).toFixed(2)) : null);
+                dataState.wb.per_capita.push(dataPoint.wP !== null ? parseFloat(dataPoint.wP.toFixed(0)) : null);
+                dataState.wb.yoy.push(dataPoint.wY !== null ? parseFloat(dataPoint.wY.toFixed(1)) : null);
+                dataState.wb.debt_gdp.push(dataPoint.wD !== null ? parseFloat(dataPoint.wD.toFixed(1)) : null);
+                dataState.wb.fdi.push(dataPoint.wF !== null ? parseFloat(dataPoint.wF.toFixed(2)) : null);
+                
+                dataState.indiaGdp.push(0); dataState.upGdp.push(0); dataState.mhGdp.push(0); dataState.tnGdp.push(0); dataState.gjGdp.push(0); dataState.kaGdp.push(0); dataState.wbGdp.push(0);
+                
+                dataState.indiaDebt.push(dataPoint.iD !== null ? parseFloat(dataPoint.iD.toFixed(1)) : null);
+                dataState.upDebt.push(dataPoint.uD !== null ? parseFloat(dataPoint.uD.toFixed(1)) : null);
+                dataState.mhDebt.push(dataPoint.mD !== null ? parseFloat(dataPoint.mD.toFixed(1)) : null);
+                dataState.tnDebt.push(dataPoint.tD !== null ? parseFloat(dataPoint.tD.toFixed(1)) : null);
+                dataState.gjDebt.push(dataPoint.gD !== null ? parseFloat(dataPoint.gD.toFixed(1)) : null);
+                dataState.kaDebt.push(dataPoint.kD !== null ? parseFloat(dataPoint.kD.toFixed(1)) : null);
+                dataState.wbDebt.push(dataPoint.wD !== null ? parseFloat(dataPoint.wD.toFixed(1)) : null);
+            }
+        }
+
+        function applyMetric() {
+            dataState.indiaGdp.length = 0; dataState.indiaGdp.push(...dataState.india[currentMetric]);
+            dataState.upGdp.length = 0; dataState.upGdp.push(...dataState.up[currentMetric]);
+            dataState.mhGdp.length = 0; dataState.mhGdp.push(...dataState.mh[currentMetric]);
+            dataState.tnGdp.length = 0; dataState.tnGdp.push(...dataState.tn[currentMetric]);
+            dataState.gjGdp.length = 0; dataState.gjGdp.push(...dataState.gj[currentMetric]);
+            dataState.kaGdp.length = 0; dataState.kaGdp.push(...dataState.ka[currentMetric]);
+            dataState.wbGdp.length = 0; dataState.wbGdp.push(...dataState.wb[currentMetric]);
+            const scaleBtn = document.getElementById('toggleScale');
+            if(scaleBtn) {
+                if (currentMetric === 'yoy') {
+                    isLogScale = false; 
+                    scaleBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    if(window.gdpChartInstance) window.gdpChartInstance.options.scales.y.type = 'linear';
+                    scaleBtn.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
+                    scaleBtn.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface'); 
+                } else { 
+                    scaleBtn.classList.remove('opacity-50', 'cursor-not-allowed'); 
+                }
+            }
+            calculateBestFitTrendlines(currentEra); updateChartTitle(); updateYAxisMin();
+            if(window.gdpChartInstance) { window.gdpChartInstance.update(); }
+        }
+
+        function calculateBestFitTrendlines(startYear) {
+            const startIndex = dataState.years.indexOf(String(startYear)); if (startIndex === -1) return;
+            const makeTrend = (dataArray) => {
+                let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0, count = 0;
+                for (let i = startIndex; i < dataArray.length; i++) {
+                    if (dataArray[i] === null || (currentMetric !== 'yoy' && dataArray[i] <= 0)) continue;
+                    let x = i - startIndex, yVal = currentMetric === 'yoy' ? dataArray[i] : Math.log(dataArray[i]);
+                    sumX += x; sumY += yVal; sumXY += x * yVal; sumXX += x * x; count++;
+                }
+                if (count === 0) return dataArray.map(() => null);
+                let m = (count * sumXY - sumX * sumY) / (count * sumXX - sumX * sumX), c = (sumY - m * sumX) / count, A = currentMetric === 'yoy' ? c : Math.exp(c);
+                return dataArray.map((_, i) => {
+                    if (i < startIndex) return null;
+                    let x = i - startIndex;
+                    if (currentMetric === 'yoy') { return parseFloat((m * x + c).toFixed(2)); } else { return parseFloat((A * Math.exp(m * x)).toFixed(4)); }
+                });
+            };
+            dataState.indiaTrend.length = 0; dataState.indiaTrend.push(...makeTrend(dataState.indiaGdp));
+            dataState.mhTrend.length = 0; dataState.mhTrend.push(...makeTrend(dataState.mhGdp));
+            dataState.tnTrend.length = 0; dataState.tnTrend.push(...makeTrend(dataState.tnGdp));
+            dataState.upTrend.length = 0; dataState.upTrend.push(...makeTrend(dataState.upGdp));
+            dataState.gjTrend.length = 0; dataState.gjTrend.push(...makeTrend(dataState.gjGdp));
+            dataState.kaTrend.length = 0; dataState.kaTrend.push(...makeTrend(dataState.kaGdp));
+            dataState.wbTrend.length = 0; dataState.wbTrend.push(...makeTrend(dataState.wbGdp));
+        }
+
+        function updateChartTitle() {
+            if(!window.gdpChartInstance) return;
+            const yAxis = window.gdpChartInstance.options.scales.y;
+            let titleText = '';
+            
+            const isMobile = window.innerWidth < 768;
+            
+            // Adjust mobile title to include units since ticks will be stripped
+            if (currentMetric === 'nominal') { titleText = isMobile ? 'Nominal GDP (₹ Lakh Cr)' : 'Nominal GDP'; } 
+            else if (currentMetric === 'real') { titleText = isMobile ? 'Real GDP (₹ Lakh Cr, Base 23-24)' : 'Real GDP (Base 2023-24)'; } 
+            else if (currentMetric === 'per_capita') { titleText = isMobile ? 'Per Capita Nominal GDP (₹)' : 'Per Capita Nominal GDP'; } 
+            else if (currentMetric === 'yoy') { titleText = 'Real GDP Growth Rate (%)'; } 
+            else if (currentMetric === 'fdi') { titleText = isMobile ? 'Net Foreign Direct Investment ($B)' : 'Net Foreign Direct Investment'; }
+
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#cac4d0' : '#49454f';
+
+            if (isMobile) {
+                yAxis.title.display = false;
+                yAxis.ticks.minRotation = -90;
+                yAxis.ticks.maxRotation = -90;
+                yAxis.ticks.padding = 0; 
+                yAxis.ticks.align = 'center';      // Vertically centers the rotated text precisely on the grid line
+                yAxis.ticks.crossAlign = 'center'; // Horizontally centers the text within the dedicated 35px axis width
+                
+                // Add afterFit to guarantee safe width for short, rotated numbers so they don't clip
+                yAxis.afterFit = function(scale) {
+                    scale.width = 35;
+                };
+
+                window.gdpChartInstance.options.layout.padding.left = 0;
+                window.gdpChartInstance.options.layout.padding.right = 5;
+
+                window.gdpChartInstance.options.plugins.title.display = true;
+                window.gdpChartInstance.options.plugins.title.text = titleText;
+                window.gdpChartInstance.options.plugins.title.align = 'center';
+                window.gdpChartInstance.options.plugins.title.color = textColor;
+            } else {
+                yAxis.title.display = true;
+                yAxis.title.text = titleText;
+                yAxis.ticks.minRotation = 0;
+                yAxis.ticks.maxRotation = 0;
+                yAxis.ticks.padding = 10;
+                yAxis.ticks.align = undefined;     // Reset to Chart.js default
+                yAxis.ticks.crossAlign = undefined; // Reset to Chart.js default
+                yAxis.afterFit = undefined; // Reset width adjustment
+                
+                window.gdpChartInstance.options.layout.padding.left = 0;
+                window.gdpChartInstance.options.layout.padding.right = 0;
+
+                window.gdpChartInstance.options.plugins.title.display = false;
+            }
+        }
+
+        function updateYAxisMin() {
+            if (!window.gdpChartInstance) return;
+            const chart = window.gdpChartInstance, startIndex = Math.max(0, dataState.years.indexOf(String(currentEra)));
+            let minVal = Infinity;
+            const checkMin = (gdpArray, trendArray) => {
+                for (let i = startIndex; i < gdpArray.length; i++) { if (gdpArray[i] !== null) { minVal = Math.min(minVal, gdpArray[i]); break; } }
+                if (trendArray[startIndex] !== null) minVal = Math.min(minVal, trendArray[startIndex]);
+            };
+            if (chart.isDatasetVisible(0)) checkMin(dataState.indiaGdp, dataState.indiaTrend);
+            if (chart.isDatasetVisible(1)) checkMin(dataState.mhGdp, dataState.mhTrend);
+            if (chart.isDatasetVisible(2)) checkMin(dataState.tnGdp, dataState.tnTrend);
+            if (chart.isDatasetVisible(3)) checkMin(dataState.upGdp, dataState.upTrend);
+            if (chart.isDatasetVisible(4)) checkMin(dataState.gjGdp, dataState.gjTrend);
+            if (chart.isDatasetVisible(5)) checkMin(dataState.kaGdp, dataState.kaTrend);
+            if (chart.isDatasetVisible(6)) checkMin(dataState.wbGdp, dataState.wbTrend);
+            if (minVal === Infinity) { chart.options.scales.y.min = (isLogScale && currentMetric !== 'yoy') ? 0.01 : 0; } else {
+                if (currentMetric === 'yoy') { delete chart.options.scales.y.min; } else {
+                    let calcMin = minVal < 0 ? minVal * 1.05 : minVal * 0.98;
+                    chart.options.scales.y.min = isLogScale ? Math.max(0.001, parseFloat(calcMin.toFixed(3))) : Math.max(0, parseFloat(calcMin.toFixed(2)));
+                }
+            }
+        }
+
+        function applyChartTheme(chartInstance) {
+            if(!chartInstance) return;
+            const isDark = document.documentElement.classList.contains('dark'), textColor = isDark ? '#cac4d0' : '#49454f', gridColor = isDark ? '#2e2c33' : '#f0eef5', trendlineColor = isDark ? 'rgba(230, 224, 233, 0.4)' : 'rgba(29, 27, 32, 0.3)';
+            
+            chartInstance.options.scales.x.title.color = textColor; chartInstance.options.scales.x.ticks.color = textColor;
+            chartInstance.options.scales.y.title.color = textColor; chartInstance.options.scales.y.ticks.color = textColor; chartInstance.options.scales.y.grid.color = gridColor;
+            
+            if (chartInstance.options.plugins && chartInstance.options.plugins.title) {
+                chartInstance.options.plugins.title.color = textColor;
+            }
+
+            if (chartInstance.options.scales.y1) { chartInstance.options.scales.y1.title.color = textColor; chartInstance.options.scales.y1.ticks.color = textColor; chartInstance.options.scales.y1.grid.color = gridColor; }
+            chartInstance.data.datasets.forEach(dataset => { if (dataset.label.includes('Trendline')) { dataset.borderColor = trendlineColor; } });
+            chartInstance.update();
+        }
+
+        function createSegmentGradient(ctx, partyFunc) {
+            if (ctx.p0DataIndex === undefined || ctx.p1DataIndex === undefined) return '#000';
+            if (!ctx.p0 || !ctx.p1 || ctx.p0.x === undefined || ctx.p1.x === undefined) return '#000';
+            
+            const year0 = parseInt(dataState.years[ctx.p0DataIndex]);
+            const year1 = parseInt(dataState.years[ctx.p1DataIndex]);
+            const party0 = partyFunc(year0);
+            const party1 = partyFunc(year1);
+
+            // If the party didn't change, just return the solid color
+            if (party0.name === party1.name) return party0.color;
+
+            // They changed! Calculate exact location of the stop based on the month
+            const month = party1.month || 6; 
+            // Financial Year begins in April (Month 4). Shift calendar to FY timeframe.
+            let fyMonth = month >= 4 ? month - 3 : month + 9;
+            let fraction = fyMonth / 12;
+            
+            // Revert to center for multi-year interpolated gaps prior to 1991
+            if (year1 - year0 > 1) fraction = 0.5;
+
+            const chartCtx = ctx.chart.ctx;
+            const gradient = chartCtx.createLinearGradient(ctx.p0.x, ctx.p0.y, ctx.p1.x, ctx.p1.y);
+            // Sharp color stop creates a rigid transition instead of a blurred bleed
+            gradient.addColorStop(0, party0.color);
+            gradient.addColorStop(Math.max(0, fraction - 0.001), party0.color);
+            gradient.addColorStop(Math.min(1, fraction + 0.001), party1.color);
+            gradient.addColorStop(1, party1.color);
+            return gradient;
+        }
+
+        function initRibbonScrollFades() {
+            const ribbonContainers = document.querySelectorAll('.ribbon-container');
+            
+            function updateRibbonFades(container) {
+                const track = container.querySelector('.scroll-track');
+                const leftFade = container.querySelector('.fade-left');
+                const rightFade = container.querySelector('.fade-right');
+                
+                if (!track || !leftFade || !rightFade) return;
+
+                const maxScroll = track.scrollWidth - track.clientWidth;
+                
+                // Only show blurs if it is actually scrollable
+                if (maxScroll <= 2) {
+                    leftFade.style.opacity = '0';
+                    rightFade.style.opacity = '0';
+                    return;
+                }
+
+                // Dynamically show left fade if scrolled away from start
+                if (track.scrollLeft > 2) {
+                    leftFade.style.opacity = '1';
+                } else {
+                    leftFade.style.opacity = '0';
+                }
+
+                // Dynamically show right fade if not at the very end
+                if (Math.ceil(track.scrollLeft) < maxScroll - 2) {
+                    rightFade.style.opacity = '1';
+                } else {
+                    rightFade.style.opacity = '0';
+                }
+            }
+
+            ribbonContainers.forEach(container => {
+                const track = container.querySelector('.scroll-track');
+                if (track) {
+                    track.addEventListener('scroll', () => updateRibbonFades(container), { passive: true });
+                    window.addEventListener('resize', () => updateRibbonFades(container));
+                    setTimeout(() => updateRibbonFades(container), 250); // Initial check after render
+                }
+            });
+        }
+
+        function initApp() {
+            initializeData(); applyMetric();
+            const ctx = document.getElementById('gdpChart').getContext('2d');
+            window.gdpChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dataState.years,
+                    datasets: [
+                        { label: 'National GDP', data: dataState.indiaGdp, hidden: false, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getIndiaPartyInfo) }, pointBackgroundColor: ctx => getIndiaPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
+                        { label: 'Maharashtra GSDP', data: dataState.mhGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getMhPartyInfo) }, pointBackgroundColor: ctx => getMhPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
+                        { label: 'Tamil Nadu GSDP', data: dataState.tnGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getTnPartyInfo) }, pointBackgroundColor: ctx => getTnPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
+                        { label: 'UP GSDP', data: dataState.upGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getPartyInfo) }, pointBackgroundColor: ctx => getPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
+                        { label: 'Gujarat GSDP', data: dataState.gjGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getGjPartyInfo) }, pointBackgroundColor: ctx => getGjPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
+                        { label: 'Karnataka GSDP', data: dataState.kaGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getKaPartyInfo) }, pointBackgroundColor: ctx => getKaPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
+                        { label: 'West Bengal GSDP', data: dataState.wbGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getWbPartyInfo) }, pointBackgroundColor: ctx => getWbPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
+                        
+                        { label: 'National Trendline', data: dataState.indiaTrend, hidden: false, order: 0, borderWidth: 2, borderDash: [8, 8], pointRadius: 0, pointHoverRadius: 0, fill: false, borderColor: 'rgba(230, 224, 233, 0.4)', tension: 0 },
+                        { label: 'MH Trendline', data: dataState.mhTrend, hidden: true, order: 0, borderWidth: 2, borderDash: [8, 8], pointRadius: 0, pointHoverRadius: 0, fill: false, borderColor: 'rgba(230, 224, 233, 0.4)', tension: 0 },
+                        { label: 'TN Trendline', data: dataState.tnTrend, hidden: true, order: 0, borderWidth: 2, borderDash: [8, 8], pointRadius: 0, pointHoverRadius: 0, fill: false, borderColor: 'rgba(230, 224, 233, 0.4)', tension: 0 },
+                        { label: 'UP Trendline', data: dataState.upTrend, hidden: true, order: 0, borderWidth: 2, borderDash: [8, 8], pointRadius: 0, pointHoverRadius: 0, fill: false, borderColor: 'rgba(230, 224, 233, 0.4)', tension: 0 },
+                        { label: 'GJ Trendline', data: dataState.gjTrend, hidden: true, order: 0, borderWidth: 2, borderDash: [8, 8], pointRadius: 0, pointHoverRadius: 0, fill: false, borderColor: 'rgba(230, 224, 233, 0.4)', tension: 0 },
+                        { label: 'KA Trendline', data: dataState.kaTrend, hidden: true, order: 0, borderWidth: 2, borderDash: [8, 8], pointRadius: 0, pointHoverRadius: 0, fill: false, borderColor: 'rgba(230, 224, 233, 0.4)', tension: 0 },
+                        { label: 'WB Trendline', data: dataState.wbTrend, hidden: true, order: 0, borderWidth: 2, borderDash: [8, 8], pointRadius: 0, pointHoverRadius: 0, fill: false, borderColor: 'rgba(230, 224, 233, 0.4)', tension: 0 },
+                        
+                        { label: 'National Debt Overlay', type: 'bar', data: dataState.indiaDebt, hidden: false, yAxisID: 'y1', order: 3, borderWidth: 0, backgroundColor: ctx => ctx.dataIndex === undefined ? 'transparent' : getIndiaPartyInfo(dataState.years[ctx.dataIndex]).color + '1A', hoverBackgroundColor: ctx => ctx.dataIndex === undefined ? 'transparent' : getIndiaPartyInfo(dataState.years[ctx.dataIndex]).color + '40', barPercentage: 1.0, categoryPercentage: 1.0 },
+                        { label: 'Maharashtra Debt Overlay', type: 'bar', data: dataState.mhDebt, hidden: true, yAxisID: 'y1', order: 3, borderWidth: 0, backgroundColor: ctx => ctx.dataIndex === undefined ? 'transparent' : getMhPartyInfo(dataState.years[ctx.dataIndex]).color + '1A', hoverBackgroundColor: ctx => ctx.dataIndex === undefined ? 'transparent' : getMhPartyInfo(dataState.years[ctx.dataIndex]).color + '40', barPercentage: 1.0, categoryPercentage: 1.0 },
+                        { label: 'Tamil Nadu Debt Overlay', type: 'bar', data: dataState.tnDebt, hidden: true, yAxisID: 'y1', order: 3, borderWidth: 0, backgroundColor: ctx => ctx.dataIndex === undefined ? 'transparent' : getTnPartyInfo(dataState.years[ctx.dataIndex]).color + '1A', hoverBackgroundColor: ctx => ctx.dataIndex === undefined ? 'transparent' : getTnPartyInfo(dataState.years[ctx.dataIndex]).color + '40', barPercentage: 1.0, categoryPercentage: 1.0 },
+                        { label: 'UP Debt Overlay', type: 'bar', data: dataState.upDebt, hidden: true, yAxisID: 'y1', order: 3, borderWidth: 0, backgroundColor: ctx => ctx.dataIndex === undefined ? 'transparent' : getPartyInfo(dataState.years[ctx.dataIndex]).color + '1A', hoverBackgroundColor: ctx => ctx.dataIndex === undefined ? 'transparent' : getPartyInfo(dataState.years[ctx.dataIndex]).color + '40', barPercentage: 1.0, categoryPercentage: 1.0 },
+                        { label: 'Gujarat Debt Overlay', type: 'bar', data: dataState.gjDebt, hidden: true, yAxisID: 'y1', order: 3, borderWidth: 0, backgroundColor: ctx => ctx.dataIndex === undefined ? 'transparent' : getGjPartyInfo(dataState.years[ctx.dataIndex]).color + '1A', hoverBackgroundColor: ctx => ctx.dataIndex === undefined ? 'transparent' : getGjPartyInfo(dataState.years[ctx.dataIndex]).color + '40', barPercentage: 1.0, categoryPercentage: 1.0 },
+                        { label: 'Karnataka Debt Overlay', type: 'bar', data: dataState.kaDebt, hidden: true, yAxisID: 'y1', order: 3, borderWidth: 0, backgroundColor: ctx => ctx.dataIndex === undefined ? 'transparent' : getKaPartyInfo(dataState.years[ctx.dataIndex]).color + '1A', hoverBackgroundColor: ctx => ctx.dataIndex === undefined ? 'transparent' : getKaPartyInfo(dataState.years[ctx.dataIndex]).color + '40', barPercentage: 1.0, categoryPercentage: 1.0 },
+                        { label: 'West Bengal Debt Overlay', type: 'bar', data: dataState.wbDebt, hidden: true, yAxisID: 'y1', order: 3, borderWidth: 0, backgroundColor: ctx => ctx.dataIndex === undefined ? 'transparent' : getWbPartyInfo(dataState.years[ctx.dataIndex]).color + '1A', hoverBackgroundColor: ctx => ctx.dataIndex === undefined ? 'transparent' : getWbPartyInfo(dataState.years[ctx.dataIndex]).color + '40', barPercentage: 1.0, categoryPercentage: 1.0 }
+                    ]
+                },
+                options: {
+                    layout: { padding: { left: 0, right: 0, top: 0, bottom: 0 } },
+                    events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'], responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: false, align: 'start', font: { family: 'Outfit', weight: '700', size: 13 }, padding: { bottom: 10, top: 0 } },
+                        tooltip: {
+                            enabled: false,
+                            external: function(context) {
+                                const {chart, tooltip} = context; let tooltipEl = chart.canvas.parentNode.querySelector('div.chartjs-tooltip');
+                                if (!tooltipEl) {
+                                    tooltipEl = document.createElement('div');
+                                    tooltipEl.className = 'chartjs-tooltip expressive-shadow rounded-[2rem] border border-m3-light-outline/20 dark:border-m3-dark-outline/20 p-5 absolute z-[100] transition-opacity duration-200 pointer-events-none bg-m3-light-surface/95 dark:bg-m3-dark-surface/95';
+                                    chart.canvas.parentNode.appendChild(tooltipEl);
+                                }
+                                if (tooltip.opacity === 0) { tooltipEl.style.opacity = 0; return; }
+                                if (tooltip.body) {
+                                    const titleLines = tooltip.title || []; let innerHtml = '';
+                                    titleLines.forEach(title => { 
+                                        const y = parseInt(title);
+                                        const nextYStr = String(y + 1).slice(-2);
+                                        innerHtml += `<h4 class="font-bold text-sm text-m3-light-onSurface dark:text-m3-dark-onSurface mb-3 pb-2 border-b border-m3-light-outline/10 dark:border-m3-dark-outline/10 tracking-wide uppercase">FY ${y}-${nextYStr}</h4>`; 
+                                    });
+                                    innerHtml += `<div class="flex flex-col gap-3">`;
+                                    tooltip.dataPoints.forEach((dp, i) => {
+                                        const colors = tooltip.labelColors[i], lines = tooltip.body[i].lines;
+                                        if (i > 0) { innerHtml += `<div class="w-full border-t border-m3-light-outline/10 dark:border-m3-dark-outline/10 pt-2 mt-1"></div>`; }
+                                        innerHtml += `<div class="flex flex-col gap-1.5">`;
+                                        lines.forEach((line, lineIdx) => {
+                                            if (lineIdx === 0) { innerHtml += `<div class="flex items-center"><div class="w-3.5 h-3.5 rounded-full mr-3 shadow-inner shrink-0" style="background: ${colors.backgroundColor}; border: ${colors.borderColor !== 'transparent' ? '1px solid ' + colors.borderColor : 'none'}"></div><span class="font-bold text-sm text-m3-light-onSurface dark:text-m3-dark-onSurface">${line.trim()}</span></div>`; } 
+                                            else { innerHtml += `<div class="flex items-center pl-6"><span class="font-semibold text-xs text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant">${line.trim()}</span></div>`; }
+                                        });
+                                        innerHtml += `</div>`;
+                                    });
+                                    innerHtml += `</div>`; tooltipEl.innerHTML = innerHtml;
+                                }
+                                const {offsetLeft: positionX, offsetTop: positionY} = chart.canvas, tooltipWidth = tooltipEl.offsetWidth || 260, tooltipHeight = tooltipEl.offsetHeight || 150, chartArea = chart.chartArea;
+                                const centerX = chartArea.left + (chartArea.right - chartArea.left) / 2, centerY = chartArea.top + (chartArea.bottom - chartArea.top) / 2;
+                                let finalLeft = positionX + centerX - (tooltipWidth / 2), finalTop = positionY + centerY - (tooltipHeight / 2);
+                                tooltipEl.style.opacity = 1; tooltipEl.style.left = finalLeft + 'px'; tooltipEl.style.top = finalTop + 'px';
+                            },
+                            filter: function(tooltipItem) { if (tooltipItem.raw === null || tooltipItem.dataset.label.includes('Trendline') || tooltipItem.dataset.label.includes('Debt Overlay')) return false; return true; },
+                            callbacks: {
+                                title: function(context) { return context[0] ? context[0].label : ''; },
+                                label: function(context) {
+                                    const year = context.label, dsLabel = context.dataset.label, idx = context.dataIndex;
+                                    let valStr = '', descMetric = '', isNational = dsLabel.includes('National') || dsLabel.includes('India');
+                                    if (currentMetric === 'per_capita') { valStr = '₹' + context.raw.toLocaleString('en-IN', {maximumFractionDigits:0}); descMetric = 'Per Capita'; } 
+                                    else if (currentMetric === 'yoy') { valStr = (context.raw > 0 ? '+' : '') + context.raw.toFixed(1) + '%'; descMetric = 'Growth'; } 
+                                    else if (currentMetric === 'fdi') { valStr = '$' + context.raw.toFixed(2) + 'B'; descMetric = 'Net FDI'; } 
+                                    else { valStr = '₹' + context.raw + ' Lakh Cr'; descMetric = isNational ? 'GDP' : 'GSDP'; }
+                                    let partyInfo, prefix, role, debtVal;
+                                    if (isNational) { partyInfo = getIndiaPartyInfo(year); prefix = 'National'; role = 'PM'; debtVal = dataState.indiaDebt[idx]; } 
+                                    else if (dsLabel.includes('Maharashtra')) { partyInfo = getMhPartyInfo(year); prefix = 'MH'; role = 'CM'; debtVal = dataState.mhDebt[idx]; } 
+                                    else if (dsLabel.includes('Tamil Nadu')) { partyInfo = getTnPartyInfo(year); prefix = 'TN'; role = 'CM'; debtVal = dataState.tnDebt[idx]; } 
+                                    else if (dsLabel.includes('Gujarat')) { partyInfo = getGjPartyInfo(year); prefix = 'GJ'; role = 'CM'; debtVal = dataState.gjDebt[idx]; } 
+                                    else if (dsLabel.includes('Karnataka')) { partyInfo = getKaPartyInfo(year); prefix = 'KA'; role = 'CM'; debtVal = dataState.kaDebt[idx]; } 
+                                    else if (dsLabel.includes('West Bengal')) { partyInfo = getWbPartyInfo(year); prefix = 'WB'; role = 'CM'; debtVal = dataState.wbDebt[idx]; } 
+                                    else { partyInfo = getPartyInfo(year); prefix = 'UP'; role = 'CM'; debtVal = dataState.upDebt[idx]; }
+                                    let lines = [`${prefix} ${descMetric}: ${valStr}`];
+                                    if (isDebtOverlayActive && debtVal !== null) { lines.push(`Debt-to-${isNational ? 'GDP' : 'GSDP'}: ${debtVal.toFixed(1)}%`); }
+                                    lines.push(`${role}: ${partyInfo.pm || partyInfo.cm} (${partyInfo.name})`);
+                                    return lines;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { type: 'linear', position: 'left', title: { display: true, text: 'Gross Domestic Product', font: { family: 'Outfit', weight: '700', size: 13 }, color: '#49454f' }, grid: { color: document.documentElement.classList.contains('dark') ? '#4a4458' : '#e8def8', drawBorder: false, lineWidth: 1.5 }, ticks: { font: { family: 'Outfit', weight: '600' }, color: '#49454f', padding: 10, callback: function(value) { const isMobile = window.innerWidth < 768; if (currentMetric === 'yoy') return isMobile ? String(value.toFixed(1)) : value.toFixed(1) + '%'; if (value <= 0 && currentMetric !== 'yoy') return ''; if (isLogScale && currentMetric !== 'yoy') { const logVal = Math.log10(value), cleanDigit = Math.round(value / Math.pow(10, Math.floor(logVal))); if (cleanDigit !== 1 && cleanDigit !== 2 && cleanDigit !== 5) { return null; } } if (currentMetric === 'per_capita') { if (isMobile) { return value >= 1000 ? String((value / 1000).toFixed(0)) + 'k' : String(value); } return '₹' + value.toLocaleString('en-IN', {maximumFractionDigits: 0}); } else if (currentMetric === 'fdi') { return isMobile ? String(value) : '$' + value + 'B'; } else { let formattedValue = value >= 100 ? value.toFixed(0) : (value >= 10 ? value.toFixed(1) : value.toFixed(3)); return isMobile ? String(parseFloat(formattedValue)) : '₹' + parseFloat(formattedValue) + ' LC'; } } } },
+                        y1: { type: 'linear', position: 'right', display: true, min: 0, max: 100, title: { display: false }, grid: { drawOnChartArea: false, drawBorder: false, drawTicks: false }, ticks: { display: false } },
+                        x: { min: String(currentEra), grid: { display: false, drawBorder: false }, ticks: { autoSkip: false, maxRotation: 90, minRotation: 90, padding: 10, font: { family: 'Outfit', weight: '600' }, color: '#49454f', callback: function(val, index) { const yearStr = this.getLabelForValue(val); const electionYears = ['1952', '1957', '1962', '1967', '1971', '1977', '1980', '1984', '1989', '1991', '1996', '1999', '2004', '2009', '2014', '2019', '2024']; if (yearStr === String(currentEra) || yearStr === '2026' || electionYears.includes(yearStr)) { return yearStr; } return null; } } }
+                    }
+                }
+            });
+
+            applyChartTheme(window.gdpChartInstance); 
+            updateChartTitle(); 
+            updateYAxisMin(); 
+            window.gdpChartInstance.update();
+            
+            initRibbonScrollFades();
+
+            // Handle device rotation resizing for optimal UX
+            window.addEventListener('resize', () => {
+                if (window.gdpChartInstance) {
+                    updateChartTitle();
+                    window.gdpChartInstance.update();
+                }
+            });
+
+            // Dropdown JS Logic
+            const metricBtn = document.getElementById('metricDropdownBtn');
+            const metricIcon = document.getElementById('metricDropdownIcon');
+            const metricMenu = document.getElementById('metricDropdownMenu');
+            const dropdownItems = document.querySelectorAll('.dropdown-item');
+            
+            if (metricBtn && metricMenu) {
+                metricBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isClosed = metricMenu.classList.contains('opacity-0');
+                    
+                    if (isClosed) {
+                        const rect = metricBtn.getBoundingClientRect();
+                        metricMenu.style.position = 'fixed';
+                        metricMenu.style.top = `${rect.bottom + 8}px`;
+                        
+                        let leftPos = rect.left;
+                        const maxRight = window.innerWidth - 16;
+                        if (leftPos + 220 > maxRight) {
+                            leftPos = maxRight - 220;
+                        }
+                        metricMenu.style.left = `${Math.max(16, leftPos)}px`;
+                        
+                        metricMenu.classList.remove('opacity-0', 'invisible', 'translate-y-[-10px]');
+                        metricIcon.classList.add('rotate-180');
+                    } else {
+                        metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]');
+                        metricIcon.classList.remove('rotate-180');
+                    }
+                });
+
+                document.addEventListener('click', () => {
+                    metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]');
+                    metricIcon.classList.remove('rotate-180');
+                });
+                
+                window.addEventListener('scroll', () => {
+                    metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]');
+                    metricIcon.classList.remove('rotate-180');
+                }, { passive: true });
+                
+                document.querySelectorAll('.overflow-x-auto').forEach(el => {
+                    el.addEventListener('scroll', () => {
+                        metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]');
+                        metricIcon.classList.remove('rotate-180');
+                    }, { passive: true });
+                });
+            }
+
+            if(dropdownItems) {
+                dropdownItems.forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        e.stopPropagation(); 
+                        currentMetric = item.getAttribute('data-value');
+                        const rawText = item.innerText.trim(); 
+                        const metricText = document.getElementById('metricDropdownText');
+                        if(metricText) metricText.innerText = 'Metric: ' + rawText;
+                        
+                        dropdownItems.forEach(i => { 
+                            i.classList.remove('bg-m3-light-secondaryContainer', 'dark:bg-m3-dark-secondaryContainer', 'text-m3-light-onSecondaryContainer', 'dark:text-m3-dark-onSecondaryContainer', 'font-bold'); 
+                            i.classList.add('hover:bg-m3-light-secondaryContainer/50', 'dark:hover:bg-m3-dark-secondaryContainer/50', 'text-m3-light-onSurfaceVariant', 'dark:text-m3-dark-onSurfaceVariant', 'font-semibold'); 
+                        });
+                        item.classList.remove('hover:bg-m3-light-secondaryContainer/50', 'dark:hover:bg-m3-dark-secondaryContainer/50', 'text-m3-light-onSurfaceVariant', 'dark:text-m3-dark-onSurfaceVariant', 'font-semibold'); 
+                        item.classList.add('bg-m3-light-secondaryContainer', 'dark:bg-m3-dark-secondaryContainer', 'text-m3-light-onSecondaryContainer', 'dark:text-m3-dark-onSecondaryContainer', 'font-bold');
+                        
+                        metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]');
+                        metricIcon.classList.remove('rotate-180');
+
+                        applyMetric();
+                    });
+                });
+            }
+
+            const toggles = [ { id: 'toggle-india', index: 0, trendIndex: 7, debtIndex: 14 }, { id: 'toggle-mh', index: 1, trendIndex: 8, debtIndex: 15 }, { id: 'toggle-tn', index: 2, trendIndex: 9, debtIndex: 16 }, { id: 'toggle-up', index: 3, trendIndex: 10, debtIndex: 17 }, { id: 'toggle-gj', index: 4, trendIndex: 11, debtIndex: 18 }, { id: 'toggle-ka', index: 5, trendIndex: 12, debtIndex: 19 }, { id: 'toggle-wb', index: 6, trendIndex: 13, debtIndex: 20 } ];
+            toggles.forEach(toggle => { const el = document.getElementById(toggle.id); if(el) { el.addEventListener('change', function() { window.gdpChartInstance.setDatasetVisibility(toggle.index, this.checked); window.gdpChartInstance.setDatasetVisibility(toggle.trendIndex, this.checked); if(isDebtOverlayActive) { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, this.checked); } else { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, false); } updateYAxisMin(); window.gdpChartInstance.update(); }); } });
+            
+            const toggleDebtOverlayBtn = document.getElementById('toggleDebtOverlay');
+            if (toggleDebtOverlayBtn) {
+                toggleDebtOverlayBtn.addEventListener('click', function() {
+                    isDebtOverlayActive = !isDebtOverlayActive;
+                    if (isDebtOverlayActive) { 
+                        this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
+                        this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface'); 
+                    } else { 
+                        this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
+                        this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface'); 
+                    }
+                    window.gdpChartInstance.options.scales.y1.display = isDebtOverlayActive;
+                    toggles.forEach(toggle => { const el = document.getElementById(toggle.id); if(el && el.checked) { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, isDebtOverlayActive); } else { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, false); } });
+                    window.gdpChartInstance.update();
+                });
+            }
+            
+            const eraToggleBtn = document.getElementById('toggleEra');
+            if(eraToggleBtn) { 
+                eraToggleBtn.addEventListener('click', function() { 
+                    const isCurrently1947 = currentEra === 1947; 
+                    currentEra = isCurrently1947 ? 1991 : 1947; 
+                    
+                    if (currentEra === 1947) {
+                        this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
+                        this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface'); 
+                    } else {
+                        this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
+                        this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface'); 
+                    }
+
+                    calculateBestFitTrendlines(currentEra); 
+                    window.gdpChartInstance.options.scales.x.min = String(currentEra); 
+                    updateYAxisMin(); 
+                    window.gdpChartInstance.update(); 
+                }); 
+            }
+            
+            const scaleToggleBtn = document.getElementById('toggleScale');
+            if(scaleToggleBtn) { 
+                scaleToggleBtn.addEventListener('click', function() { 
+                    if (currentMetric === 'yoy') return; 
+                    isLogScale = !isLogScale; 
+                    window.gdpChartInstance.options.scales.y.type = isLogScale ? 'logarithmic' : 'linear'; 
+                    updateYAxisMin(); 
+                    window.gdpChartInstance.update(); 
+                    if (isLogScale) {
+                        this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
+                        this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface'); 
+                    } else {
+                        this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
+                        this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface'); 
+                    }
+                }); 
+            }
+            
+            const downloadBtns = document.querySelectorAll('.download-btn');
+            downloadBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const chartCanvas = document.getElementById('gdpChart'), tempCanvas = document.createElement('canvas'), ctx = tempCanvas.getContext('2d'), width = chartCanvas.width, pixelRatio = window.devicePixelRatio || 1, footerHeight = (window.innerWidth < 768 ? 160 : 100) * pixelRatio;
+                    // Fixed header height (px) to draw the text above the graph
+                    const headerHeightCSS = 60; 
+                    tempCanvas.width = width; tempCanvas.height = chartCanvas.height + (headerHeightCSS * pixelRatio) + footerHeight;
+                    const isDark = document.documentElement.classList.contains('dark');
+                    ctx.fillStyle = isDark ? '#141217' : '#ffffff'; ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height); 
+                    
+                    // Draw chart pushed down by headerHeight
+                    ctx.drawImage(chartCanvas, 0, headerHeightCSS * pixelRatio);
+                    
+                    ctx.scale(pixelRatio, pixelRatio); const cssWidth = chartCanvas.clientWidth, cssHeight = chartCanvas.clientHeight, activeRegions = [];
+                    if(document.getElementById('toggle-india').checked) activeRegions.push('National'); if(document.getElementById('toggle-gj').checked) activeRegions.push('Gujarat'); if(document.getElementById('toggle-ka').checked) activeRegions.push('Karnataka'); if(document.getElementById('toggle-mh').checked) activeRegions.push('Maharashtra'); if(document.getElementById('toggle-tn').checked) activeRegions.push('Tamil Nadu'); if(document.getElementById('toggle-up').checked) activeRegions.push('Uttar Pradesh'); if(document.getElementById('toggle-wb').checked) activeRegions.push('West Bengal');
+                    let mTxt = document.getElementById('metricDropdownText').innerText.replace('Metric: ', ''); if(isDebtOverlayActive) mTxt += ' + Debt Overlay';
+                    
+                    // Draw Header ABOVE the graph
+                    ctx.fillStyle = isDark ? '#e6e1e5' : '#1c1b1f'; ctx.font = 'bold 16px Outfit, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(`Metric: ${mTxt}   |   Regions: ${activeRegions.join(', ')}`, cssWidth / 2, headerHeightCSS / 2);
+                    
+                    const legendItems = [{ text: 'NDA-BJP', color: '#F97316' }, { text: 'UPA-INC', color: '#2563EB' }, { text: 'SP / CPI-M', color: '#DC2626' }, { text: 'JD-S / AIADMK', color: '#16A34A' }, { text: 'AITC-TMC / MVA', color: '#10B981' }, { text: 'BSP', color: '#1E3A8A' }, { text: "President's Rule", color: '#9CA3AF' }];
+                    ctx.font = '600 12px Outfit, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+                    const boxSize = 12, gap = 6, itemSpacing = 20; let currentX = 20, currentY = headerHeightCSS + cssHeight + 30; const maxRowWidth = cssWidth - 40;
+                    let rowWidths = [], currentRowWidth = 0;
+                    legendItems.forEach(item => { let iw = boxSize + gap + ctx.measureText(item.text).width; if (currentRowWidth + iw > maxRowWidth && currentRowWidth > 0) { rowWidths.push(currentRowWidth - itemSpacing); currentRowWidth = iw + itemSpacing; } else { currentRowWidth += iw + itemSpacing; } });
+                    rowWidths.push(currentRowWidth - itemSpacing);
+                    let itemIndex = 0;
+                    for (let row = 0; row < rowWidths.length; row++) {
+                        let startX = (cssWidth - rowWidths[row]) / 2; currentX = Math.max(20, startX);
+                        while (itemIndex < legendItems.length) {
+                            let item = legendItems[itemIndex], iw = boxSize + gap + ctx.measureText(item.text).width;
+                            if (currentX + iw > cssWidth - 20 && currentX > 20) { break; }
+                            ctx.fillStyle = item.color; ctx.beginPath(); ctx.arc(currentX + boxSize/2, currentY, boxSize/2, 0, 2*Math.PI); ctx.fill();
+                            ctx.fillStyle = isDark ? '#cac4d0' : '#49454f'; ctx.fillText(item.text, currentX + boxSize + gap, currentY);
+                            currentX += iw + itemSpacing; itemIndex++;
+                        }
+                        currentY += 24;
+                    }
+                    const link = document.createElement('a'); link.download = `GDP_Comparison_${mTxt.replace(/[^a-z0-9]/gi, '_')}.png`; link.href = tempCanvas.toDataURL('image/png'); link.click();
+                });
+            });
+        }
+        initApp();
+    </script>
+</body>
+</html>
