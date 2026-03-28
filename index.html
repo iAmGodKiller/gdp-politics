@@ -178,7 +178,7 @@
                                 <!-- Metric Dropdown Toggle -->
                                 <div class="relative shrink-0 flex">
                                     <button id="metricDropdownBtn" class="bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer px-3.5 py-1.5 rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive flex items-center justify-between gap-2 outline-none whitespace-nowrap border border-m3-light-outline/5 dark:border-m3-dark-outline/5 focus:border-m3-light-primary dark:focus:border-m3-dark-primary shadow-sm w-auto">
-                                        <span id="metricDropdownText">Metric: Real GDP</span>
+                                        <span id="metricDropdownText">Indicator: Real GDP</span>
                                         <svg class="w-3.5 h-3.5 transition-transform duration-300" id="metricDropdownIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
                                     </button>
                                 </div>
@@ -212,6 +212,8 @@
                     <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="real_per_capita">Real Per Capita</div>
                     <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="yoy">Growth Rate</div>
                     <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="fdi">Net FDI</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="nse_cap">NSE Market Cap</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="unemployment">Unemployment Rate</div>
                     <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="usd_inr">USD to INR</div>
                 </div>
 
@@ -244,10 +246,10 @@
                 <div class="mt-5 sm:mt-8 px-2 sm:px-4 text-xs sm:text-sm text-m3-light-onSurfaceVariant/80 dark:text-m3-dark-onSurfaceVariant/80 leading-relaxed font-medium z-10 relative border-t border-m3-light-outline/10 dark:border-m3-dark-outline/10 pt-4 sm:pt-6">
                     <strong class="text-m3-light-primary dark:text-m3-dark-primary block mb-2 font-extrabold uppercase tracking-widest text-[10px]">Data Sources & Methodology</strong> 
                     <ul class="list-disc pl-5 space-y-1.5">
-                        <li><strong>Primary Sources:</strong> National metrics are compiled from <strong>MoSPI</strong> and <strong>World Bank</strong> open data. State-level GSDP and FDI are sourced directly from the <strong>RBI</strong> and <strong>DPIIT</strong>.</li>
-                        <li><strong>Data Interpolation:</strong> Missing historical reporting years in state records are seamlessly filled using exponential interpolation. This mathematically enforces the demographic identity (`Per Capita = Nominal / Population`) across gap years.</li>
-                        <li><strong>Real GDP (Base 2022-23):</strong> To purely measure standard of living and isolate growth from inflation, Real GDP is constructed via chain-linking—applying historical Year-over-Year growth rates back from the 2022 nominal value.</li>
-                        <li><strong>USD Valuation:</strong> National Nominal USD figures strictly utilize exact, published World Bank data. Because individual states lack independent international reporting, toggling USD automatically isolates the National view. Furthermore, Real USD metrics utilize a constant base-year exchange rate to completely remove currency volatility noise.</li>
+                        <li><strong>Primary Sources:</strong> Macroeconomic data (GDP, Growth, Exchange Rates) from <strong>MoSPI</strong>, <strong>RBI</strong>, and the <strong>World Bank</strong>. State-level FDI from <strong>DPIIT</strong>. Market Capitalization from <strong>NSE</strong> historical records, and Unemployment estimates from harmonized <strong>PLFS / CMIE / ILO</strong> data.</li>
+                        <li><strong>Data Interpolation:</strong> Missing historical reporting years in regional records are seamlessly filled using exponential mathematical interpolation. This inherently enforces the demographic accounting identity (`Per Capita = Nominal / Population`) across gap years.</li>
+                        <li><strong>Real GDP & Valuation:</strong> Real GDP is constructed via chain-linking to a <strong>2022-23 base year</strong> to isolate true volume growth from inflation. To prevent currency volatility noise, Real USD metrics apply a constant base-year exchange rate.</li>
+                        <li><strong>Indicator Isolation:</strong> Individual states do not possess independent stock exchanges or distinct international USD reporting. Therefore, selecting <strong>USD Valuation</strong> or <strong>NSE Market Cap</strong> automatically disables state comparisons to isolate the National view for mathematical accuracy.</li>
                     </ul>
                 </div>
 
@@ -382,13 +384,13 @@
 
         const dataState = {
             years: [], 
-            india: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nominal_usd: [], per_capita_usd: [] },
-            up: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [] },
-            mh: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [] },
-            tn: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [] },
-            gj: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [] },
-            ka: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [] },
-            wb: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [] },
+            india: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nominal_usd: [], per_capita_usd: [], nse_cap: [], unemployment: [] },
+            up: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
+            mh: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
+            tn: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
+            gj: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
+            ka: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
+            wb: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
             indiaGdp: [], upGdp: [], mhGdp: [], tnGdp: [], gjGdp: [], kaGdp: [], wbGdp: [],
             indiaTrend: [], upTrend: [], mhTrend: [], tnTrend: [], gjTrend: [], kaTrend: [], wbTrend: [],
             indiaDebt: [], upDebt: [], mhDebt: [], tnDebt: [], gjDebt: [], kaDebt: [], wbDebt: []
@@ -403,42 +405,42 @@
             // 1997: Asian Financial crisis ripple (4.0% growth)
             // 2008: Global Financial Crisis Lehman Crash (3.1% growth)
             const rawDB = {
-                1991: { iN: 6.5, iR: 24.5, iP: 7750, iY: 1.1, iD: 75.3, iF: 0.13, iU: 22.7, iNu: 270.1, iPu: 303, uN: 0.52, uR: 1.8, uP: 3800, uY: 0.5, uD: 23.4, uF: 0.01, mN: 0.81, mR: 2.9, mP: 10400, mY: 1.2, mD: 18.2, mF: 0.04, tN: 0.46, tR: 1.6, tP: 8300, tY: 1.3, tD: 19.5, tF: 0.01, gN: 0.38, gR: 1.5, gP: 9000, gY: 2.0, gD: 18.0, gF: 0.02, kN: 0.35, kR: 1.4, kP: 7800, kY: 1.5, kD: 18.5, kF: 0.01, wN: 0.35, wR: 1.5, wP: 5000, wY: 1.0, wD: 24.1, wF: 0.01 },
-                1992: { iN: 7.5, iR: 25.8, iP: 8650, iY: 5.5, iD: 76.0, iF: 0.3, iU: 25.9, iNu: 288.2, iPu: 317, uN: 0.60, uR: 1.9, uP: 4200, uY: 3.5, uD: 23.8, uF: 0.02, mN: 0.95, mR: 3.1, mP: 11800, mY: 5.8, mD: 18.5, mF: 0.1, tN: 0.53, tR: 1.8, tP: 9500, tY: 5.4, tD: 19.7, tF: 0.03, gN: 0.45, gR: 1.6, gP: 10300, gY: 6.0, gD: 18.3, gF: 0.05, kN: 0.41, kR: 1.5, kP: 8800, kY: 5.6, kD: 18.7, kF: 0.03, wN: 0.40, wR: 1.6, wP: 5600, wY: 4.8, wD: 24.8, wF: 0.02 },
+                1991: { iN: 6.5, iR: 24.5, iP: 7750, iY: 1.1, iD: 75.3, iF: 0.13, iU: 22.7, iNu: 270.1, iPu: 303, iC: 1.0, uN: 0.52, uR: 1.8, uP: 3800, uY: 0.5, uD: 23.4, uF: 0.01, mN: 0.81, mR: 2.9, mP: 10400, mY: 1.2, mD: 18.2, mF: 0.04, tN: 0.46, tR: 1.6, tP: 8300, tY: 1.3, tD: 19.5, tF: 0.01, gN: 0.38, gR: 1.5, gP: 9000, gY: 2.0, gD: 18.0, gF: 0.02, kN: 0.35, kR: 1.4, kP: 7800, kY: 1.5, kD: 18.5, kF: 0.01, wN: 0.35, wR: 1.5, wP: 5000, wY: 1.0, wD: 24.1, wF: 0.01 },
+                1992: { iN: 7.5, iR: 25.8, iP: 8650, iY: 5.5, iD: 76.0, iF: 0.3, iU: 25.9, iNu: 288.2, iPu: 317, iC: 2.2, uN: 0.60, uR: 1.9, uP: 4200, uY: 3.5, uD: 23.8, uF: 0.02, mN: 0.95, mR: 3.1, mP: 11800, mY: 5.8, mD: 18.5, mF: 0.1, tN: 0.53, tR: 1.8, tP: 9500, tY: 5.4, tD: 19.7, tF: 0.03, gN: 0.45, gR: 1.6, gP: 10300, gY: 6.0, gD: 18.3, gF: 0.05, kN: 0.41, kR: 1.5, kP: 8800, kY: 5.6, kD: 18.7, kF: 0.03, wN: 0.40, wR: 1.6, wP: 5600, wY: 4.8, wD: 24.8, wF: 0.02 },
                 1993: { iN: 8.6, iR: 27.0, iP: 9600, iY: 4.8, iD: 77.0, iF: 0.6, iU: 30.5, iNu: 279.3, iPu: 301 },
                 1994: { iN: 10.1, iR: 28.8, iP: 11000, iY: 6.7, iD: 73.5, iF: 1.0, iU: 31.4, iNu: 327.3, iPu: 346 },
                 1995: { iN: 11.9, iR: 31.0, iP: 12600, iY: 7.6, iD: 70.0, iF: 2.1, iU: 32.4, iNu: 360.3, iPu: 374 },
-                1996: { iN: 13.7, iR: 32.5, iP: 14500, iY: 7.5, iD: 70.1, iF: 2.8, iU: 35.4, iNu: 399.8, iPu: 407, uN: 1.05, uR: 2.3, uP: 6700, uY: 6.1, uD: 25.1, uF: 0.05, mN: 1.62, mR: 3.9, mP: 18500, mY: 8.0, mD: 19.1, mF: 0.8, tN: 0.95, tR: 2.2, tP: 15800, tY: 7.8, tD: 20.1, tF: 0.1, gN: 0.82, gR: 2.1, gP: 17200, gY: 8.5, gD: 19.2, gF: 0.3, kN: 0.75, kR: 1.9, kP: 14200, kY: 7.5, kD: 19.0, kF: 0.15, wN: 0.70, wR: 2.0, wP: 9100, wY: 6.5, wD: 26.5, wF: 0.05 },
-                1997: { iN: 15.2, iR: 33.8, iP: 15700, iY: 4.0, iD: 71.5, iF: 3.0, iU: 37.1, iNu: 415.9, iPu: 416, uN: 1.17, uR: 2.4, uP: 7400, uY: 4.2, uD: 26.0, uF: 0.06, mN: 1.83, mR: 4.1, mP: 20500, mY: 4.5, mD: 19.8, mF: 0.85, tN: 1.06, tR: 2.3, tP: 17400, tY: 4.6, tD: 20.8, tF: 0.12, gN: 0.92, gR: 2.2, gP: 19100, gY: 4.8, gD: 19.8, gF: 0.32, kN: 0.83, kR: 2.0, kP: 15600, kY: 4.4, kD: 19.5, kF: 0.18, wN: 0.78, wR: 2.1, wP: 10000, wY: 4.2, wD: 27.5, wF: 0.06 },
-                1998: { iN: 17.5, iR: 35.9, iP: 17500, iY: 6.2, iD: 72.0, iF: 2.6, iU: 41.3, iNu: 421.4, iPu: 413 },
-                1999: { iN: 19.5, iR: 39.1, iP: 19100, iY: 8.8, iD: 73.5, iF: 2.2, iU: 43.1, iNu: 458.8, iPu: 441 },
-                2000: { iN: 21.0, iR: 40.6, iP: 20200, iY: 3.8, iD: 76.0, iF: 3.6, iU: 44.9, iNu: 468.4, iPu: 443 },
+                1996: { iN: 13.7, iR: 32.5, iP: 14500, iY: 7.5, iD: 70.1, iF: 2.8, iU: 35.4, iNu: 399.8, iPu: 407, iC: 4.5, uN: 1.05, uR: 2.3, uP: 6700, uY: 6.1, uD: 25.1, uF: 0.05, mN: 1.62, mR: 3.9, mP: 18500, mY: 8.0, mD: 19.1, mF: 0.8, tN: 0.95, tR: 2.2, tP: 15800, tY: 7.8, tD: 20.1, tF: 0.1, gN: 0.82, gR: 2.1, gP: 17200, gY: 8.5, gD: 19.2, gF: 0.3, kN: 0.75, kR: 1.9, kP: 14200, kY: 7.5, kD: 19.0, kF: 0.15, wN: 0.70, wR: 2.0, wP: 9100, wY: 6.5, wD: 26.5, wF: 0.05 },
+                1997: { iN: 15.2, iR: 33.8, iP: 15700, iY: 4.0, iD: 71.5, iF: 3.0, iU: 37.1, iNu: 415.9, iPu: 416, iC: 5.5, uN: 1.17, uR: 2.4, uP: 7400, uY: 4.2, uD: 26.0, uF: 0.06, mN: 1.83, mR: 4.1, mP: 20500, mY: 4.5, mD: 19.8, mF: 0.85, tN: 1.06, tR: 2.3, tP: 17400, tY: 4.6, tD: 20.8, tF: 0.12, gN: 0.92, gR: 2.2, gP: 19100, gY: 4.8, gD: 19.8, gF: 0.32, kN: 0.83, kR: 2.0, kP: 15600, kY: 4.4, kD: 19.5, kF: 0.18, wN: 0.78, wR: 2.1, wP: 10000, wY: 4.2, wD: 27.5, wF: 0.06 },
+                1998: { iN: 17.5, iR: 35.9, iP: 17500, iY: 6.2, iD: 72.0, iF: 2.6, iU: 41.3, iNu: 421.4, iPu: 413, iC: 6.0 },
+                1999: { iN: 19.5, iR: 39.1, iP: 19100, iY: 8.8, iD: 73.5, iF: 2.2, iU: 43.1, iNu: 458.8, iPu: 441, iC: 8.5 },
+                2000: { iN: 21.0, iR: 40.6, iP: 20200, iY: 3.8, iD: 76.0, iF: 3.6, iU: 44.9, iNu: 468.4, iPu: 443, iC: 7.0 },
                 2001: { iN: 22.8, iR: 44.2, iP: 21700, iY: 4.8, iD: 80.4, iF: 4.0, iU: 47.2, iNu: 485.4, iPu: 451, uN: 1.80, uR: 3.1, uP: 10800, uY: 3.5, uD: 30.5, uF: 0.1, mN: 3.05, mR: 5.4, mP: 31700, mY: 5.1, mD: 22.3, mF: 1.2, tN: 1.61, tR: 3.1, tP: 25900, tY: 4.6, tD: 23.5, tF: 0.2, gN: 1.48, gR: 3.0, gP: 29000, gY: 5.5, gD: 22.1, gF: 0.4, kN: 1.25, kR: 2.7, kP: 23500, kY: 4.5, kD: 21.5, kF: 0.3, wN: 1.20, wR: 2.7, wP: 14500, wY: 4.0, wD: 32.1, wF: 0.1 },
                 2002: { iN: 24.5, iR: 45.9, iP: 23000, iY: 3.8, iD: 82.5, iF: 5.0, iU: 48.6, iNu: 514.9, iPu: 471 },
                 2003: { iN: 27.5, iR: 49.5, iP: 25200, iY: 7.9, iD: 83.5, iF: 4.3, iU: 46.6, iNu: 607.7, iPu: 547 },
-                2004: { iN: 32.4, iR: 53.4, iP: 29200, iY: 7.9, iD: 83.0, iF: 6.0, iU: 45.3, iNu: 709.1, iPu: 628 },
+                2004: { iN: 32.4, iR: 53.4, iP: 29200, iY: 7.9, iD: 83.0, iF: 6.0, iU: 45.3, iNu: 709.1, iPu: 628, iC: 17.0 },
                 2005: { iN: 36.9, iR: 57.6, iP: 32800, iY: 7.9, iD: 80.5, iF: 8.9, iU: 44.1, iNu: 820.4, iPu: 715 },
-                2006: { iN: 42.9, iR: 62.1, iP: 37600, iY: 8.0, iD: 77.1, iF: 22.8, iU: 45.3, iNu: 940.3, iPu: 807, uN: 3.12, uR: 4.6, uP: 17200, uY: 6.5, uD: 35.1, uF: 0.5, mN: 5.95, mR: 8.2, mP: 57200, mY: 9.5, mD: 25.4, mF: 7.0, tN: 3.15, tR: 4.8, tP: 47700, tY: 10.1, tD: 24.1, tF: 1.5, gN: 3.10, gR: 4.3, gP: 54300, gY: 11.2, gD: 24.5, gF: 2.5, kN: 2.50, kR: 4.0, kP: 43200, kY: 8.5, kD: 23.1, kF: 1.8, wN: 2.30, wR: 3.7, wP: 25500, wY: 7.0, wD: 38.5, wF: 0.3 },
+                2006: { iN: 42.9, iR: 62.1, iP: 37600, iY: 8.0, iD: 77.1, iF: 22.8, iU: 45.3, iNu: 940.3, iPu: 807, iC: 35.0, uN: 3.12, uR: 4.6, uP: 17200, uY: 6.5, uD: 35.1, uF: 0.5, mN: 5.95, mR: 8.2, mP: 57200, mY: 9.5, mD: 25.4, mF: 7.0, tN: 3.15, tR: 4.8, tP: 47700, tY: 10.1, tD: 24.1, tF: 1.5, gN: 3.10, gR: 4.3, gP: 54300, gY: 11.2, gD: 24.5, gF: 2.5, kN: 2.50, kR: 4.0, kP: 43200, kY: 8.5, kD: 23.1, kF: 1.8, wN: 2.30, wR: 3.7, wP: 25500, wY: 7.0, wD: 38.5, wF: 0.3 },
                 2007: { iN: 49.8, iR: 66.8, iP: 42500, iY: 7.6, iD: 74.0, iF: 25.2, iU: 41.3, iNu: 1216.7, iPu: 1028 },
-                2008: { iN: 56.3, iR: 71.5, iP: 47000, iY: 3.1, iD: 74.5, iF: 43.4, iU: 43.5, iNu: 1198.9, iPu: 999, uN: 4.25, uR: 5.4, uP: 22500, uY: 3.5, uD: 33.8, uF: 0.65, mN: 7.95, mR: 9.8, mP: 74000, mY: 4.5, mD: 23.2, mF: 8.5, tN: 4.38, tR: 5.8, tP: 64500, tY: 4.2, tD: 22.5, tF: 1.8, gN: 4.15, gR: 5.0, gP: 70200, gY: 4.8, gD: 22.8, gF: 3.1, kN: 3.55, kR: 4.7, kP: 58500, kY: 3.8, kD: 21.8, kF: 2.3, wN: 3.15, wR: 4.2, wP: 34500, wY: 3.0, wD: 37.4, wF: 0.4 },
+                2008: { iN: 56.3, iR: 71.5, iP: 47000, iY: 3.1, iD: 74.5, iF: 43.4, iU: 43.5, iNu: 1198.9, iPu: 999, iC: 30.0, uN: 4.25, uR: 5.4, uP: 22500, uY: 3.5, uD: 33.8, uF: 0.65, mN: 7.95, mR: 9.8, mP: 74000, mY: 4.5, mD: 23.2, mF: 8.5, tN: 4.38, tR: 5.8, tP: 64500, tY: 4.2, tD: 22.5, tF: 1.8, gN: 4.15, gR: 5.0, gP: 70200, gY: 4.8, gD: 22.8, gF: 3.1, kN: 3.55, kR: 4.7, kP: 58500, kY: 3.8, kD: 21.8, kF: 2.3, wN: 3.15, wR: 4.2, wP: 34500, wY: 3.0, wD: 37.4, wF: 0.4 },
                 2009: { iN: 64.7, iR: 77.1, iP: 54000, iY: 7.8, iD: 72.5, iF: 35.6, iU: 48.4, iNu: 1341.9, iPu: 1101 },
-                2010: { iN: 77.8, iR: 83.7, iP: 64500, iY: 8.5, iD: 67.5, iF: 27.4, iU: 45.7, iNu: 1675.6, iPu: 1358 },
+                2010: { iN: 77.8, iR: 83.7, iP: 64500, iY: 8.5, iD: 67.5, iF: 27.4, iU: 45.7, iNu: 1675.6, iPu: 1358, iC: 73.0 },
                 2011: { iN: 87.3, iR: 87.3, iP: 71600, iY: 5.2, iD: 67.4, iF: 36.5, iU: 46.6, iNu: 1823.1, iPu: 1458, uN: 7.24, uR: 7.2, uP: 36300, uY: 5.1, uD: 32.1, uF: 1.0, mN: 12.8, mR: 12.8, mP: 114000, mY: 5.5, mD: 20.1, mF: 10.5, tN: 7.51, tR: 7.5, tP: 104000, tY: 6.1, tD: 21.1, tF: 2.2, gN: 6.15, gR: 6.15, gP: 101000, gY: 6.8, gD: 21.0, gF: 4.0, kN: 6.03, kR: 6.03, kP: 98000, kY: 5.5, kD: 20.5, kF: 3.5, wN: 5.20, wR: 5.20, wP: 57000, wY: 4.5, wD: 36.2, wF: 0.5 },
                 2012: { iN: 99.4, iR: 92.1, iP: 80500, iY: 5.4, iD: 66.7, iF: 34.3, iU: 53.4, iNu: 1827.6, iPu: 1444, uN: 8.22, uR: 7.6, uP: 40500, uY: 5.0, uD: 31.5, uF: 0.9, mN: 14.4, mR: 13.4, mP: 127000, mY: 5.6, mD: 19.5, mF: 10.0, tN: 8.55, tR: 7.9, tP: 117000, tY: 5.8, tD: 20.5, tF: 2.0, gN: 7.24, gR: 6.70, gP: 117000, gY: 6.5, gD: 20.8, gF: 3.8, kN: 6.95, kR: 6.44, kP: 112000, kY: 5.8, kD: 20.1, kF: 3.0, wN: 5.90, wR: 5.46, wP: 64000, wY: 5.0, wD: 35.5, wF: 0.4 },
                 2013: { iN: 105.3, iR: 98.0, iP: 84300, iY: 6.4, iD: 67.1, iF: 36.0, iU: 58.6, iNu: 1856.7, iPu: 1450, uN: 9.44, uR: 8.7, uP: 45700, uY: 6.1, uD: 31.8, uF: 1.1, mN: 16.5, mR: 15.3, mP: 143000, mY: 6.7, mD: 19.8, mF: 10.8, tN: 9.71, tR: 9.0, tP: 131000, tY: 6.8, tD: 21.0, tF: 2.3, gN: 8.05, gR: 7.49, gP: 128000, gY: 7.5, gD: 21.2, gF: 4.2, kN: 8.16, kR: 7.59, kP: 129000, kY: 6.5, kD: 20.6, kF: 3.6, wN: 6.73, wR: 6.26, wP: 72000, wY: 5.5, wD: 35.8, wF: 0.6 },
-                2014: { iN: 112.3, iR: 105.2, iP: 88800, iY: 7.4, iD: 67.4, iF: 45.1, iU: 61.0, iNu: 2039.1, iPu: 1574, uN: 10.1, uR: 9.4, uP: 48200, uY: 7.2, uD: 31.2, uF: 1.3, mN: 17.9, mR: 16.7, mP: 153000, mY: 7.6, mD: 19.2, mF: 13.5, tN: 10.9, tR: 10.2, tP: 145000, tY: 7.8, tD: 20.8, tF: 2.8, gN: 8.95, gR: 8.38, gP: 140000, gY: 8.5, gD: 21.0, gF: 5.0, kN: 9.21, kR: 8.62, kP: 144000, kY: 7.5, kD: 20.3, kF: 4.5, wN: 7.18, wR: 6.72, wP: 76000, wY: 6.0, wD: 35.1, wF: 0.7 },
+                2014: { iN: 112.3, iR: 105.2, iP: 88800, iY: 7.4, iD: 67.4, iF: 45.1, iU: 61.0, iNu: 2039.1, iPu: 1574, iC: 98.0, uN: 10.1, uR: 9.4, uP: 48200, uY: 7.2, uD: 31.2, uF: 1.3, mN: 17.9, mR: 16.7, mP: 153000, mY: 7.6, mD: 19.2, mF: 13.5, tN: 10.9, tR: 10.2, tP: 145000, tY: 7.8, tD: 20.8, tF: 2.8, gN: 8.95, gR: 8.38, gP: 140000, gY: 8.5, gD: 21.0, gF: 5.0, kN: 9.21, kR: 8.62, kP: 144000, kY: 7.5, kD: 20.3, kF: 4.5, wN: 7.18, wR: 6.72, wP: 76000, wY: 6.0, wD: 35.1, wF: 0.7 },
                 2015: { iN: 125.4, iR: 113.6, iP: 98100, iY: 8.0, iD: 68.1, iF: 55.5, iU: 64.1, iNu: 2103.6, iPu: 1606, uN: 11.5, uR: 10.4, uP: 54100, uY: 7.8, uD: 30.5, uF: 1.5, mN: 19.6, mR: 17.7, mP: 165000, mY: 8.2, mD: 18.5, mF: 16.5, tN: 12.1, tR: 10.9, tP: 159000, tY: 8.4, tD: 20.2, tF: 3.5, gN: 10.2, gR: 9.24, gP: 157000, gY: 9.5, gD: 20.5, gF: 6.5, kN: 10.4, kR: 9.42, kP: 160000, kY: 8.2, kD: 19.8, kF: 5.8, wN: 7.97, wR: 7.22, wP: 84000, wY: 6.2, wD: 34.5, wF: 0.9 },
-                2016: { iN: 139.5, iR: 123.0, iP: 107000, iY: 8.3, iD: 68.9, iF: 60.2, iU: 67.2, iNu: 2294.1, iPu: 1733, uN: 13.3, uR: 11.7, uP: 61500, uY: 8.1, uD: 30.1, uF: 1.8, mN: 21.8, mR: 19.2, mP: 181000, mY: 8.5, mD: 18.1, mF: 18.0, tN: 13.3, tR: 11.7, tP: 173000, tY: 8.7, tD: 20.0, tF: 4.0, gN: 11.5, gR: 10.1, gP: 175000, gY: 9.8, gD: 20.1, gF: 7.0, kN: 12.0, kR: 10.5, kP: 182000, kY: 8.8, kD: 19.5, kF: 6.5, wN: 8.72, wR: 7.69, wP: 91000, wY: 6.5, wD: 34.0, wF: 1.0 },
+                2016: { iN: 139.5, iR: 123.0, iP: 107000, iY: 8.3, iD: 68.9, iF: 60.2, iU: 67.2, iNu: 2294.1, iPu: 1733, iC: 110.0, uN: 13.3, uR: 11.7, uP: 61500, uY: 8.1, uD: 30.1, uF: 1.8, mN: 21.8, mR: 19.2, mP: 181000, mY: 8.5, mD: 18.1, mF: 18.0, tN: 13.3, tR: 11.7, tP: 173000, tY: 8.7, tD: 20.0, tF: 4.0, gN: 11.5, gR: 10.1, gP: 175000, gY: 9.8, gD: 20.1, gF: 7.0, kN: 12.0, kR: 10.5, kP: 182000, kY: 8.8, kD: 19.5, kF: 6.5, wN: 8.72, wR: 7.69, wP: 91000, wY: 6.5, wD: 34.0, wF: 1.0 },
                 2017: { iN: 153.6, iR: 131.4, iP: 116000, iY: 6.8, iD: 69.7, iF: 60.9, iU: 65.1, iNu: 2651.5, iPu: 1981, uN: 14.3, uR: 12.2, uP: 65100, uY: 6.6, uD: 31.2, uF: 1.9, mN: 24.1, mR: 20.6, mP: 198000, mY: 7.0, mD: 18.8, mF: 18.2, tN: 14.6, tR: 12.5, tP: 187000, tY: 7.1, tD: 21.2, tF: 4.2, gN: 13.1, gR: 11.2, gP: 197000, gY: 8.2, gD: 20.8, gF: 7.5, kN: 13.5, kR: 11.5, kP: 202000, kY: 7.4, kD: 20.1, kF: 7.0, wN: 9.99, wR: 8.54, wP: 103000, wY: 5.8, wD: 35.1, wF: 1.1 },
-                2018: { iN: 170.9, iR: 139.9, iP: 127000, iY: 6.5, iD: 70.4, iF: 62.0, iU: 68.4, iNu: 2702.9, iPu: 1998, uN: 15.8, uR: 12.9, uP: 70800, uY: 6.3, uD: 32.5, uF: 2.0, mN: 26.6, mR: 21.7, mP: 216000, mY: 6.8, mD: 19.5, mF: 18.5, tN: 16.3, tR: 13.3, tP: 206000, tY: 6.9, tD: 22.5, tF: 4.5, gN: 14.9, gR: 12.2, gP: 220000, gY: 7.8, gD: 21.5, gF: 8.0, kN: 15.3, kR: 12.5, kP: 226000, kY: 7.0, kD: 21.0, kF: 7.5, wN: 11.7, wR: 9.58, wP: 119000, wY: 6.0, wD: 36.5, wF: 1.2 },
+                2018: { iN: 170.9, iR: 139.9, iP: 127000, iY: 6.5, iD: 70.4, iF: 62.0, iU: 68.4, iNu: 2702.9, iPu: 1998, iC: 145.0, uN: 15.8, uR: 12.9, uP: 70800, uY: 6.3, uD: 32.5, uF: 2.0, mN: 26.6, mR: 21.7, mP: 216000, mY: 6.8, mD: 19.5, mF: 18.5, tN: 16.3, tR: 13.3, tP: 206000, tY: 6.9, tD: 22.5, tF: 4.5, gN: 14.9, gR: 12.2, gP: 220000, gY: 7.8, gD: 21.5, gF: 8.0, kN: 15.3, kR: 12.5, kP: 226000, kY: 7.0, kD: 21.0, kF: 7.5, wN: 11.7, wR: 9.58, wP: 119000, wY: 6.0, wD: 36.5, wF: 1.2 },
                 2019: { iN: 200.7, iR: 145.3, iP: 147000, iY: 3.9, iD: 71.1, iF: 74.3, iU: 70.4, iNu: 2835.6, iPu: 2072, uN: 17.0, uR: 12.3, uP: 75100, uY: 3.7, uD: 33.1, uF: 2.5, mN: 28.1, mR: 20.3, mP: 226000, mY: 4.1, mD: 20.1, mF: 22.5, tN: 17.9, tR: 12.9, tP: 224000, tY: 4.3, tD: 23.1, tF: 5.5, gN: 16.4, gR: 11.8, gP: 240000, gY: 4.8, gD: 22.1, gF: 10.0, kN: 16.2, kR: 11.7, kP: 236000, kY: 4.2, kD: 21.5, kF: 9.5, wN: 12.5, wR: 9.04, wP: 126000, wY: 3.5, wD: 37.1, wF: 1.5 },
-                2020: { iN: 198.0, iR: 136.8, iP: 143000, iY: -5.8, iD: 88.5, iF: 81.9, iU: 74.1, iNu: 2671.6, iPu: 1933, uN: 16.4, uR: 11.3, uP: 71200, uY: -5.2, uD: 38.5, uF: 2.5, mN: 27.1, mR: 18.7, mP: 215000, mY: -6.5, mD: 25.5, mF: 2.8, tN: 18.4, tR: 12.7, tP: 227000, tY: -4.8, tD: 28.5, tF: 2.5, gN: 16.5, gR: 11.4, gP: 238000, gY: -4.2, gD: 26.5, gF: 2.5, kN: 16.6, kR: 11.4, kP: 238000, kY: -3.8, kD: 25.5, kF: 2.5, wN: 13.5, wR: 9.33, wP: 135000, wY: -2.5, wD: 42.5, wF: 2.5 },
-                2021: { iN: 236.6, iR: 150.0, iP: 169000, iY: 9.7, iD: 84.2, iF: 84.8, iU: 73.9, iNu: 3150.3, iPu: 2256, uN: 19.1, uR: 12.1, uP: 81300, uY: 9.1, uD: 36.2, uF: 3.0, mN: 31.0, mR: 19.6, mP: 248000, mY: 10.5, mD: 23.2, mF: 26.0, tN: 21.2, tR: 13.4, tP: 259000, tY: 9.2, tD: 26.2, tF: 6.5, gN: 19.3, gR: 12.2, gP: 274000, gY: 11.2, gD: 24.2, gF: 12.0, kN: 19.6, kR: 12.4, kP: 278000, kY: 9.5, kD: 23.2, kF: 11.5, wN: 14.8, wR: 9.38, wP: 146000, wY: 7.5, wD: 40.2, wF: 2.0 },
-                2022: { iN: 269.5, iR: 160.5, iP: 190000, iY: 7.0, iD: 83.1, iF: 71.3, iU: 80.2, iNu: 3416.6, iPu: 2423, uN: 20.5, uR: 12.0, uP: 86400, uY: 6.7, uD: 35.1, uF: 2.5, mN: 35.2, mR: 20.6, mP: 279000, mY: 7.2, mD: 22.1, mF: 21.0, tN: 23.6, tR: 13.8, tP: 286000, tY: 7.4, tD: 25.1, tF: 5.0, gN: 22.0, gR: 12.9, gP: 309000, gY: 8.5, gD: 23.1, gF: 10.0, kN: 22.3, kR: 13.1, kP: 314000, kY: 7.2, kD: 22.1, kF: 9.0, wN: 16.0, wR: 9.40, wP: 156000, wY: 5.5, wD: 39.1, wF: 1.5 },
-                2023: { iN: 295.3, iR: 173.8, iP: 207000, iY: 8.2, iD: 82.4, iF: 70.9, iU: 82.6, iNu: 3549.9, iPu: 2485, uN: 22.5, uR: 13.2, uP: 94100, uY: 7.8, uD: 34.5, uF: 2.4, mN: 38.7, mR: 22.7, mP: 304000, mY: 8.5, mD: 21.5, mF: 20.8, tN: 26.0, tR: 15.3, tP: 312000, tY: 8.6, tD: 24.5, tF: 4.8, gN: 22.6, gR: 13.3, gP: 315000, gY: 9.2, gD: 22.5, gF: 9.8, kN: 22.6, kR: 13.3, kP: 315000, kY: 8.4, kD: 21.5, kF: 8.8, wN: 15.3, wR: 9.01, wP: 148000, wY: 6.5, wD: 38.5, wF: 1.4 },
-                2024: { iN: 327.7, iR: 186.3, iP: 227000, iY: 7.2, iD: 82.0, iF: 75.0, iU: 83.5, iNu: 3889.0, iPu: 2698, uN: 25.4, uR: 14.4, uP: 105000, uY: 6.9, uD: 34.1, uF: 2.7, mN: 42.6, mR: 24.2, mP: 332000, mY: 7.5, mD: 21.1, mF: 22.0, tN: 28.3, tR: 16.0, tP: 338000, tY: 7.4, tD: 24.1, tF: 5.2, gN: 24.8, gR: 14.1, gP: 342000, gY: 8.5, gD: 22.1, gF: 10.5, kN: 25.0, kR: 14.2, kP: 345000, kY: 7.2, kD: 21.1, kF: 9.5, wN: 17.1, wR: 9.72, wP: 164000, wY: 5.8, wD: 38.1, wF: 1.6 },
-                2025: { iN: 360.0, iR: 198.4, iP: 247000, iY: 6.5, iD: 81.5, iF: 80.0, iU: 84.5, iNu: 4230.0, iPu: 2900, uN: 30.2, uR: 16.6, uP: 123000, uY: 6.5, uD: 33.8, uF: 3.0, mN: 47.0, mR: 25.9, mP: 364000, mY: 6.5, mD: 20.8, mF: 23.5, tN: 31.5, tR: 17.3, tP: 374000, tY: 6.5, tD: 23.8, tF: 5.8, gN: 28.5, gR: 15.7, gP: 389000, gY: 6.5, gD: 21.8, gF: 11.2, kN: 28.1, kR: 15.4, kP: 384000, kY: 6.5, kD: 20.8, kF: 10.5, wN: 18.8, wR: 10.3, wP: 178000, wY: 6.5, wD: 37.8, wF: 1.8 },
-                2026: { iN: 390.5, iR: 210.3, iP: 265000, iY: 6.5, iD: 81.0, iF: 85.0, iU: 85.0, iNu: 4580.0, iPu: 3100, uN: 33.5, uR: 18.0, uP: 135000, uY: 6.5, uD: 33.5, uF: 3.3, mN: 51.5, mR: 27.5, mP: 395000, mY: 6.5, mD: 20.5, mF: 25.0, tN: 34.5, tR: 18.5, tP: 405000, tY: 6.5, tD: 23.5, tF: 6.5, gN: 31.5, gR: 16.9, gP: 425000, gY: 6.5, gD: 21.5, gF: 12.0, kN: 30.5, kR: 16.4, kP: 410000, kY: 6.5, kD: 20.5, kF: 11.5, wN: 20.5, wR: 11.0, wP: 192000, wY: 6.5, wD: 37.5, wF: 2.0 },
+                2020: { iN: 198.0, iR: 136.8, iP: 143000, iY: -5.8, iD: 88.5, iF: 81.9, iU: 74.1, iNu: 2671.6, iPu: 1933, iC: 188.0, uN: 16.4, uR: 11.3, uP: 71200, uY: -5.2, uD: 38.5, uF: 2.5, mN: 27.1, mR: 18.7, mP: 215000, mY: -6.5, mD: 25.5, mF: 2.8, tN: 18.4, tR: 12.7, tP: 227000, tY: -4.8, tD: 28.5, tF: 2.5, gN: 16.5, gR: 11.4, gP: 238000, gY: -4.2, gD: 26.5, gF: 2.5, kN: 16.6, kR: 11.4, kP: 238000, kY: -3.8, kD: 25.5, kF: 2.5, wN: 13.5, wR: 9.33, wP: 135000, wY: -2.5, wD: 42.5, wF: 2.5 },
+                2021: { iN: 236.6, iR: 150.0, iP: 169000, iY: 9.7, iD: 84.2, iF: 84.8, iU: 73.9, iNu: 3150.3, iPu: 2256, iC: 266.0, uN: 19.1, uR: 12.1, uP: 81300, uY: 9.1, uD: 36.2, uF: 3.0, mN: 31.0, mR: 19.6, mP: 248000, mY: 10.5, mD: 23.2, mF: 26.0, tN: 21.2, tR: 13.4, tP: 259000, tY: 9.2, tD: 26.2, tF: 6.5, gN: 19.3, gR: 12.2, gP: 274000, gY: 11.2, gD: 24.2, gF: 12.0, kN: 19.6, kR: 12.4, kP: 278000, kY: 9.5, kD: 23.2, kF: 11.5, wN: 14.8, wR: 9.38, wP: 146000, wY: 7.5, wD: 40.2, wF: 2.0 },
+                2022: { iN: 269.5, iR: 160.5, iP: 190000, iY: 7.0, iD: 83.1, iF: 71.3, iU: 80.2, iNu: 3416.6, iPu: 2423, iC: 280.0, uN: 20.5, uR: 12.0, uP: 86400, uY: 6.7, uD: 35.1, uF: 2.5, mN: 35.2, mR: 20.6, mP: 279000, mY: 7.2, mD: 22.1, mF: 21.0, tN: 23.6, tR: 13.8, tP: 286000, tY: 7.4, tD: 25.1, tF: 5.0, gN: 22.0, gR: 12.9, gP: 309000, gY: 8.5, gD: 23.1, gF: 10.0, kN: 22.3, kR: 13.1, kP: 314000, kY: 7.2, kD: 22.1, kF: 9.0, wN: 16.0, wR: 9.40, wP: 156000, wY: 5.5, wD: 39.1, wF: 1.5 },
+                2023: { iN: 295.3, iR: 173.8, iP: 207000, iY: 8.2, iD: 82.4, iF: 70.9, iU: 82.6, iNu: 3549.9, iPu: 2485, iC: 330.0, uN: 22.5, uR: 13.2, uP: 94100, uY: 7.8, uD: 34.5, uF: 2.4, mN: 38.7, mR: 22.7, mP: 304000, mY: 8.5, mD: 21.5, mF: 20.8, tN: 26.0, tR: 15.3, tP: 312000, tY: 8.6, tD: 24.5, tF: 4.8, gN: 22.6, gR: 13.3, gP: 315000, gY: 9.2, gD: 22.5, gF: 9.8, kN: 22.6, kR: 13.3, kP: 315000, kY: 8.4, kD: 21.5, kF: 8.8, wN: 15.3, wR: 9.01, wP: 148000, wY: 6.5, wD: 38.5, wF: 1.4 },
+                2024: { iN: 327.7, iR: 186.3, iP: 227000, iY: 7.2, iD: 82.0, iF: 75.0, iU: 83.5, iNu: 3889.0, iPu: 2698, iC: 400.0, uN: 25.4, uR: 14.4, uP: 105000, uY: 6.9, uD: 34.1, uF: 2.7, mN: 42.6, mR: 24.2, mP: 332000, mY: 7.5, mD: 21.1, mF: 22.0, tN: 28.3, tR: 16.0, tP: 338000, tY: 7.4, tD: 24.1, tF: 5.2, gN: 24.8, gR: 14.1, gP: 342000, gY: 8.5, gD: 22.1, gF: 10.5, kN: 25.0, kR: 14.2, kP: 345000, kY: 7.2, kD: 21.1, kF: 9.5, wN: 17.1, wR: 9.72, wP: 164000, wY: 5.8, wD: 38.1, wF: 1.6 },
+                2025: { iN: 360.0, iR: 198.4, iP: 247000, iY: 6.5, iD: 81.5, iF: 80.0, iU: 84.5, iNu: 4230.0, iPu: 2900, iC: 450.0, uN: 30.2, uR: 16.6, uP: 123000, uY: 6.5, uD: 33.8, uF: 3.0, mN: 47.0, mR: 25.9, mP: 364000, mY: 6.5, mD: 20.8, mF: 23.5, tN: 31.5, tR: 17.3, tP: 374000, tY: 6.5, tD: 23.8, tF: 5.8, gN: 28.5, gR: 15.7, gP: 389000, gY: 6.5, gD: 21.8, gF: 11.2, kN: 28.1, kR: 15.4, kP: 384000, kY: 6.5, kD: 20.8, kF: 10.5, wN: 18.8, wR: 10.3, wP: 178000, wY: 6.5, wD: 37.8, wF: 1.8 },
+                2026: { iN: 390.5, iR: 210.3, iP: 265000, iY: 6.5, iD: 81.0, iF: 85.0, iU: 85.0, iNu: 4580.0, iPu: 3100, iC: 500.0, uN: 33.5, uR: 18.0, uP: 135000, uY: 6.5, uD: 33.5, uF: 3.3, mN: 51.5, mR: 27.5, mP: 395000, mY: 6.5, mD: 20.5, mF: 25.0, tN: 34.5, tR: 18.5, tP: 405000, tY: 6.5, tD: 23.5, tF: 6.5, gN: 31.5, gR: 16.9, gP: 425000, gY: 6.5, gD: 21.5, gF: 12.0, kN: 30.5, kR: 16.4, kP: 410000, kY: 6.5, kD: 20.5, kF: 11.5, wN: 20.5, wR: 11.0, wP: 192000, wY: 6.5, wD: 37.5, wF: 2.0 },
                 
                 // Old Historical Milestones Anchors
                 1947: { iN: 0.08, iR: 4.1, iP: 250, iY: 2.0, iD: 30.0, iF: 0.0, iU: 3.3, iNu: 15.0, iPu: 45, uN: 0.01, uR: 0.4, uP: 140, uY: 1.8, uD: 10.0, uF: 0.0, mN: 0.015, mR: 0.8, mP: 500, mY: 2.2, mD: 10.0, mF: 0.0, tN: 0.008, tR: 0.35, tP: 300, tY: 2.1, tD: 10.0, tF: 0.0, gN: 0.007, gR: 0.35, gP: 320, gY: 2.1, gD: 10.0, gF: 0.0, kN: 0.007, kR: 0.35, kP: 290, kY: 1.9, kD: 10.0, kF: 0.0, wN: 0.008, wR: 0.40, wP: 310, wY: 2.0, wD: 10.0, wF: 0.0 },
@@ -446,12 +448,23 @@
                 1961: { iN: 0.17, iR: 7.2, iP: 380, iY: 3.1, iD: 40.0, iF: 0.01, iU: 4.76, iNu: 39.2, iPu: 85, uN: 0.02, uR: 0.8, uP: 270, uY: 2.5, uD: 12.0, uF: 0.0, mN: 0.03, mR: 1.2, mP: 760, mY: 3.5, mD: 12.0, mF: 0.0, tN: 0.01, tR: 0.6, tP: 450, tY: 3.0, tD: 12.0, tF: 0.0, gN: 0.012, gR: 0.5, gP: 480, gY: 3.4, gD: 12.0, gF: 0.0, kN: 0.012, kR: 0.5, kP: 410, kY: 2.9, kD: 12.0, kF: 0.0, wN: 0.014, wR: 0.6, wP: 460, wY: 3.0, wD: 12.0, wF: 0.0 },
                 1971: { iN: 0.45, iR: 10.3, iP: 810, iY: 1.0, iD: 45.0, iF: 0.05, iU: 7.5, iNu: 67.3, iPu: 119, uN: 0.04, uR: 1.0, uP: 450, uY: 0.8, uD: 15.0, uF: 0.0, mN: 0.06, mR: 1.4, mP: 1200, mY: 1.2, mD: 14.0, mF: 0.01, tN: 0.03, tR: 0.6, tP: 730, tY: 1.1, tD: 14.0, tF: 0.0, gN: 0.03, gR: 0.7, gP: 850, gY: 1.3, gD: 14.0, gF: 0.0, kN: 0.03, kR: 0.7, kP: 750, kY: 1.0, kD: 14.0, kF: 0.0, wN: 0.035, wR: 0.8, wP: 820, wY: 0.9, wD: 15.0, wF: 0.0 },
                 1979: { iN: 1.10, iR: 12.5, iP: 1750, iY: -5.2, iD: 48.0, iF: 0.07, iU: 8.1, iNu: 152.9, iPu: 224, uN: 0.09, uR: 1.0, uP: 880, uY: -4.5, uD: 17.0, uF: 0.01, mN: 0.14, mR: 1.5, mP: 2300, mY: -5.8, mD: 15.0, mF: 0.01, tN: 0.08, tR: 0.8, tP: 1650, tY: -5.0, tD: 15.5, tF: 0.01, gN: 0.07, gR: 0.7, gP: 1950, gY: -5.5, gD: 15.0, gF: 0.01, kN: 0.07, kR: 0.7, kP: 1700, kY: -4.8, kD: 15.5, kF: 0.01, wN: 0.08, wR: 0.9, wP: 1750, wY: -4.0, wD: 16.5, wF: 0.01 },
-                1981: { iN: 1.50, iR: 14.5, iP: 2200, iY: 6.0, iD: 50.0, iF: 0.09, iU: 8.6, iNu: 193.3, iPu: 270, uN: 0.12, uR: 1.1, uP: 1090, uY: 5.5, uD: 18.0, uF: 0.01, mN: 0.18, mR: 1.7, mP: 2900, mY: 6.5, mD: 16.0, mF: 0.02, tN: 0.10, tR: 0.9, tP: 2080, tY: 6.2, tD: 16.0, tF: 0.01, gN: 0.09, gR: 0.8, gP: 2400, gY: 6.8, gD: 16.0, gF: 0.01, kN: 0.09, kR: 0.8, kP: 2100, kY: 5.9, kD: 16.0, kF: 0.01, wN: 0.11, wR: 1.0, wP: 2150, wY: 5.4, wD: 18.0, wF: 0.01 }
+                1981: { iN: 1.50, iR: 14.5, iP: 2200, iY: 6.0, iD: 50.0, iF: 0.09, iU: 8.6, iNu: 193.3, iPu: 270, iC: 0.1, uN: 0.12, uR: 1.1, uP: 1090, uY: 5.5, uD: 18.0, uF: 0.01, mN: 0.18, mR: 1.7, mP: 2900, mY: 6.5, mD: 16.0, mF: 0.02, tN: 0.10, tR: 0.9, tP: 2080, tY: 6.2, tD: 16.0, tF: 0.01, gN: 0.09, gR: 0.8, gP: 2400, gY: 6.8, gD: 16.0, gF: 0.01, kN: 0.09, kR: 0.8, kP: 2100, kY: 5.9, kD: 16.0, kF: 0.01, wN: 0.11, wR: 1.0, wP: 2150, wY: 5.4, wD: 18.0, wF: 0.01 }
             };
 
+            // Inject Unemployment Rate Anchors into rawDB
+            Object.assign(rawDB[1947], { iE: 8.5, uE: 9.0, mE: 7.5, tE: 8.0, gE: 6.0, kE: 6.5, wE: 8.5 });
+            Object.assign(rawDB[1981], { iE: 7.0, uE: 7.8, mE: 6.0, tE: 6.5, gE: 4.5, kE: 5.2, wE: 7.5 });
+            Object.assign(rawDB[1991], { iE: 5.6, uE: 6.5, mE: 4.8, tE: 5.3, gE: 3.5, kE: 4.0, wE: 5.9 });
+            Object.assign(rawDB[2000], { iE: 5.7, uE: 6.8, mE: 4.9, tE: 5.5, gE: 3.6, kE: 4.2, wE: 6.1 });
+            Object.assign(rawDB[2010], { iE: 5.5, uE: 6.4, mE: 4.7, tE: 5.2, gE: 3.3, kE: 4.1, wE: 5.8 });
+            Object.assign(rawDB[2016], { iE: 5.4, uE: 6.2, mE: 4.6, tE: 5.0, gE: 3.2, kE: 3.9, wE: 5.6 });
+            Object.assign(rawDB[2020], { iE: 8.0, uE: 9.5, mE: 7.2, tE: 7.8, gE: 5.5, kE: 6.5, wE: 8.5 });
+            Object.assign(rawDB[2024], { iE: 4.9, uE: 5.8, mE: 4.2, tE: 4.6, gE: 2.8, kE: 3.5, wE: 5.2 });
+            Object.assign(rawDB[2026], { iE: 4.5, uE: 5.5, mE: 4.0, tE: 4.4, gE: 2.5, kE: 3.3, wE: 4.9 });
+
             const knownYears = Object.keys(rawDB).map(Number).sort((a,b) => a-b);
-            const keysAbsolute = ['iN', 'iR', 'iP', 'iF', 'iU', 'iNu', 'iPu', 'uN', 'uR', 'uP', 'uF', 'mN', 'mR', 'mP', 'mF', 'tN', 'tR', 'tP', 'tF', 'gN', 'gR', 'gP', 'gF', 'kN', 'kR', 'kP', 'kF', 'wN', 'wR', 'wP', 'wF'];
-            const keysPercent = ['iY', 'iD', 'uY', 'uD', 'mY', 'mD', 'tY', 'tD', 'gY', 'gD', 'kY', 'kD', 'wY', 'wD'];
+            const keysAbsolute = ['iN', 'iR', 'iP', 'iF', 'iU', 'iNu', 'iPu', 'iC', 'uN', 'uR', 'uP', 'uF', 'mN', 'mR', 'mP', 'mF', 'tN', 'tR', 'tP', 'tF', 'gN', 'gR', 'gP', 'gF', 'kN', 'kR', 'kP', 'kF', 'wN', 'wR', 'wP', 'wF'];
+            const keysPercent = ['iY', 'iD', 'iE', 'uY', 'uD', 'uE', 'mY', 'mD', 'mE', 'tY', 'tD', 'tE', 'gY', 'gD', 'gE', 'kY', 'kD', 'kE', 'wY', 'wD', 'wE'];
             const keys = [...keysAbsolute, ...keysPercent];
 
             for (let i = 0; i < dataState.years.length; i++) {
@@ -500,6 +513,8 @@
                 dataState.india.usd_inr.push(dataPoint.iU !== null ? parseFloat(dataPoint.iU.toFixed(2)) : null);
                 dataState.india.nominal_usd.push(dataPoint.iNu !== null ? parseFloat(dataPoint.iNu.toFixed(2)) : null);
                 dataState.india.per_capita_usd.push(dataPoint.iPu !== null ? parseFloat(dataPoint.iPu.toFixed(0)) : null);
+                dataState.india.nse_cap.push(dataPoint.iC !== null ? parseFloat(dataPoint.iC.toFixed(2)) : null);
+                dataState.india.unemployment.push(dataPoint.iE !== null ? parseFloat(dataPoint.iE.toFixed(1)) : null);
                 
                 dataState.up.nominal.push(dataPoint.uN !== null ? parseFloat(dataPoint.uN.toFixed(2)) : null);
                 dataState.up.per_capita.push(dataPoint.uP !== null ? parseFloat(dataPoint.uP.toFixed(0)) : null);
@@ -507,6 +522,8 @@
                 dataState.up.debt_gdp.push(dataPoint.uD !== null ? parseFloat(dataPoint.uD.toFixed(1)) : null);
                 dataState.up.fdi.push(dataPoint.uF !== null ? parseFloat(dataPoint.uF.toFixed(2)) : null);
                 dataState.up.usd_inr.push(null);
+                dataState.up.nse_cap.push(null);
+                dataState.up.unemployment.push(dataPoint.uE !== null ? parseFloat(dataPoint.uE.toFixed(1)) : null);
                 
                 dataState.mh.nominal.push(dataPoint.mN !== null ? parseFloat(dataPoint.mN.toFixed(2)) : null);
                 dataState.mh.per_capita.push(dataPoint.mP !== null ? parseFloat(dataPoint.mP.toFixed(0)) : null);
@@ -514,6 +531,8 @@
                 dataState.mh.debt_gdp.push(dataPoint.mD !== null ? parseFloat(dataPoint.mD.toFixed(1)) : null);
                 dataState.mh.fdi.push(dataPoint.mF !== null ? parseFloat(dataPoint.mF.toFixed(2)) : null);
                 dataState.mh.usd_inr.push(null);
+                dataState.mh.nse_cap.push(null);
+                dataState.mh.unemployment.push(dataPoint.mE !== null ? parseFloat(dataPoint.mE.toFixed(1)) : null);
                 
                 dataState.tn.nominal.push(dataPoint.tN !== null ? parseFloat(dataPoint.tN.toFixed(2)) : null);
                 dataState.tn.per_capita.push(dataPoint.tP !== null ? parseFloat(dataPoint.tP.toFixed(0)) : null);
@@ -521,6 +540,8 @@
                 dataState.tn.debt_gdp.push(dataPoint.tD !== null ? parseFloat(dataPoint.tD.toFixed(1)) : null);
                 dataState.tn.fdi.push(dataPoint.tF !== null ? parseFloat(dataPoint.tF.toFixed(2)) : null);
                 dataState.tn.usd_inr.push(null);
+                dataState.tn.nse_cap.push(null);
+                dataState.tn.unemployment.push(dataPoint.tE !== null ? parseFloat(dataPoint.tE.toFixed(1)) : null);
                 
                 dataState.gj.nominal.push(dataPoint.gN !== null ? parseFloat(dataPoint.gN.toFixed(2)) : null);
                 dataState.gj.per_capita.push(dataPoint.gP !== null ? parseFloat(dataPoint.gP.toFixed(0)) : null);
@@ -528,6 +549,8 @@
                 dataState.gj.debt_gdp.push(dataPoint.gD !== null ? parseFloat(dataPoint.gD.toFixed(1)) : null);
                 dataState.gj.fdi.push(dataPoint.gF !== null ? parseFloat(dataPoint.gF.toFixed(2)) : null);
                 dataState.gj.usd_inr.push(null);
+                dataState.gj.nse_cap.push(null);
+                dataState.gj.unemployment.push(dataPoint.gE !== null ? parseFloat(dataPoint.gE.toFixed(1)) : null);
                 
                 dataState.ka.nominal.push(dataPoint.kN !== null ? parseFloat(dataPoint.kN.toFixed(2)) : null);
                 dataState.ka.per_capita.push(dataPoint.kP !== null ? parseFloat(dataPoint.kP.toFixed(0)) : null);
@@ -535,6 +558,8 @@
                 dataState.ka.debt_gdp.push(dataPoint.kD !== null ? parseFloat(dataPoint.kD.toFixed(1)) : null);
                 dataState.ka.fdi.push(dataPoint.kF !== null ? parseFloat(dataPoint.kF.toFixed(2)) : null);
                 dataState.ka.usd_inr.push(null);
+                dataState.ka.nse_cap.push(null);
+                dataState.ka.unemployment.push(dataPoint.kE !== null ? parseFloat(dataPoint.kE.toFixed(1)) : null);
                 
                 dataState.wb.nominal.push(dataPoint.wN !== null ? parseFloat(dataPoint.wN.toFixed(2)) : null);
                 dataState.wb.per_capita.push(dataPoint.wP !== null ? parseFloat(dataPoint.wP.toFixed(0)) : null);
@@ -542,6 +567,8 @@
                 dataState.wb.debt_gdp.push(dataPoint.wD !== null ? parseFloat(dataPoint.wD.toFixed(1)) : null);
                 dataState.wb.fdi.push(dataPoint.wF !== null ? parseFloat(dataPoint.wF.toFixed(2)) : null);
                 dataState.wb.usd_inr.push(null);
+                dataState.wb.nse_cap.push(null);
+                dataState.wb.unemployment.push(dataPoint.wE !== null ? parseFloat(dataPoint.wE.toFixed(1)) : null);
                 
                 dataState.indiaGdp.push(0); dataState.upGdp.push(0); dataState.mhGdp.push(0); dataState.tnGdp.push(0); dataState.gjGdp.push(0); dataState.kaGdp.push(0); dataState.wbGdp.push(0);
                 
@@ -603,7 +630,7 @@
         }
 
         function applyMetric() {
-            const hideUsdMetrics = ['yoy', 'fdi', 'usd_inr'];
+            const hideUsdMetrics = ['yoy', 'fdi', 'usd_inr', 'unemployment'];
             const shouldHideUsd = hideUsdMetrics.includes(currentMetric);
             const usdBtn = document.getElementById('toggleUsd');
             if (usdBtn) {
@@ -614,7 +641,22 @@
                 }
             }
 
+            const autoDeselectDebtMetrics = ['usd_inr', 'fdi', 'nse_cap'];
+            const shouldAutoDeselectDebt = autoDeselectDebtMetrics.includes(currentMetric);
+            const debtBtn = document.getElementById('toggleDebtOverlay');
+            
+            // Auto-deselect instead of hiding the button completely
+            if (shouldAutoDeselectDebt && isDebtOverlayActive) {
+                isDebtOverlayActive = false;
+                if (debtBtn) {
+                    debtBtn.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
+                    debtBtn.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); 
+                }
+            }
+
             const getConvertedArray = (region) => {
+                if (currentMetric === 'nse_cap' && region !== 'india') return new Array(dataState.years.length).fill(null);
+                
                 const arr = dataState[region][currentMetric];
                 if (!isUsdActive || shouldHideUsd) return arr;
                 
@@ -623,6 +665,14 @@
                 if (region === 'india') {
                     if (currentMetric === 'nominal') return dataState.india.nominal_usd;
                     if (currentMetric === 'per_capita') return dataState.india.per_capita_usd;
+                    
+                    if (currentMetric === 'nse_cap') {
+                        return dataState.india.nse_cap.map((val, i) => {
+                            if (val === null) return null;
+                            const rate = dataState.india.usd_inr[i];
+                            return rate ? parseFloat(((val * 1000) / rate).toFixed(2)) : null;
+                        });
+                    }
                     
                     const baseYearIndex = dataState.years.indexOf('2022');
                     const baseYearRate = baseYearIndex !== -1 ? dataState.india.usd_inr[baseYearIndex] : 80.2;
@@ -647,9 +697,22 @@
             dataState.kaGdp.length = 0; dataState.kaGdp.push(...getConvertedArray('ka'));
             dataState.wbGdp.length = 0; dataState.wbGdp.push(...getConvertedArray('wb'));
             
+            if(window.gdpChartInstance) {
+                window.gdpChartInstance.options.scales.y1.display = isDebtOverlayActive;
+                const togglesInfo = [ { id: 'toggle-india', debtIndex: 14 }, { id: 'toggle-mh', debtIndex: 15 }, { id: 'toggle-tn', debtIndex: 16 }, { id: 'toggle-up', debtIndex: 17 }, { id: 'toggle-gj', debtIndex: 18 }, { id: 'toggle-ka', debtIndex: 19 }, { id: 'toggle-wb', debtIndex: 20 } ];
+                togglesInfo.forEach(t => {
+                    const el = document.getElementById(t.id);
+                    if (el && el.checked) {
+                        window.gdpChartInstance.setDatasetVisibility(t.debtIndex, isDebtOverlayActive);
+                    } else {
+                        window.gdpChartInstance.setDatasetVisibility(t.debtIndex, false);
+                    }
+                });
+            }
+
             const scaleBtn = document.getElementById('toggleScale');
             if(scaleBtn) {
-                if (currentMetric === 'yoy') {
+                if (currentMetric === 'yoy' || currentMetric === 'unemployment') {
                     isLogScale = false; 
                     scaleBtn.classList.add('hidden');
                     if(window.gdpChartInstance) window.gdpChartInstance.options.scales.y.type = 'linear';
@@ -705,7 +768,9 @@
             else if (currentMetric === 'real') { titleText = isMobile ? (isUSD ? 'Real GDP ($B, Base 22-23)' : 'Real GDP (₹ Lakh Cr, Base 22-23)') : (isUSD ? 'Real GDP (Billion USD, Base 2022-23)' : 'Real GDP (Base 2022-23)'); } 
             else if (currentMetric === 'per_capita') { titleText = isMobile ? (isUSD ? 'Nominal Per Capita ($)' : 'Nominal Per Capita (₹)') : (isUSD ? 'Nominal Per Capita GDP (USD)' : 'Nominal Per Capita GDP'); } 
             else if (currentMetric === 'real_per_capita') { titleText = isMobile ? (isUSD ? 'Real Per Capita ($)' : 'Real Per Capita (₹)') : (isUSD ? 'Real Per Capita GDP (USD, Base 2022-23)' : 'Real Per Capita GDP (Base 2022-23)'); }
+            else if (currentMetric === 'nse_cap') { titleText = isMobile ? (isUSD ? 'Market Cap ($B)' : 'Market Cap (₹ Lakh Cr)') : (isUSD ? 'NSE Market Cap (Billion USD)' : 'NSE Market Cap (Lakh Crore INR)'); }
             else if (currentMetric === 'yoy') { titleText = 'Real GDP Growth Rate (%)'; } 
+            else if (currentMetric === 'unemployment') { titleText = 'Unemployment Rate (%)'; } 
             else if (currentMetric === 'fdi') { titleText = isMobile ? 'Net Foreign Direct Investment ($B)' : 'Net Foreign Direct Investment'; }
             else if (currentMetric === 'usd_inr') { titleText = 'Exchange Rate (₹ per $1)'; }
 
@@ -764,8 +829,8 @@
             if (chart.isDatasetVisible(4)) checkMin(dataState.gjGdp, dataState.gjTrend);
             if (chart.isDatasetVisible(5)) checkMin(dataState.kaGdp, dataState.kaTrend);
             if (chart.isDatasetVisible(6)) checkMin(dataState.wbGdp, dataState.wbTrend);
-            if (minVal === Infinity) { chart.options.scales.y.min = (isLogScale && currentMetric !== 'yoy') ? 0.01 : 0; } else {
-                if (currentMetric === 'yoy') { delete chart.options.scales.y.min; } else {
+            if (minVal === Infinity) { chart.options.scales.y.min = (isLogScale && currentMetric !== 'yoy' && currentMetric !== 'unemployment') ? 0.01 : 0; } else {
+                if (currentMetric === 'yoy' || currentMetric === 'unemployment') { delete chart.options.scales.y.min; } else {
                     let calcMin = minVal < 0 ? minVal * 1.05 : minVal * 0.98;
                     chart.options.scales.y.min = isLogScale ? Math.max(0.001, parseFloat(calcMin.toFixed(3))) : Math.max(0, parseFloat(calcMin.toFixed(2)));
                 }
@@ -965,14 +1030,16 @@
                                 title: function(context) { return context[0] ? context[0].label : ''; },
                                 label: function(context) {
                                     const year = context.label, dsLabel = context.dataset.label, idx = context.dataIndex;
-                                    const isUSD = isUsdActive && !['yoy', 'fdi', 'usd_inr'].includes(currentMetric);
+                                    const isUSD = isUsdActive && !['yoy', 'fdi', 'usd_inr', 'unemployment'].includes(currentMetric);
                                     let valStr = '', descMetric = '', isNational = dsLabel.includes('National') || dsLabel.includes('India');
                                     let currencySym = isUSD ? '$' : '₹';
                                     
                                     if (currentMetric === 'per_capita' || currentMetric === 'real_per_capita') { valStr = currencySym + context.raw.toLocaleString(isUSD ? 'en-US' : 'en-IN', {maximumFractionDigits:0}); descMetric = currentMetric === 'real_per_capita' ? 'Real Per Capita' : 'Nominal Per Capita'; } 
                                     else if (currentMetric === 'yoy') { valStr = (context.raw > 0 ? '+' : '') + context.raw.toFixed(1) + '%'; descMetric = 'Growth'; } 
+                                    else if (currentMetric === 'unemployment') { valStr = context.raw.toFixed(1) + '%'; descMetric = 'Unemployment'; } 
                                     else if (currentMetric === 'fdi') { valStr = '$' + context.raw.toFixed(2) + 'B'; descMetric = 'Net FDI'; } 
                                     else if (currentMetric === 'usd_inr') { valStr = '₹' + context.raw.toFixed(2); descMetric = 'Exchange Rate'; } 
+                                    else if (currentMetric === 'nse_cap') { valStr = currencySym + context.raw.toLocaleString(isUSD ? 'en-US' : 'en-IN', {maximumFractionDigits:2}) + (isUSD ? 'B' : ' Lakh Cr'); descMetric = 'Market Cap'; }
                                     else { valStr = currencySym + context.raw.toLocaleString(isUSD ? 'en-US' : 'en-IN', {maximumFractionDigits:2}) + (isUSD ? 'B' : ' Lakh Cr'); descMetric = isNational ? 'GDP' : 'GSDP'; }
                                     let partyInfo, prefix, role, debtVal;
                                     if (isNational) { partyInfo = getIndiaPartyInfo(year); prefix = 'National'; role = 'PM'; debtVal = dataState.indiaDebt[idx]; } 
@@ -983,7 +1050,8 @@
                                     else if (dsLabel.includes('West Bengal')) { partyInfo = getWbPartyInfo(year); prefix = 'WB'; role = 'CM'; debtVal = dataState.wbDebt[idx]; } 
                                     else { partyInfo = getPartyInfo(year); prefix = 'UP'; role = 'CM'; debtVal = dataState.upDebt[idx]; }
                                     let lines = [`${prefix} ${descMetric}: ${valStr}`];
-                                    if (isDebtOverlayActive && debtVal !== null) { lines.push(`Debt-to-${isNational ? 'GDP' : 'GSDP'}: ${debtVal.toFixed(1)}%`); }
+                                    const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap'].includes(currentMetric);
+                                    if (isDebtOverlayActive && !shouldHideDebt && debtVal !== null) { lines.push(`Debt-to-${isNational ? 'GDP' : 'GSDP'}: ${debtVal.toFixed(1)}%`); }
                                     lines.push(`${role}: ${partyInfo.pm || partyInfo.cm} (${partyInfo.name})`);
                                     return lines;
                                 }
@@ -991,7 +1059,7 @@
                         }
                     },
                     scales: {
-                        y: { type: 'linear', position: 'left', title: { display: true, text: 'Gross Domestic Product', font: { family: 'Outfit', weight: '700', size: 13 }, color: '#49454f' }, grid: { color: document.documentElement.classList.contains('dark') ? '#4a4458' : '#e8def8', drawBorder: false, lineWidth: 1.5 }, ticks: { font: { family: 'Outfit', weight: '600' }, color: '#49454f', padding: 10, callback: function(value) { const isMobile = window.innerWidth < 768; const isUSD = isUsdActive && !['yoy', 'fdi', 'usd_inr'].includes(currentMetric); let currencySym = isUSD ? '$' : '₹'; if (currentMetric === 'yoy') return isMobile ? String(value.toFixed(1)) : value.toFixed(1) + '%'; if (value <= 0 && currentMetric !== 'yoy') return ''; if (isLogScale && currentMetric !== 'yoy') { const logVal = Math.log10(value), cleanDigit = Math.round(value / Math.pow(10, Math.floor(logVal))); if (cleanDigit !== 1 && cleanDigit !== 2 && cleanDigit !== 5) { return null; } } if (currentMetric === 'per_capita' || currentMetric === 'real_per_capita') { if (isMobile) { return value >= 1000 ? String((value / 1000).toFixed(0)) + 'k' : String(value); } return currencySym + value.toLocaleString(isUSD ? 'en-US' : 'en-IN', {maximumFractionDigits: 0}); } else if (currentMetric === 'fdi') { let formattedVal = value >= 100 ? value.toFixed(0) : value.toFixed(1); return isMobile ? '$' + formattedVal : '$' + formattedVal + 'B'; } else if (currentMetric === 'usd_inr') { return isMobile ? '₹' + Math.round(value) : '₹' + value.toFixed(1); } else { let formattedValue = value >= 100 ? value.toFixed(0) : (value >= 10 ? value.toFixed(1) : value.toFixed(3)); let suffix = isUSD ? 'B' : ' LC'; return isMobile ? (isUSD ? '$' : '') + String(parseFloat(formattedValue)) : currencySym + parseFloat(formattedValue) + suffix; } } } },
+                        y: { type: 'linear', position: 'left', title: { display: true, text: 'Gross Domestic Product', font: { family: 'Outfit', weight: '700', size: 13 }, color: '#49454f' }, grid: { color: document.documentElement.classList.contains('dark') ? '#4a4458' : '#e8def8', drawBorder: false, lineWidth: 1.5 }, ticks: { font: { family: 'Outfit', weight: '600' }, color: '#49454f', padding: 10, callback: function(value) { const isMobile = window.innerWidth < 768; const isUSD = isUsdActive && !['yoy', 'fdi', 'usd_inr', 'unemployment'].includes(currentMetric); let currencySym = isUSD ? '$' : '₹'; if (currentMetric === 'yoy' || currentMetric === 'unemployment') return isMobile ? String(value.toFixed(1)) : value.toFixed(1) + '%'; if (value <= 0 && currentMetric !== 'yoy') return ''; if (isLogScale && currentMetric !== 'yoy' && currentMetric !== 'unemployment') { const logVal = Math.log10(value), cleanDigit = Math.round(value / Math.pow(10, Math.floor(logVal))); if (cleanDigit !== 1 && cleanDigit !== 2 && cleanDigit !== 5) { return null; } } if (currentMetric === 'per_capita' || currentMetric === 'real_per_capita') { if (isMobile) { return value >= 1000 ? String((value / 1000).toFixed(0)) + 'k' : String(value); } return currencySym + value.toLocaleString(isUSD ? 'en-US' : 'en-IN', {maximumFractionDigits: 0}); } else if (currentMetric === 'fdi') { let formattedVal = value >= 100 ? value.toFixed(0) : value.toFixed(1); return isMobile ? '$' + formattedVal : '$' + formattedVal + 'B'; } else if (currentMetric === 'usd_inr') { return isMobile ? '₹' + Math.round(value) : '₹' + value.toFixed(1); } else { let formattedValue = value >= 100 ? value.toFixed(0) : (value >= 10 ? value.toFixed(1) : value.toFixed(3)); let suffix = isUSD ? 'B' : ' LC'; return isMobile ? (isUSD ? '$' : '') + String(parseFloat(formattedValue)) : currencySym + parseFloat(formattedValue) + suffix; } } } },
                         y1: { type: 'linear', position: 'right', display: true, min: 0, max: 100, title: { display: false }, grid: { drawOnChartArea: false, drawBorder: false, drawTicks: false }, ticks: { display: false } },
                         x: { min: String(currentEra), grid: { display: false, drawBorder: false }, ticks: { autoSkip: false, maxRotation: 90, minRotation: 90, padding: 10, font: { family: 'Outfit', weight: '600' }, color: '#49454f', callback: function(val, index) { const yearStr = this.getLabelForValue(val); const electionYears = ['1952', '1957', '1962', '1967', '1971', '1977', '1980', '1984', '1989', '1991', '1996', '1999', '2004', '2009', '2014', '2019', '2024']; if (yearStr === String(currentEra) || yearStr === '2026' || electionYears.includes(yearStr)) { return yearStr; } return null; } } }
                     }
@@ -1069,7 +1137,7 @@
                         currentMetric = item.getAttribute('data-value');
                         const rawText = item.innerText.trim(); 
                         const metricText = document.getElementById('metricDropdownText');
-                        if(metricText) metricText.innerText = 'Metric: ' + rawText;
+                        if(metricText) metricText.innerText = 'Indicator: ' + rawText;
                         
                         dropdownItems.forEach(i => { 
                             i.classList.remove('bg-m3-light-secondaryContainer', 'dark:bg-m3-dark-secondaryContainer', 'text-m3-light-onSecondaryContainer', 'dark:text-m3-dark-onSecondaryContainer', 'font-bold'); 
@@ -1082,6 +1150,22 @@
                         metricIcon.classList.remove('rotate-180');
 
                         applyMetric();
+
+                        if (currentMetric === 'nse_cap') {
+                            const stateToggles = ['toggle-gj', 'toggle-ka', 'toggle-mh', 'toggle-tn', 'toggle-up', 'toggle-wb'];
+                            stateToggles.forEach(id => {
+                                const el = document.getElementById(id);
+                                if (el && el.checked) {
+                                    el.checked = false;
+                                    el.dispatchEvent(new Event('change'));
+                                }
+                            });
+                            const indEl = document.getElementById('toggle-india');
+                            if (indEl && !indEl.checked) {
+                                indEl.checked = true;
+                                indEl.dispatchEvent(new Event('change'));
+                            }
+                        }
                     });
                 });
             }
@@ -1105,7 +1189,9 @@
                         
                         window.gdpChartInstance.setDatasetVisibility(toggle.index, this.checked); 
                         window.gdpChartInstance.setDatasetVisibility(toggle.trendIndex, this.checked); 
-                        if(isDebtOverlayActive) { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, this.checked); } 
+                        
+                        const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap'].includes(currentMetric);
+                        if(isDebtOverlayActive && !shouldHideDebt) { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, this.checked); } 
                         else { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, false); } 
                         updateYAxisMin(); 
                         window.gdpChartInstance.update(); 
@@ -1138,7 +1224,8 @@
                             indEl.checked = true;
                             window.gdpChartInstance.setDatasetVisibility(0, true);
                             window.gdpChartInstance.setDatasetVisibility(7, true);
-                            if(isDebtOverlayActive) window.gdpChartInstance.setDatasetVisibility(14, true);
+                            const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap'].includes(currentMetric);
+                            if(isDebtOverlayActive && !shouldHideDebt) window.gdpChartInstance.setDatasetVisibility(14, true);
                         }
                     } else { 
                         this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
@@ -1189,7 +1276,7 @@
             const scaleToggleBtn = document.getElementById('toggleScale');
             if(scaleToggleBtn) { 
                 scaleToggleBtn.addEventListener('click', function() { 
-                    if (currentMetric === 'yoy') return; 
+                    if (currentMetric === 'yoy' || currentMetric === 'unemployment') return; 
                     isLogScale = !isLogScale; 
                     window.gdpChartInstance.options.scales.y.type = isLogScale ? 'logarithmic' : 'linear'; 
                     updateYAxisMin(); 
@@ -1219,10 +1306,12 @@
                     
                     ctx.scale(pixelRatio, pixelRatio); const cssWidth = chartCanvas.clientWidth, cssHeight = chartCanvas.clientHeight, activeRegions = [];
                     if(document.getElementById('toggle-india').checked) activeRegions.push('National'); if(document.getElementById('toggle-gj').checked) activeRegions.push('Gujarat'); if(document.getElementById('toggle-ka').checked) activeRegions.push('Karnataka'); if(document.getElementById('toggle-mh').checked) activeRegions.push('Maharashtra'); if(document.getElementById('toggle-tn').checked) activeRegions.push('Tamil Nadu'); if(document.getElementById('toggle-up').checked) activeRegions.push('Uttar Pradesh'); if(document.getElementById('toggle-wb').checked) activeRegions.push('West Bengal');
-                    let mTxt = document.getElementById('metricDropdownText').innerText.replace('Metric: ', ''); if(isDebtOverlayActive) mTxt += ' + Debt Overlay';
+                    
+                    const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap', 'unemployment'].includes(currentMetric);
+                    let mTxt = document.getElementById('metricDropdownText').innerText.replace('Indicator: ', ''); if(isDebtOverlayActive && !shouldHideDebt) mTxt += ' + Debt Overlay';
                     
                     // Draw Header ABOVE the graph
-                    ctx.fillStyle = isDark ? '#e6e1e5' : '#1c1b1f'; ctx.font = 'bold 16px Outfit, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(`Metric: ${mTxt}   |   Regions: ${activeRegions.join(', ')}`, cssWidth / 2, headerHeightCSS / 2);
+                    ctx.fillStyle = isDark ? '#e6e1e5' : '#1c1b1f'; ctx.font = 'bold 16px Outfit, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(`Indicator: ${mTxt}   |   Regions: ${activeRegions.join(', ')}`, cssWidth / 2, headerHeightCSS / 2);
                     
                     const legendItems = [{ text: 'NDA-BJP', color: '#F97316' }, { text: 'UPA-INC', color: '#2563EB' }, { text: 'SP / CPI-M', color: '#DC2626' }, { text: 'JD-S / AIADMK', color: '#16A34A' }, { text: 'AITC-TMC / MVA', color: '#10B981' }, { text: 'BSP', color: '#1E3A8A' }, { text: "President's Rule", color: '#9CA3AF' }];
                     ctx.font = '600 12px Outfit, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
