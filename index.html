@@ -178,7 +178,7 @@
                                 <!-- Metric Dropdown Toggle -->
                                 <div class="relative shrink-0 flex">
                                     <button id="metricDropdownBtn" class="bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer px-3.5 py-1.5 rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive flex items-center justify-between gap-2 outline-none whitespace-nowrap border border-m3-light-outline/5 dark:border-m3-dark-outline/5 focus:border-m3-light-primary dark:focus:border-m3-dark-primary shadow-sm w-auto">
-                                        <span id="metricDropdownText">Metric: Growth Rate</span>
+                                        <span id="metricDropdownText">Metric: Real GDP</span>
                                         <svg class="w-3.5 h-3.5 transition-transform duration-300" id="metricDropdownIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
                                     </button>
                                 </div>
@@ -207,10 +207,10 @@
                 <!-- Absolute Dropdown detached from the scrollable row to prevent clipping -->
                 <div id="metricDropdownMenu" class="fixed w-[180px] bg-m3-light-surface/95 dark:bg-m3-dark-surface/95 border border-m3-light-outline/20 dark:border-m3-dark-outline/20 rounded-[1.5rem] expressive-shadow opacity-0 invisible translate-y-[-10px] transition-all duration-300 overflow-hidden flex flex-col p-2 z-[9999]" style="top: 0; left: 0;">
                     <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="nominal">Nominal GDP</div>
-                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="real">Real GDP</div>
+                    <div class="dropdown-item bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer px-4 py-2 rounded-xl cursor-pointer font-bold text-[13px] sm:text-[14px] transition-colors flex items-center shadow-sm" data-value="real">Real GDP</div>
                     <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="per_capita">Nominal Per Capita</div>
                     <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="real_per_capita">Real Per Capita</div>
-                    <div class="dropdown-item bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center shadow-sm" data-value="yoy">Growth Rate</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="yoy">Growth Rate</div>
                     <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="fdi">Net FDI</div>
                     <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="usd_inr">USD to INR</div>
                 </div>
@@ -376,7 +376,7 @@
 
         let currentEra = 1991;
         let isLogScale = false;
-        let currentMetric = 'yoy'; 
+        let currentMetric = 'real'; 
         let isDebtOverlayActive = true;
         let isUsdActive = false;
 
