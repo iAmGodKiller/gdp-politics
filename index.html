@@ -31,14 +31,15 @@
         
         body {
             font-family: 'Outfit', sans-serif;
-            transition: background-color 0.5s cubic-bezier(0.2, 0, 0, 1), color 0.5s cubic-bezier(0.2, 0, 0, 1);
+            transition: background-color 0.2s ease, color 0.2s ease;
             background-image: radial-gradient(at 0% 0%, rgba(103, 80, 164, 0.05) 0px, transparent 50%),
                               radial-gradient(at 100% 100%, rgba(208, 188, 255, 0.05) 0px, transparent 50%);
             background-attachment: fixed;
         }
 
-        .spring-interactive { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .spring-interactive:active { transform: scale(0.95) translateY(2px); }
+        /* Sped up from 0.4s to 0.1s for ultimate snappiness */
+        .spring-interactive { transition: all 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .spring-interactive:active { transform: scale(0.95) translateY(1px); }
 
         .expressive-shadow { box-shadow: 0 24px 48px -12px rgba(28, 27, 31, 0.08), 0 0 1px rgba(28, 27, 31, 0.05); }
         .dark .expressive-shadow { box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5), 0 0 1px rgba(255, 255, 255, 0.1); }
@@ -64,7 +65,8 @@
 
     <main class="flex-1 flex flex-col items-center justify-center p-1 sm:p-6 md:p-10 w-full">
         <div class="w-full lg:w-[98%] xl:w-[95%] 2xl:w-[90%] mx-auto">
-            <div class="bg-m3-light-surface dark:bg-m3-dark-surface rounded-[1.5rem] sm:rounded-[3.5rem] expressive-shadow p-2.5 sm:p-10 border border-m3-light-outline/10 dark:border-m3-dark-outline/10 w-full relative z-10 transition-colors duration-500 overflow-hidden sm:overflow-visible landscape-compact-padding">
+            <!-- Reduced transition from 500ms to 200ms -->
+            <div class="bg-m3-light-surface dark:bg-m3-dark-surface rounded-[1.5rem] sm:rounded-[3.5rem] expressive-shadow p-2.5 sm:p-10 border border-m3-light-outline/10 dark:border-m3-dark-outline/10 w-full relative z-10 transition-colors duration-200 overflow-hidden sm:overflow-visible landscape-compact-padding">
                 
                 <!-- Header -->
                 <div class="relative w-full mb-4 sm:mb-8">
@@ -90,71 +92,30 @@
                 <!-- Master Structural Ribbon Container -->
                 <div class="w-full flex flex-col gap-3 sm:gap-5 mb-4 sm:mb-5 relative z-20">
                     
-                    <!-- ROW 1: Regions (Breaks at 950px to split completely independently) -->
+                    <!-- ROW 1: Regions -->
                     <div class="relative w-fit max-w-full mr-auto min-[950px]:w-full ribbon-container z-30">
                         
                         <!-- Dynamic Fade Masks -->
-                        <div class="fade-left absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-m3-light-surfaceVariant dark:from-m3-dark-surfaceVariant to-transparent pointer-events-none z-10 rounded-l-[1.25rem] sm:rounded-l-[2rem] opacity-0 transition-opacity duration-300 min-[950px]:hidden"></div>
-                        <div class="fade-right absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-m3-light-surfaceVariant dark:from-m3-dark-surfaceVariant to-transparent pointer-events-none z-10 rounded-r-[1.25rem] sm:rounded-r-[2rem] opacity-0 transition-opacity duration-300 min-[950px]:hidden"></div>
+                        <!-- Reduced transition from 300ms to 100ms -->
+                        <div class="fade-left absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-m3-light-surfaceVariant dark:from-m3-dark-surfaceVariant to-transparent pointer-events-none z-10 rounded-l-[1.25rem] sm:rounded-l-[2rem] opacity-0 transition-opacity duration-100 min-[950px]:hidden"></div>
+                        <div class="fade-right absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-m3-light-surfaceVariant dark:from-m3-dark-surfaceVariant to-transparent pointer-events-none z-10 rounded-r-[1.25rem] sm:rounded-r-[2rem] opacity-0 transition-opacity duration-100 min-[950px]:hidden"></div>
 
                         <!-- Scrollable Track -->
                         <div class="scroll-track flex flex-nowrap min-[950px]:flex-wrap items-center justify-start min-[950px]:justify-between w-full overflow-x-auto min-[950px]:overflow-visible no-scrollbar bg-m3-light-surfaceVariant/40 dark:bg-m3-dark-surfaceVariant/20 min-[950px]:bg-transparent min-[950px]:dark:bg-transparent border border-m3-light-outline/10 dark:border-m3-dark-outline/10 min-[950px]:border-transparent min-[950px]:dark:border-transparent rounded-[1.25rem] sm:rounded-[2rem] min-[950px]:rounded-none py-1.5 pl-1.5 pr-0 sm:py-2 sm:pl-2 sm:pr-0 min-[950px]:p-0 gap-1.5 sm:gap-2 min-[950px]:gap-4 relative z-0">
                             
                             <!-- Left Block: National -->
                             <div class="flex items-center shrink-0 snap-start min-[950px]:bg-m3-light-surfaceVariant/40 min-[950px]:dark:bg-m3-dark-surfaceVariant/20 min-[950px]:border min-[950px]:border-m3-light-outline/10 min-[950px]:dark:border-m3-dark-outline/10 min-[950px]:p-1.5 min-[950px]:sm:p-2 min-[950px]:rounded-[2rem] min-[950px]:shadow-sm">
-                                <label class="cursor-pointer relative group m-0 flex shrink-0">
-                                    <input type="checkbox" id="toggle-india" class="peer sr-only" checked>
-                                    <div class="px-3.5 py-1.5 rounded-full border border-m3-light-outline/30 dark:border-m3-dark-outline/30 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant peer-checked:bg-m3-light-primaryContainer peer-checked:dark:bg-m3-dark-primaryContainer peer-checked:border-transparent peer-checked:text-m3-light-onPrimaryContainer peer-checked:dark:text-m3-dark-onPrimaryContainer spring-interactive flex items-center gap-1.5 font-medium text-[13px] sm:text-[14px] bg-m3-light-surface dark:bg-m3-dark-surface peer-checked:shadow-sm whitespace-nowrap">
-                                        <svg class="w-3.5 h-3.5 hidden peer-checked:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
-                                        <span>National</span>
-                                    </div>
-                                </label>
+                                <button id="toggle-india" data-checked="true" class="px-3.5 py-1.5 bg-m3-light-primaryContainer dark:bg-m3-dark-primaryContainer text-m3-light-onPrimaryContainer dark:text-m3-dark-onPrimaryContainer border border-m3-light-outline/10 dark:border-m3-dark-outline/10 rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap shadow-sm shrink-0">National</button>
                             </div>
                             
                             <!-- Right Block: States -->
                             <div class="flex items-center shrink-0 snap-start gap-1.5 sm:gap-2 min-[950px]:bg-m3-light-surfaceVariant/40 min-[950px]:dark:bg-m3-dark-surfaceVariant/20 min-[950px]:border min-[950px]:border-m3-light-outline/10 min-[950px]:dark:border-m3-dark-outline/10 min-[950px]:p-1.5 min-[950px]:sm:p-2 min-[950px]:rounded-[2rem] min-[950px]:shadow-sm">
-                                <label class="cursor-pointer relative group m-0 flex shrink-0">
-                                    <input type="checkbox" id="toggle-gj" class="peer sr-only">
-                                    <div class="px-3.5 py-1.5 rounded-full border border-m3-light-outline/30 dark:border-m3-dark-outline/30 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant peer-checked:bg-m3-light-primaryContainer peer-checked:dark:bg-m3-dark-primaryContainer peer-checked:border-transparent peer-checked:text-m3-light-onPrimaryContainer peer-checked:dark:text-m3-dark-onPrimaryContainer spring-interactive flex items-center gap-1.5 font-medium text-[13px] sm:text-[14px] bg-m3-light-surface dark:bg-m3-dark-surface peer-checked:shadow-sm whitespace-nowrap">
-                                        <svg class="w-3.5 h-3.5 hidden peer-checked:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
-                                        <span>Gujarat</span>
-                                    </div>
-                                </label>
-                                <label class="cursor-pointer relative group m-0 flex shrink-0">
-                                    <input type="checkbox" id="toggle-ka" class="peer sr-only">
-                                    <div class="px-3.5 py-1.5 rounded-full border border-m3-light-outline/30 dark:border-m3-dark-outline/30 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant peer-checked:bg-m3-light-primaryContainer peer-checked:dark:bg-m3-dark-primaryContainer peer-checked:border-transparent peer-checked:text-m3-light-onPrimaryContainer peer-checked:dark:text-m3-dark-onPrimaryContainer spring-interactive flex items-center gap-1.5 font-medium text-[13px] sm:text-[14px] bg-m3-light-surface dark:bg-m3-dark-surface peer-checked:shadow-sm whitespace-nowrap">
-                                        <svg class="w-3.5 h-3.5 hidden peer-checked:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
-                                        <span>Karnataka</span>
-                                    </div>
-                                </label>
-                                <label class="cursor-pointer relative group m-0 flex shrink-0">
-                                    <input type="checkbox" id="toggle-mh" class="peer sr-only">
-                                    <div class="px-3.5 py-1.5 rounded-full border border-m3-light-outline/30 dark:border-m3-dark-outline/30 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant peer-checked:bg-m3-light-primaryContainer peer-checked:dark:bg-m3-dark-primaryContainer peer-checked:border-transparent peer-checked:text-m3-light-onPrimaryContainer peer-checked:dark:text-m3-dark-onPrimaryContainer spring-interactive flex items-center gap-1.5 font-medium text-[13px] sm:text-[14px] bg-m3-light-surface dark:bg-m3-dark-surface peer-checked:shadow-sm whitespace-nowrap">
-                                        <svg class="w-3.5 h-3.5 hidden peer-checked:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
-                                        <span>Maharashtra</span>
-                                    </div>
-                                </label>
-                                <label class="cursor-pointer relative group m-0 flex shrink-0">
-                                    <input type="checkbox" id="toggle-tn" class="peer sr-only">
-                                    <div class="px-3.5 py-1.5 rounded-full border border-m3-light-outline/30 dark:border-m3-dark-outline/30 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant peer-checked:bg-m3-light-primaryContainer peer-checked:dark:bg-m3-dark-primaryContainer peer-checked:border-transparent peer-checked:text-m3-light-onPrimaryContainer peer-checked:dark:text-m3-dark-onPrimaryContainer spring-interactive flex items-center gap-1.5 font-medium text-[13px] sm:text-[14px] bg-m3-light-surface dark:bg-m3-dark-surface peer-checked:shadow-sm whitespace-nowrap">
-                                        <svg class="w-3.5 h-3.5 hidden peer-checked:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
-                                        <span>Tamil Nadu</span>
-                                    </div>
-                                </label>
-                                <label class="cursor-pointer relative group m-0 flex shrink-0">
-                                    <input type="checkbox" id="toggle-up" class="peer sr-only">
-                                    <div class="px-3.5 py-1.5 rounded-full border border-m3-light-outline/30 dark:border-m3-dark-outline/30 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant peer-checked:bg-m3-light-primaryContainer peer-checked:dark:bg-m3-dark-primaryContainer peer-checked:border-transparent peer-checked:text-m3-light-onPrimaryContainer peer-checked:dark:text-m3-dark-onPrimaryContainer spring-interactive flex items-center gap-1.5 font-medium text-[13px] sm:text-[14px] bg-m3-light-surface dark:bg-m3-dark-surface peer-checked:shadow-sm whitespace-nowrap">
-                                        <svg class="w-3.5 h-3.5 hidden peer-checked:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
-                                        <span>Uttar Pradesh</span>
-                                    </div>
-                                </label>
-                                <label class="cursor-pointer relative group m-0 flex shrink-0">
-                                    <input type="checkbox" id="toggle-wb" class="peer sr-only">
-                                    <div class="px-3.5 py-1.5 rounded-full border border-m3-light-outline/30 dark:border-m3-dark-outline/30 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant peer-checked:bg-m3-light-primaryContainer peer-checked:dark:bg-m3-dark-primaryContainer peer-checked:border-transparent peer-checked:text-m3-light-onPrimaryContainer peer-checked:dark:text-m3-dark-onPrimaryContainer spring-interactive flex items-center gap-1.5 font-medium text-[13px] sm:text-[14px] bg-m3-light-surface dark:bg-m3-dark-surface peer-checked:shadow-sm whitespace-nowrap">
-                                        <svg class="w-3.5 h-3.5 hidden peer-checked:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
-                                        <span>West Bengal</span>
-                                    </div>
-                                </label>
+                                <button id="toggle-gj" data-checked="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">Gujarat</button>
+                                <button id="toggle-ka" data-checked="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">Karnataka</button>
+                                <button id="toggle-mh" data-checked="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">Maharashtra</button>
+                                <button id="toggle-tn" data-checked="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">Tamil Nadu</button>
+                                <button id="toggle-up" data-checked="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">Uttar Pradesh</button>
+                                <button id="toggle-wb" data-checked="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">West Bengal</button>
                             </div>
                             
                             <!-- Invisible Right Padding Spacer -->
@@ -162,12 +123,13 @@
                         </div>
                     </div>
                     
-                    <!-- ROW 2: Controls & Save (Breaks at 850px) -->
+                    <!-- ROW 2: Controls & Save -->
                     <div class="relative w-fit max-w-full mr-auto min-[850px]:w-full ribbon-container z-40">
                         
                         <!-- Dynamic Fade Masks -->
-                        <div class="fade-left absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-m3-light-surfaceVariant dark:from-m3-dark-surfaceVariant to-transparent pointer-events-none z-10 rounded-l-[1.25rem] sm:rounded-l-[2rem] opacity-0 transition-opacity duration-300 min-[850px]:hidden"></div>
-                        <div class="fade-right absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-m3-light-surfaceVariant dark:from-m3-dark-surfaceVariant to-transparent pointer-events-none z-10 rounded-r-[1.25rem] sm:rounded-r-[2rem] opacity-0 transition-opacity duration-300 min-[850px]:hidden"></div>
+                        <!-- Reduced transition from 300ms to 100ms -->
+                        <div class="fade-left absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-m3-light-surfaceVariant dark:from-m3-dark-surfaceVariant to-transparent pointer-events-none z-10 rounded-l-[1.25rem] sm:rounded-l-[2rem] opacity-0 transition-opacity duration-100 min-[850px]:hidden"></div>
+                        <div class="fade-right absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-m3-light-surfaceVariant dark:from-m3-dark-surfaceVariant to-transparent pointer-events-none z-10 rounded-r-[1.25rem] sm:rounded-r-[2rem] opacity-0 transition-opacity duration-100 min-[850px]:hidden"></div>
 
                         <!-- Scrollable Track -->
                         <div class="scroll-track flex flex-nowrap min-[850px]:flex-wrap items-center justify-start min-[850px]:justify-between w-full overflow-x-auto min-[850px]:overflow-visible no-scrollbar bg-m3-light-surfaceVariant/40 dark:bg-m3-dark-surfaceVariant/20 min-[850px]:bg-transparent min-[850px]:dark:bg-transparent border border-m3-light-outline/10 dark:border-m3-dark-outline/10 min-[850px]:border-transparent min-[850px]:dark:border-transparent rounded-[1.25rem] sm:rounded-[2rem] min-[850px]:rounded-none py-1.5 pl-1.5 pr-0 sm:py-2 sm:pl-2 sm:pr-0 min-[850px]:p-0 gap-1.5 sm:gap-2 min-[850px]:gap-4 relative z-0">
@@ -179,7 +141,7 @@
                                 <div class="relative shrink-0 flex">
                                     <button id="metricDropdownBtn" class="bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer px-3.5 py-1.5 rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive flex items-center justify-between gap-2 outline-none whitespace-nowrap border border-m3-light-outline/5 dark:border-m3-dark-outline/5 focus:border-m3-light-primary dark:focus:border-m3-dark-primary shadow-sm w-auto">
                                         <span id="metricDropdownText">Indicator: Real GDP</span>
-                                        <svg class="w-3.5 h-3.5 transition-transform duration-300" id="metricDropdownIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
+                                        <svg class="w-3.5 h-3.5 transition-transform duration-150" id="metricDropdownIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
                                     </button>
                                 </div>
 
@@ -205,20 +167,21 @@
                 </div>
 
                 <!-- Absolute Dropdown detached from the scrollable row to prevent clipping -->
-                <div id="metricDropdownMenu" class="fixed w-[180px] bg-m3-light-surface/95 dark:bg-m3-dark-surface/95 border border-m3-light-outline/20 dark:border-m3-dark-outline/20 rounded-[1.5rem] expressive-shadow opacity-0 invisible translate-y-[-10px] transition-all duration-300 overflow-hidden flex flex-col p-2 z-[9999]" style="top: 0; left: 0;">
-                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="nominal">Nominal GDP</div>
-                    <div class="dropdown-item bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer px-4 py-2 rounded-xl cursor-pointer font-bold text-[13px] sm:text-[14px] transition-colors flex items-center shadow-sm" data-value="real">Real GDP</div>
-                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="per_capita">Nominal Per Capita</div>
-                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="real_per_capita">Real Per Capita</div>
-                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="yoy">Growth Rate</div>
-                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="fdi">Net FDI</div>
-                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="nse_cap">NSE Market Cap</div>
-                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="unemployment">Unemployment Rate</div>
-                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors flex items-center" data-value="usd_inr">USD to INR</div>
+                <!-- Reduced duration-300 to duration-100 -->
+                <div id="metricDropdownMenu" class="fixed w-[180px] bg-m3-light-surface/95 dark:bg-m3-dark-surface/95 border border-m3-light-outline/20 dark:border-m3-dark-outline/20 rounded-[1.5rem] expressive-shadow opacity-0 invisible translate-y-[-10px] transition-all duration-100 overflow-hidden flex flex-col p-2 z-[9999]" style="top: 0; left: 0;">
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center" data-value="yoy">Growth Rate</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center" data-value="fdi">Net FDI</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center" data-value="nominal">Nominal GDP</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center" data-value="per_capita">Nominal Per Capita</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center" data-value="nse_cap">NSE Market Cap</div>
+                    <div class="dropdown-item bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer px-4 py-2 rounded-xl cursor-pointer font-bold text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center shadow-sm" data-value="real">Real GDP</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center" data-value="real_per_capita">Real Per Capita</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center" data-value="unemployment">Unemployment Rate</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center" data-value="usd_inr">USD to INR</div>
                 </div>
 
                 <!-- LAYER 3: Graph Container -->
-                <div class="bg-m3-light-bg dark:bg-[#141217] rounded-[1.25rem] sm:rounded-[2.5rem] p-1.5 sm:p-6 shadow-inner border border-m3-light-outline/10 dark:border-m3-dark-outline/10 z-[60] relative flex flex-col transition-colors duration-500 mb-4 landscape-chart-height">
+                <div class="bg-m3-light-bg dark:bg-[#141217] rounded-[1.25rem] sm:rounded-[2.5rem] p-1.5 sm:p-6 shadow-inner border border-m3-light-outline/10 dark:border-m3-dark-outline/10 z-[60] relative flex flex-col transition-colors duration-200 mb-4 landscape-chart-height">
                     <div class="relative h-[60vh] sm:h-[65vh] min-h-[350px] md:min-h-[500px] w-full grow landscape-chart-height">
                         <canvas id="gdpChart"></canvas>
                     </div>
@@ -372,6 +335,7 @@
                 document.documentElement.classList.toggle('dark');
                 const isDark = document.documentElement.classList.contains('dark');
                 if(themeIcon) themeIcon.innerHTML = isDark ? sunIcon : moonIcon;
+                // Passed 'none' to skip animation when toggling theme
                 if(window.gdpChartInstance) applyChartTheme(window.gdpChartInstance);
             });
         }
@@ -399,11 +363,6 @@
         function initializeData() {
             for (let year = 1947; year <= 2026; year++) { dataState.years.push(String(year)); }
             
-            // Macroeconomic Shock Anchors injected into rawDB:
-            // 1979: Pre-reform Oil Shock (-5.2% growth)
-            // 1992: Reform bounce back (5.5% growth)
-            // 1997: Asian Financial crisis ripple (4.0% growth)
-            // 2008: Global Financial Crisis Lehman Crash (3.1% growth)
             const rawDB = {
                 1991: { iN: 6.5, iR: 24.5, iP: 7750, iY: 1.1, iD: 75.3, iF: 0.13, iU: 22.7, iNu: 270.1, iPu: 303, iC: 1.0, uN: 0.52, uR: 1.8, uP: 3800, uY: 0.5, uD: 23.4, uF: 0.01, mN: 0.81, mR: 2.9, mP: 10400, mY: 1.2, mD: 18.2, mF: 0.04, tN: 0.46, tR: 1.6, tP: 8300, tY: 1.3, tD: 19.5, tF: 0.01, gN: 0.38, gR: 1.5, gP: 9000, gY: 2.0, gD: 18.0, gF: 0.02, kN: 0.35, kR: 1.4, kP: 7800, kY: 1.5, kD: 18.5, kF: 0.01, wN: 0.35, wR: 1.5, wP: 5000, wY: 1.0, wD: 24.1, wF: 0.01 },
                 1992: { iN: 7.5, iR: 25.8, iP: 8650, iY: 5.5, iD: 76.0, iF: 0.3, iU: 25.9, iNu: 288.2, iPu: 317, iC: 2.2, uN: 0.60, uR: 1.9, uP: 4200, uY: 3.5, uD: 23.8, uF: 0.02, mN: 0.95, mR: 3.1, mP: 11800, mY: 5.8, mD: 18.5, mF: 0.1, tN: 0.53, tR: 1.8, tP: 9500, tY: 5.4, tD: 19.7, tF: 0.03, gN: 0.45, gR: 1.6, gP: 10300, gY: 6.0, gD: 18.3, gF: 0.05, kN: 0.41, kR: 1.5, kP: 8800, kY: 5.6, kD: 18.7, kF: 0.03, wN: 0.40, wR: 1.6, wP: 5600, wY: 4.8, wD: 24.8, wF: 0.02 },
@@ -451,7 +410,6 @@
                 1981: { iN: 1.50, iR: 14.5, iP: 2200, iY: 6.0, iD: 50.0, iF: 0.09, iU: 8.6, iNu: 193.3, iPu: 270, iC: 0.1, uN: 0.12, uR: 1.1, uP: 1090, uY: 5.5, uD: 18.0, uF: 0.01, mN: 0.18, mR: 1.7, mP: 2900, mY: 6.5, mD: 16.0, mF: 0.02, tN: 0.10, tR: 0.9, tP: 2080, tY: 6.2, tD: 16.0, tF: 0.01, gN: 0.09, gR: 0.8, gP: 2400, gY: 6.8, gD: 16.0, gF: 0.01, kN: 0.09, kR: 0.8, kP: 2100, kY: 5.9, kD: 16.0, kF: 0.01, wN: 0.11, wR: 1.0, wP: 2150, wY: 5.4, wD: 18.0, wF: 0.01 }
             };
 
-            // Inject Unemployment Rate Anchors into rawDB
             Object.assign(rawDB[1947], { iE: 8.5, uE: 9.0, mE: 7.5, tE: 8.0, gE: 6.0, kE: 6.5, wE: 8.5 });
             Object.assign(rawDB[1981], { iE: 7.0, uE: 7.8, mE: 6.0, tE: 6.5, gE: 4.5, kE: 5.2, wE: 7.5 });
             Object.assign(rawDB[1991], { iE: 5.6, uE: 6.5, mE: 4.8, tE: 5.3, gE: 3.5, kE: 4.0, wE: 5.9 });
@@ -472,13 +430,11 @@
                 let dataPoint = {};
                 
                 keys.forEach(k => {
-                    // Exact match found for this specific metric
                     if (rawDB[yr] && rawDB[yr][k] !== undefined) {
                         dataPoint[k] = rawDB[yr][k];
                         return;
                     }
                     
-                    // Sparse interpolation: Find nearest known years for this specific key
                     let lowerYr = null, upperYr = null;
                     for (let j = yr - 1; j >= 1947; j--) {
                         if (rawDB[j] && rawDB[j][k] !== undefined) { lowerYr = j; break; }
@@ -491,20 +447,18 @@
                         let lowerData = rawDB[lowerYr][k], upperData = rawDB[upperYr][k];
                         let fraction = (yr - lowerYr) / (upperYr - lowerYr);
                         
-                        // Exponential interpolation inherently preserves the demographic identity Population = Nom/PerCap
                         if (keysAbsolute.includes(k) && lowerData > 0 && upperData > 0) {
                             dataPoint[k] = lowerData * Math.pow(upperData / lowerData, fraction);
                         } else {
                             dataPoint[k] = lowerData + fraction * (upperData - lowerData); 
                         }
                     } else if (lowerYr !== null) {
-                        dataPoint[k] = rawDB[lowerYr][k]; // Flatline if no future data exists
+                        dataPoint[k] = rawDB[lowerYr][k]; 
                     } else {
                         dataPoint[k] = null;
                     }
                 });
                 
-                // Populate core metrics
                 dataState.india.nominal.push(dataPoint.iN !== null ? parseFloat(dataPoint.iN.toFixed(2)) : null);
                 dataState.india.per_capita.push(dataPoint.iP !== null ? parseFloat(dataPoint.iP.toFixed(0)) : null);
                 dataState.india.yoy.push(dataPoint.iY !== null ? parseFloat(dataPoint.iY.toFixed(1)) : null);
@@ -581,7 +535,6 @@
                 dataState.wbDebt.push(dataPoint.wD !== null ? parseFloat(dataPoint.wD.toFixed(1)) : null);
             }
 
-            // Professional Splicing (Chain-linking) for Real GDP using 2022 as Base Year
             const baseYearIndex = dataState.years.indexOf('2022');
             const regions = ['india', 'up', 'mh', 'tn', 'gj', 'ka', 'wb'];
             
@@ -591,17 +544,14 @@
                 const realArr = new Array(dataState.years.length).fill(null);
                 
                 if (baseYearIndex !== -1 && nominalArr[baseYearIndex] !== null) {
-                    // Anchor base year
                     realArr[baseYearIndex] = nominalArr[baseYearIndex];
                     
-                    // Back-cast from base year
                     for (let i = baseYearIndex - 1; i >= 0; i--) {
                         if (realArr[i + 1] !== null && yoyArr[i + 1] !== null) {
                             realArr[i] = realArr[i + 1] / (1 + (yoyArr[i + 1] / 100));
                         }
                     }
                     
-                    // Fore-cast from base year
                     for (let i = baseYearIndex + 1; i < dataState.years.length; i++) {
                         if (realArr[i - 1] !== null && yoyArr[i] !== null) {
                             realArr[i] = realArr[i - 1] * (1 + (yoyArr[i] / 100));
@@ -612,7 +562,6 @@
                 dataState[region].real = realArr.map(val => val !== null ? parseFloat(val.toFixed(2)) : null);
             });
 
-            // Derived Economic Metrics calculation
             regions.forEach(region => {
                 dataState[region].real_per_capita = new Array(dataState.years.length).fill(null);
                 
@@ -621,7 +570,6 @@
                     let r = dataState[region].real[i];
                     let pc = dataState[region].per_capita[i];
 
-                    // Real Per Capita = Per Capita * (Real / Nominal)
                     if (n !== null && r !== null && pc !== null && n > 0) {
                         dataState[region].real_per_capita[i] = parseFloat((pc * (r / n)).toFixed(0));
                     }
@@ -645,7 +593,6 @@
             const shouldAutoDeselectDebt = autoDeselectDebtMetrics.includes(currentMetric);
             const debtBtn = document.getElementById('toggleDebtOverlay');
             
-            // Auto-deselect instead of hiding the button completely
             if (shouldAutoDeselectDebt && isDebtOverlayActive) {
                 isDebtOverlayActive = false;
                 if (debtBtn) {
@@ -660,8 +607,6 @@
                 const arr = dataState[region][currentMetric];
                 if (!isUsdActive || shouldHideUsd) return arr;
                 
-                // When USD is active, we utilize the explicitly sourced WB USD variables for India.
-                // We wipe out states because they lack explicit independent international reporting in USD.
                 if (region === 'india') {
                     if (currentMetric === 'nominal') return dataState.india.nominal_usd;
                     if (currentMetric === 'per_capita') return dataState.india.per_capita_usd;
@@ -677,7 +622,6 @@
                     const baseYearIndex = dataState.years.indexOf('2022');
                     const baseYearRate = baseYearIndex !== -1 ? dataState.india.usd_inr[baseYearIndex] : 80.2;
                     
-                    // Real USD mathematically forces identical volume trajectory (chain linked) simply mapped to base year rate
                     if (currentMetric === 'real') {
                         return dataState.india.real.map(r => r === null ? null : parseFloat(((r * 1000) / baseYearRate).toFixed(2)));
                     } else if (currentMetric === 'real_per_capita') {
@@ -685,7 +629,6 @@
                     }
                 }
                 
-                // Return an array of nulls for states when USD is active
                 return new Array(arr.length).fill(null);
             };
 
@@ -702,7 +645,7 @@
                 const togglesInfo = [ { id: 'toggle-india', debtIndex: 14 }, { id: 'toggle-mh', debtIndex: 15 }, { id: 'toggle-tn', debtIndex: 16 }, { id: 'toggle-up', debtIndex: 17 }, { id: 'toggle-gj', debtIndex: 18 }, { id: 'toggle-ka', debtIndex: 19 }, { id: 'toggle-wb', debtIndex: 20 } ];
                 togglesInfo.forEach(t => {
                     const el = document.getElementById(t.id);
-                    if (el && el.checked) {
+                    if (el && el.getAttribute('data-checked') === 'true') {
                         window.gdpChartInstance.setDatasetVisibility(t.debtIndex, isDebtOverlayActive);
                     } else {
                         window.gdpChartInstance.setDatasetVisibility(t.debtIndex, false);
@@ -723,9 +666,9 @@
                 }
             }
             calculateBestFitTrendlines(currentEra); updateChartTitle(); updateYAxisMin();
-            if(window.gdpChartInstance) { window.gdpChartInstance.update(); }
+            // Passed 'none' to skip heavy rerender animations
+            if(window.gdpChartInstance) { window.gdpChartInstance.update('none'); }
 
-            // Re-calculate the layout of ribbons after DOM updates (like a button vanishing)
             setTimeout(refreshAllRibbons, 50);
         }
 
@@ -763,7 +706,6 @@
             const isMobile = window.innerWidth < 768;
             const isUSD = isUsdActive && !['yoy', 'fdi', 'usd_inr'].includes(currentMetric);
             
-            // Adjust mobile title to include units since ticks will be stripped
             if (currentMetric === 'nominal') { titleText = isMobile ? (isUSD ? 'Nominal GDP ($B)' : 'Nominal GDP (₹ Lakh Cr)') : (isUSD ? 'Nominal GDP (Billion USD)' : 'Nominal GDP'); } 
             else if (currentMetric === 'real') { titleText = isMobile ? (isUSD ? 'Real GDP ($B, Base 22-23)' : 'Real GDP (₹ Lakh Cr, Base 22-23)') : (isUSD ? 'Real GDP (Billion USD, Base 2022-23)' : 'Real GDP (Base 2022-23)'); } 
             else if (currentMetric === 'per_capita') { titleText = isMobile ? (isUSD ? 'Nominal Per Capita ($)' : 'Nominal Per Capita (₹)') : (isUSD ? 'Nominal Per Capita GDP (USD)' : 'Nominal Per Capita GDP'); } 
@@ -782,10 +724,9 @@
                 yAxis.ticks.minRotation = -90;
                 yAxis.ticks.maxRotation = -90;
                 yAxis.ticks.padding = 0; 
-                yAxis.ticks.align = 'center';      // Vertically centers the rotated text precisely on the grid line
-                yAxis.ticks.crossAlign = 'center'; // Horizontally centers the text within the dedicated 35px axis width
+                yAxis.ticks.align = 'center';     
+                yAxis.ticks.crossAlign = 'center';
                 
-                // Add afterFit to guarantee safe width for short, rotated numbers so they don't clip
                 yAxis.afterFit = function(scale) {
                     scale.width = 35;
                 };
@@ -803,9 +744,9 @@
                 yAxis.ticks.minRotation = 0;
                 yAxis.ticks.maxRotation = 0;
                 yAxis.ticks.padding = 10;
-                yAxis.ticks.align = undefined;     // Reset to Chart.js default
-                yAxis.ticks.crossAlign = undefined; // Reset to Chart.js default
-                yAxis.afterFit = undefined; // Reset width adjustment
+                yAxis.ticks.align = undefined;     
+                yAxis.ticks.crossAlign = undefined; 
+                yAxis.afterFit = undefined; 
                 
                 window.gdpChartInstance.options.layout.padding.left = 0;
                 window.gdpChartInstance.options.layout.padding.right = 0;
@@ -850,7 +791,9 @@
 
             if (chartInstance.options.scales.y1) { chartInstance.options.scales.y1.title.color = textColor; chartInstance.options.scales.y1.ticks.color = textColor; chartInstance.options.scales.y1.grid.color = gridColor; }
             chartInstance.data.datasets.forEach(dataset => { if (dataset.label.includes('Trendline')) { dataset.borderColor = trendlineColor; } });
-            chartInstance.update();
+            
+            // Re-render instantly
+            chartInstance.update('none');
         }
 
         function createSegmentGradient(ctx, partyFunc) {
@@ -862,21 +805,16 @@
             const party0 = partyFunc(year0);
             const party1 = partyFunc(year1);
 
-            // If the party didn't change, just return the solid color
             if (party0.name === party1.name) return party0.color;
 
-            // They changed! Calculate exact location of the stop based on the month
             const month = party1.month || 6; 
-            // Financial Year begins in April (Month 4). Shift calendar to FY timeframe.
             let fyMonth = month >= 4 ? month - 3 : month + 9;
             let fraction = fyMonth / 12;
             
-            // Revert to center for multi-year interpolated gaps prior to 1991
             if (year1 - year0 > 1) fraction = 0.5;
 
             const chartCtx = ctx.chart.ctx;
             const gradient = chartCtx.createLinearGradient(ctx.p0.x, ctx.p0.y, ctx.p1.x, ctx.p1.y);
-            // Sharp color stop creates a rigid transition instead of a blurred bleed
             gradient.addColorStop(0, party0.color);
             gradient.addColorStop(Math.max(0, fraction - 0.001), party0.color);
             gradient.addColorStop(Math.min(1, fraction + 0.001), party1.color);
@@ -893,21 +831,18 @@
 
             const maxScroll = track.scrollWidth - track.clientWidth;
             
-            // Only show blurs if it is actually scrollable
             if (maxScroll <= 2) {
                 leftFade.style.opacity = '0';
                 rightFade.style.opacity = '0';
                 return;
             }
 
-            // Dynamically show left fade if scrolled away from start
             if (track.scrollLeft > 2) {
                 leftFade.style.opacity = '1';
             } else {
                 leftFade.style.opacity = '0';
             }
 
-            // Dynamically show right fade if not at the very end
             if (Math.ceil(track.scrollLeft) < maxScroll - 2) {
                 rightFade.style.opacity = '1';
             } else {
@@ -929,7 +864,6 @@
                     window.addEventListener('resize', () => updateRibbonFades(container));
                 }
             });
-            // Initial check after render
             setTimeout(refreshAllRibbons, 250); 
         }
 
@@ -968,7 +902,7 @@
                 },
                 options: {
                     layout: { padding: { left: 0, right: 0, top: 0, bottom: 0 } },
-                    events: ['mousemove', 'mouseout', 'click'], responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+                    events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'], responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
                     plugins: {
                         legend: { display: false },
                         title: { display: false, align: 'start', font: { family: 'Outfit', weight: '700', size: 13 }, padding: { bottom: 10, top: 0 } },
@@ -978,7 +912,8 @@
                                 const {chart, tooltip} = context; let tooltipEl = chart.canvas.parentNode.querySelector('div.chartjs-tooltip');
                                 if (!tooltipEl) {
                                     tooltipEl = document.createElement('div');
-                                    tooltipEl.className = 'chartjs-tooltip expressive-shadow rounded-[2rem] border border-m3-light-outline/20 dark:border-m3-dark-outline/20 p-5 absolute z-[999] transition-opacity duration-200 pointer-events-none bg-m3-light-surface/95 dark:bg-m3-dark-surface/95';
+                                    // Sped up transition-opacity duration for tooltips to 75ms
+                                    tooltipEl.className = 'chartjs-tooltip expressive-shadow rounded-[2rem] border border-m3-light-outline/20 dark:border-m3-dark-outline/20 p-5 absolute z-[999] transition-opacity duration-75 pointer-events-none bg-m3-light-surface/95 dark:bg-m3-dark-surface/95';
                                     chart.canvas.parentNode.appendChild(tooltipEl);
                                 }
                                 if (tooltip.opacity === 0) { tooltipEl.style.opacity = 0; return; }
@@ -1005,20 +940,16 @@
                                 const {offsetLeft: positionX, offsetTop: positionY} = chart.canvas, tooltipWidth = tooltipEl.offsetWidth || 260, tooltipHeight = tooltipEl.offsetHeight || 150, chartArea = chart.chartArea;
                                 let finalLeft, finalTop;
                                 if (window.innerWidth >= 1024) {
-                                    // PC / Wide Screen: Follow Mouse (Caret Position)
                                     finalLeft = positionX + tooltip.caretX + 20; 
                                     finalTop = positionY + tooltip.caretY - (tooltipHeight / 2);
                                     
-                                    // Prevent overflowing the right edge
                                     if (finalLeft + tooltipWidth > chart.canvas.offsetWidth) {
                                         finalLeft = positionX + tooltip.caretX - tooltipWidth - 20;
                                     }
                                     
-                                    // Prevent overflowing top/bottom
                                     if (finalTop < positionY) finalTop = positionY + 10;
                                     if (finalTop + tooltipHeight > positionY + chart.canvas.offsetHeight) finalTop = positionY + chart.canvas.offsetHeight - tooltipHeight - 10;
                                 } else {
-                                    // Mobile / Tablet: Keep Centered
                                     const centerX = chartArea.left + (chartArea.right - chartArea.left) / 2, centerY = chartArea.top + (chartArea.bottom - chartArea.top) / 2;
                                     finalLeft = positionX + centerX - (tooltipWidth / 2);
                                     finalTop = positionY + centerY - (tooltipHeight / 2);
@@ -1069,19 +1000,17 @@
             applyChartTheme(window.gdpChartInstance); 
             updateChartTitle(); 
             updateYAxisMin(); 
-            window.gdpChartInstance.update();
+            window.gdpChartInstance.update('none'); // Instant initial load
             
             initRibbonScrollFades();
 
-            // Handle device rotation resizing for optimal UX
             window.addEventListener('resize', () => {
                 if (window.gdpChartInstance) {
                     updateChartTitle();
-                    window.gdpChartInstance.update();
+                    window.gdpChartInstance.update('none');
                 }
             });
 
-            // Dropdown JS Logic
             const metricBtn = document.getElementById('metricDropdownBtn');
             const metricIcon = document.getElementById('metricDropdownIcon');
             const metricMenu = document.getElementById('metricDropdownMenu');
@@ -1155,15 +1084,13 @@
                             const stateToggles = ['toggle-gj', 'toggle-ka', 'toggle-mh', 'toggle-tn', 'toggle-up', 'toggle-wb'];
                             stateToggles.forEach(id => {
                                 const el = document.getElementById(id);
-                                if (el && el.checked) {
-                                    el.checked = false;
-                                    el.dispatchEvent(new Event('change'));
+                                if (el && el.getAttribute('data-checked') === 'true') {
+                                    el.click();
                                 }
                             });
                             const indEl = document.getElementById('toggle-india');
-                            if (indEl && !indEl.checked) {
-                                indEl.checked = true;
-                                indEl.dispatchEvent(new Event('change'));
+                            if (indEl && indEl.getAttribute('data-checked') !== 'true') {
+                                indEl.click();
                             }
                         }
                     });
@@ -1177,9 +1104,20 @@
             toggles.forEach(toggle => { 
                 const el = document.getElementById(toggle.id); 
                 if(el) { 
-                    el.addEventListener('change', function() { 
-                        // If any state is clicked ON while USD is active, auto-revert to INR
-                        if (this.checked && isUsdActive && toggle.id !== 'toggle-india') {
+                    el.addEventListener('click', function() { 
+                        let isChecked = this.getAttribute('data-checked') === 'true';
+                        isChecked = !isChecked; // Flip state
+                        this.setAttribute('data-checked', isChecked);
+
+                        if (isChecked) {
+                            this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer');
+                            this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant');
+                        } else {
+                            this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer');
+                            this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant');
+                        }
+
+                        if (isChecked && isUsdActive && toggle.id !== 'toggle-india') {
                             isUsdActive = false;
                             const usdBtn = document.getElementById('toggleUsd');
                             usdBtn.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
@@ -1187,14 +1125,14 @@
                             applyMetric();
                         }
                         
-                        window.gdpChartInstance.setDatasetVisibility(toggle.index, this.checked); 
-                        window.gdpChartInstance.setDatasetVisibility(toggle.trendIndex, this.checked); 
+                        window.gdpChartInstance.setDatasetVisibility(toggle.index, isChecked); 
+                        window.gdpChartInstance.setDatasetVisibility(toggle.trendIndex, isChecked); 
                         
                         const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap'].includes(currentMetric);
-                        if(isDebtOverlayActive && !shouldHideDebt) { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, this.checked); } 
+                        if(isDebtOverlayActive && !shouldHideDebt) { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, isChecked); } 
                         else { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, false); } 
                         updateYAxisMin(); 
-                        window.gdpChartInstance.update(); 
+                        window.gdpChartInstance.update('none'); // Instant rendering on click
                     }); 
                 } 
             });
@@ -1207,21 +1145,25 @@
                         this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
                         this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); 
                         
-                        // Auto-deselect all states when USD is activated
                         stateTogglesOnly.forEach(toggle => {
                             const el = document.getElementById(toggle.id);
-                            if (el && el.checked) {
-                                el.checked = false;
+                            if (el && el.getAttribute('data-checked') === 'true') {
+                                el.setAttribute('data-checked', 'false');
+                                el.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer');
+                                el.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant');
+                                
                                 window.gdpChartInstance.setDatasetVisibility(toggle.index, false);
                                 window.gdpChartInstance.setDatasetVisibility(toggle.trendIndex, false);
                                 window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, false);
                             }
                         });
                         
-                        // Guarantee National is selected so chart isn't empty
                         const indEl = document.getElementById('toggle-india');
-                        if (indEl && !indEl.checked) {
-                            indEl.checked = true;
+                        if (indEl && indEl.getAttribute('data-checked') !== 'true') {
+                            indEl.setAttribute('data-checked', 'true');
+                            indEl.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer');
+                            indEl.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant');
+                            
                             window.gdpChartInstance.setDatasetVisibility(0, true);
                             window.gdpChartInstance.setDatasetVisibility(7, true);
                             const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap'].includes(currentMetric);
@@ -1247,8 +1189,15 @@
                         this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); 
                     }
                     window.gdpChartInstance.options.scales.y1.display = isDebtOverlayActive;
-                    toggles.forEach(toggle => { const el = document.getElementById(toggle.id); if(el && el.checked) { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, isDebtOverlayActive); } else { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, false); } });
-                    window.gdpChartInstance.update();
+                    toggles.forEach(toggle => { 
+                        const el = document.getElementById(toggle.id); 
+                        if(el && el.getAttribute('data-checked') === 'true') { 
+                            window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, isDebtOverlayActive); 
+                        } else { 
+                            window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, false); 
+                        } 
+                    });
+                    window.gdpChartInstance.update('none'); // Instant rendering
                 });
             }
             
@@ -1269,7 +1218,7 @@
                     calculateBestFitTrendlines(currentEra); 
                     window.gdpChartInstance.options.scales.x.min = String(currentEra); 
                     updateYAxisMin(); 
-                    window.gdpChartInstance.update(); 
+                    window.gdpChartInstance.update('none'); // Instant rendering
                 }); 
             }
             
@@ -1280,7 +1229,7 @@
                     isLogScale = !isLogScale; 
                     window.gdpChartInstance.options.scales.y.type = isLogScale ? 'logarithmic' : 'linear'; 
                     updateYAxisMin(); 
-                    window.gdpChartInstance.update(); 
+                    window.gdpChartInstance.update('none'); // Instant rendering
                     if (isLogScale) {
                         this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
                         this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); 
@@ -1295,22 +1244,25 @@
             downloadBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     const chartCanvas = document.getElementById('gdpChart'), tempCanvas = document.createElement('canvas'), ctx = tempCanvas.getContext('2d'), width = chartCanvas.width, pixelRatio = window.devicePixelRatio || 1, footerHeight = (window.innerWidth < 768 ? 160 : 100) * pixelRatio;
-                    // Fixed header height (px) to draw the text above the graph
                     const headerHeightCSS = 60; 
                     tempCanvas.width = width; tempCanvas.height = chartCanvas.height + (headerHeightCSS * pixelRatio) + footerHeight;
                     const isDark = document.documentElement.classList.contains('dark');
                     ctx.fillStyle = isDark ? '#141217' : '#ffffff'; ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height); 
                     
-                    // Draw chart pushed down by headerHeight
                     ctx.drawImage(chartCanvas, 0, headerHeightCSS * pixelRatio);
                     
                     ctx.scale(pixelRatio, pixelRatio); const cssWidth = chartCanvas.clientWidth, cssHeight = chartCanvas.clientHeight, activeRegions = [];
-                    if(document.getElementById('toggle-india').checked) activeRegions.push('National'); if(document.getElementById('toggle-gj').checked) activeRegions.push('Gujarat'); if(document.getElementById('toggle-ka').checked) activeRegions.push('Karnataka'); if(document.getElementById('toggle-mh').checked) activeRegions.push('Maharashtra'); if(document.getElementById('toggle-tn').checked) activeRegions.push('Tamil Nadu'); if(document.getElementById('toggle-up').checked) activeRegions.push('Uttar Pradesh'); if(document.getElementById('toggle-wb').checked) activeRegions.push('West Bengal');
+                    if(document.getElementById('toggle-india').getAttribute('data-checked') === 'true') activeRegions.push('National'); 
+                    if(document.getElementById('toggle-gj').getAttribute('data-checked') === 'true') activeRegions.push('Gujarat'); 
+                    if(document.getElementById('toggle-ka').getAttribute('data-checked') === 'true') activeRegions.push('Karnataka'); 
+                    if(document.getElementById('toggle-mh').getAttribute('data-checked') === 'true') activeRegions.push('Maharashtra'); 
+                    if(document.getElementById('toggle-tn').getAttribute('data-checked') === 'true') activeRegions.push('Tamil Nadu'); 
+                    if(document.getElementById('toggle-up').getAttribute('data-checked') === 'true') activeRegions.push('Uttar Pradesh'); 
+                    if(document.getElementById('toggle-wb').getAttribute('data-checked') === 'true') activeRegions.push('West Bengal');
                     
                     const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap', 'unemployment'].includes(currentMetric);
                     let mTxt = document.getElementById('metricDropdownText').innerText.replace('Indicator: ', ''); if(isDebtOverlayActive && !shouldHideDebt) mTxt += ' + Debt Overlay';
                     
-                    // Draw Header ABOVE the graph
                     ctx.fillStyle = isDark ? '#e6e1e5' : '#1c1b1f'; ctx.font = 'bold 16px Outfit, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(`Indicator: ${mTxt}   |   Regions: ${activeRegions.join(', ')}`, cssWidth / 2, headerHeightCSS / 2);
                     
                     const legendItems = [{ text: 'NDA-BJP', color: '#F97316' }, { text: 'UPA-INC', color: '#2563EB' }, { text: 'SP / CPI-M', color: '#DC2626' }, { text: 'JD-S / AIADMK', color: '#16A34A' }, { text: 'AITC-TMC / MVA', color: '#10B981' }, { text: 'BSP', color: '#1E3A8A' }, { text: "President's Rule", color: '#9CA3AF' }];
