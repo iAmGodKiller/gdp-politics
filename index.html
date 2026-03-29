@@ -65,7 +65,6 @@
 
     <main class="flex-1 flex flex-col items-center justify-center p-1 sm:p-6 md:p-10 w-full">
         <div class="w-full lg:w-[98%] xl:w-[95%] 2xl:w-[90%] mx-auto">
-            <!-- Reduced transition from 500ms to 200ms -->
             <div class="bg-m3-light-surface dark:bg-m3-dark-surface rounded-[1.5rem] sm:rounded-[3.5rem] expressive-shadow p-2.5 sm:p-10 border border-m3-light-outline/10 dark:border-m3-dark-outline/10 w-full relative z-10 transition-colors duration-200 overflow-hidden sm:overflow-visible landscape-compact-padding">
                 
                 <!-- Header -->
@@ -95,12 +94,11 @@
                     <!-- ROW 1: Regions -->
                     <div class="relative w-fit max-w-full mr-auto min-[950px]:w-full ribbon-container z-30">
                         
-                        <!-- Dynamic Fade Masks -->
-                        <!-- Reduced transition from 300ms to 100ms -->
-                        <div class="fade-left absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-m3-light-surfaceVariant dark:from-black to-transparent z-10 rounded-l-[1.25rem] sm:rounded-l-[2rem] opacity-0 transition-opacity duration-100 min-[950px]:hidden flex items-center justify-start pl-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: -200, behavior: 'smooth'})">
+                        <!-- Fade Masks: Reduced width to w-12 -->
+                        <div class="fade-left absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-m3-light-surfaceVariant/95 via-m3-light-surfaceVariant/60 dark:from-m3-dark-surfaceVariant/95 dark:via-m3-dark-surfaceVariant/50 to-transparent z-10 rounded-l-[1.25rem] sm:rounded-l-[2rem] opacity-0 transition-opacity duration-100 min-[950px]:hidden flex items-center justify-start pl-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: -200, behavior: 'smooth'})">
                             <svg class="w-5 h-5 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
                         </div>
-                        <div class="fade-right absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-m3-light-surfaceVariant dark:from-black to-transparent z-10 rounded-r-[1.25rem] sm:rounded-r-[2rem] opacity-0 transition-opacity duration-100 min-[950px]:hidden flex items-center justify-end pr-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: 200, behavior: 'smooth'})">
+                        <div class="fade-right absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-m3-light-surfaceVariant/95 via-m3-light-surfaceVariant/60 dark:from-m3-dark-surfaceVariant/95 dark:via-m3-dark-surfaceVariant/50 to-transparent z-10 rounded-r-[1.25rem] sm:rounded-r-[2rem] opacity-0 transition-opacity duration-100 min-[950px]:hidden flex items-center justify-end pr-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: 200, behavior: 'smooth'})">
                             <svg class="w-5 h-5 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
                         </div>
 
@@ -130,12 +128,11 @@
                     <!-- ROW 2: Controls & Save -->
                     <div class="relative w-fit max-w-full mr-auto min-[850px]:w-full ribbon-container z-40">
                         
-                        <!-- Dynamic Fade Masks -->
-                        <!-- Reduced transition from 300ms to 100ms -->
-                        <div class="fade-left absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-m3-light-surfaceVariant dark:from-black to-transparent z-10 rounded-l-[1.25rem] sm:rounded-l-[2rem] opacity-0 transition-opacity duration-100 min-[850px]:hidden flex items-center justify-start pl-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: -200, behavior: 'smooth'})">
+                        <!-- Fade Masks: Reduced width to w-12 -->
+                        <div class="fade-left absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-m3-light-surfaceVariant/95 via-m3-light-surfaceVariant/60 dark:from-m3-dark-surfaceVariant/95 dark:via-m3-dark-surfaceVariant/50 to-transparent z-10 rounded-l-[1.25rem] sm:rounded-l-[2rem] opacity-0 transition-opacity duration-100 min-[850px]:hidden flex items-center justify-start pl-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: -200, behavior: 'smooth'})">
                             <svg class="w-5 h-5 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
                         </div>
-                        <div class="fade-right absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-m3-light-surfaceVariant dark:from-black to-transparent z-10 rounded-r-[1.25rem] sm:rounded-r-[2rem] opacity-0 transition-opacity duration-100 min-[850px]:hidden flex items-center justify-end pr-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: 200, behavior: 'smooth'})">
+                        <div class="fade-right absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-m3-light-surfaceVariant/95 via-m3-light-surfaceVariant/60 dark:from-m3-dark-surfaceVariant/95 dark:via-m3-dark-surfaceVariant/50 to-transparent z-10 rounded-r-[1.25rem] sm:rounded-r-[2rem] opacity-0 transition-opacity duration-100 min-[850px]:hidden flex items-center justify-end pr-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: 200, behavior: 'smooth'})">
                             <svg class="w-5 h-5 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
                         </div>
 
@@ -175,7 +172,6 @@
                 </div>
 
                 <!-- Absolute Dropdown detached from the scrollable row to prevent clipping -->
-                <!-- Reduced duration-300 to duration-100 -->
                 <div id="metricDropdownMenu" class="fixed w-[180px] bg-m3-light-surface/95 dark:bg-m3-dark-surface/95 border border-m3-light-outline/20 dark:border-m3-dark-outline/20 rounded-[1.5rem] expressive-shadow opacity-0 invisible translate-y-[-10px] transition-all duration-100 overflow-hidden flex flex-col p-2 z-[9999]" style="top: 0; left: 0;">
                     <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center" data-value="yoy">Growth Rate</div>
                     <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center" data-value="fdi">Net FDI</div>
@@ -343,7 +339,6 @@
                 document.documentElement.classList.toggle('dark');
                 const isDark = document.documentElement.classList.contains('dark');
                 if(themeIcon) themeIcon.innerHTML = isDark ? sunIcon : moonIcon;
-                // Passed 'none' to skip animation when toggling theme
                 if(window.gdpChartInstance) applyChartTheme(window.gdpChartInstance);
             });
         }
@@ -386,7 +381,7 @@
                 2002: { iN: 24.5, iR: 45.9, iP: 23000, iY: 3.8, iD: 82.5, iF: 5.0, iU: 48.6, iNu: 514.9, iPu: 471 },
                 2003: { iN: 27.5, iR: 49.5, iP: 25200, iY: 7.9, iD: 83.5, iF: 4.3, iU: 46.6, iNu: 607.7, iPu: 547 },
                 2004: { iN: 32.4, iR: 53.4, iP: 29200, iY: 7.9, iD: 83.0, iF: 6.0, iU: 45.3, iNu: 709.1, iPu: 628, iC: 17.0 },
-                2005: { iN: 36.9, iR: 57.6, iP: 32800, iY: 7.9, iD: 80.5, iF: 8.9, iU: 44.1, iNu: 820.4, iPu: 715 },
+                2005: { iN: 36.9, iR: 57.6, iP: 32800, iY: 7.9, iD: 83.5, iF: 8.9, iU: 44.1, iNu: 820.4, iPu: 715 },
                 2006: { iN: 42.9, iR: 62.1, iP: 37600, iY: 8.0, iD: 77.1, iF: 22.8, iU: 45.3, iNu: 940.3, iPu: 807, iC: 35.0, uN: 3.12, uR: 4.6, uP: 17200, uY: 6.5, uD: 35.1, uF: 0.5, mN: 5.95, mR: 8.2, mP: 57200, mY: 9.5, mD: 25.4, mF: 7.0, tN: 3.15, tR: 4.8, tP: 47700, tY: 10.1, tD: 24.1, tF: 1.5, gN: 3.10, gR: 4.3, gP: 54300, gY: 11.2, gD: 24.5, gF: 2.5, kN: 2.50, kR: 4.0, kP: 43200, kY: 8.5, kD: 23.1, kF: 1.8, wN: 2.30, wR: 3.7, wP: 25500, wY: 7.0, wD: 38.5, wF: 0.3 },
                 2007: { iN: 49.8, iR: 66.8, iP: 42500, iY: 7.6, iD: 74.0, iF: 25.2, iU: 41.3, iNu: 1216.7, iPu: 1028 },
                 2008: { iN: 56.3, iR: 71.5, iP: 47000, iY: 3.1, iD: 74.5, iF: 43.4, iU: 43.5, iNu: 1198.9, iPu: 999, iC: 30.0, uN: 4.25, uR: 5.4, uP: 22500, uY: 3.5, uD: 33.8, uF: 0.65, mN: 7.95, mR: 9.8, mP: 74000, mY: 4.5, mD: 23.2, mF: 8.5, tN: 4.38, tR: 5.8, tP: 64500, tY: 4.2, tD: 22.5, tF: 1.8, gN: 4.15, gR: 5.0, gP: 70200, gY: 4.8, gD: 22.8, gF: 3.1, kN: 3.55, kR: 4.7, kP: 58500, kY: 3.8, kD: 21.8, kF: 2.3, wN: 3.15, wR: 4.2, wP: 34500, wY: 3.0, wD: 37.4, wF: 0.4 },
@@ -553,31 +548,26 @@
                 
                 if (baseYearIndex !== -1 && nominalArr[baseYearIndex] !== null) {
                     realArr[baseYearIndex] = nominalArr[baseYearIndex];
-                    
                     for (let i = baseYearIndex - 1; i >= 0; i--) {
                         if (realArr[i + 1] !== null && yoyArr[i + 1] !== null) {
                             realArr[i] = realArr[i + 1] / (1 + (yoyArr[i + 1] / 100));
                         }
                     }
-                    
                     for (let i = baseYearIndex + 1; i < dataState.years.length; i++) {
                         if (realArr[i - 1] !== null && yoyArr[i] !== null) {
                             realArr[i] = realArr[i - 1] * (1 + (yoyArr[i] / 100));
                         }
                     }
                 }
-                
                 dataState[region].real = realArr.map(val => val !== null ? parseFloat(val.toFixed(2)) : null);
             });
 
             regions.forEach(region => {
                 dataState[region].real_per_capita = new Array(dataState.years.length).fill(null);
-                
                 for (let i = 0; i < dataState.years.length; i++) {
                     let n = dataState[region].nominal[i];
                     let r = dataState[region].real[i];
                     let pc = dataState[region].per_capita[i];
-
                     if (n !== null && r !== null && pc !== null && n > 0) {
                         dataState[region].real_per_capita[i] = parseFloat((pc * (r / n)).toFixed(0));
                     }
@@ -590,17 +580,11 @@
             const shouldHideUsd = hideUsdMetrics.includes(currentMetric);
             const usdBtn = document.getElementById('toggleUsd');
             if (usdBtn) {
-                if (shouldHideUsd) {
-                    usdBtn.classList.add('hidden');
-                } else {
-                    usdBtn.classList.remove('hidden');
-                }
+                if (shouldHideUsd) { usdBtn.classList.add('hidden'); } else { usdBtn.classList.remove('hidden'); }
             }
-
             const autoDeselectDebtMetrics = ['usd_inr', 'fdi', 'nse_cap'];
             const shouldAutoDeselectDebt = autoDeselectDebtMetrics.includes(currentMetric);
             const debtBtn = document.getElementById('toggleDebtOverlay');
-            
             if (shouldAutoDeselectDebt && isDebtOverlayActive) {
                 isDebtOverlayActive = false;
                 if (debtBtn) {
@@ -608,17 +592,13 @@
                     debtBtn.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); 
                 }
             }
-
             const getConvertedArray = (region) => {
                 if (currentMetric === 'nse_cap' && region !== 'india') return new Array(dataState.years.length).fill(null);
-                
                 const arr = dataState[region][currentMetric];
                 if (!isUsdActive || shouldHideUsd) return arr;
-                
                 if (region === 'india') {
                     if (currentMetric === 'nominal') return dataState.india.nominal_usd;
                     if (currentMetric === 'per_capita') return dataState.india.per_capita_usd;
-                    
                     if (currentMetric === 'nse_cap') {
                         return dataState.india.nse_cap.map((val, i) => {
                             if (val === null) return null;
@@ -626,20 +606,16 @@
                             return rate ? parseFloat(((val * 1000) / rate).toFixed(2)) : null;
                         });
                     }
-                    
                     const baseYearIndex = dataState.years.indexOf('2022');
                     const baseYearRate = baseYearIndex !== -1 ? dataState.india.usd_inr[baseYearIndex] : 80.2;
-                    
                     if (currentMetric === 'real') {
                         return dataState.india.real.map(r => r === null ? null : parseFloat(((r * 1000) / baseYearRate).toFixed(2)));
                     } else if (currentMetric === 'real_per_capita') {
                         return dataState.india.real_per_capita.map(rpc => rpc === null ? null : parseFloat((rpc / baseYearRate).toFixed(0)));
                     }
                 }
-                
                 return new Array(arr.length).fill(null);
             };
-
             dataState.indiaGdp.length = 0; dataState.indiaGdp.push(...getConvertedArray('india'));
             dataState.upGdp.length = 0; dataState.upGdp.push(...getConvertedArray('up'));
             dataState.mhGdp.length = 0; dataState.mhGdp.push(...getConvertedArray('mh'));
@@ -647,20 +623,14 @@
             dataState.gjGdp.length = 0; dataState.gjGdp.push(...getConvertedArray('gj'));
             dataState.kaGdp.length = 0; dataState.kaGdp.push(...getConvertedArray('ka'));
             dataState.wbGdp.length = 0; dataState.wbGdp.push(...getConvertedArray('wb'));
-            
             if(window.gdpChartInstance) {
                 window.gdpChartInstance.options.scales.y1.display = isDebtOverlayActive;
                 const togglesInfo = [ { id: 'toggle-india', debtIndex: 14 }, { id: 'toggle-mh', debtIndex: 15 }, { id: 'toggle-tn', debtIndex: 16 }, { id: 'toggle-up', debtIndex: 17 }, { id: 'toggle-gj', debtIndex: 18 }, { id: 'toggle-ka', debtIndex: 19 }, { id: 'toggle-wb', debtIndex: 20 } ];
                 togglesInfo.forEach(t => {
                     const el = document.getElementById(t.id);
-                    if (el && el.getAttribute('data-checked') === 'true') {
-                        window.gdpChartInstance.setDatasetVisibility(t.debtIndex, isDebtOverlayActive);
-                    } else {
-                        window.gdpChartInstance.setDatasetVisibility(t.debtIndex, false);
-                    }
+                    if (el && el.getAttribute('data-checked') === 'true') { window.gdpChartInstance.setDatasetVisibility(t.debtIndex, isDebtOverlayActive); } else { window.gdpChartInstance.setDatasetVisibility(t.debtIndex, false); }
                 });
             }
-
             const scaleBtn = document.getElementById('toggleScale');
             if(scaleBtn) {
                 if (currentMetric === 'yoy' || currentMetric === 'unemployment') {
@@ -669,14 +639,10 @@
                     if(window.gdpChartInstance) window.gdpChartInstance.options.scales.y.type = 'linear';
                     scaleBtn.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
                     scaleBtn.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); 
-                } else { 
-                    scaleBtn.classList.remove('hidden'); 
-                }
+                } else { scaleBtn.classList.remove('hidden'); }
             }
             calculateBestFitTrendlines(currentEra); updateChartTitle(); updateYAxisMin();
-            // Passed 'none' to skip heavy rerender animations
             if(window.gdpChartInstance) { window.gdpChartInstance.update('none'); }
-
             setTimeout(refreshAllRibbons, 50);
         }
 
@@ -710,10 +676,8 @@
             if(!window.gdpChartInstance) return;
             const yAxis = window.gdpChartInstance.options.scales.y;
             let titleText = '';
-            
             const isMobile = window.innerWidth < 768;
-            const isUSD = isUsdActive && !['yoy', 'fdi', 'usd_inr'].includes(currentMetric);
-            
+            const isUSD = isUsdActive && !['yoy', 'fdi', 'usd_inr', 'unemployment'].includes(currentMetric);
             if (currentMetric === 'nominal') { titleText = isMobile ? (isUSD ? 'Nominal GDP ($B)' : 'Nominal GDP (₹ Lakh Cr)') : (isUSD ? 'Nominal GDP (Billion USD)' : 'Nominal GDP'); } 
             else if (currentMetric === 'real') { titleText = isMobile ? (isUSD ? 'Real GDP ($B, Base 22-23)' : 'Real GDP (₹ Lakh Cr, Base 22-23)') : (isUSD ? 'Real GDP (Billion USD, Base 2022-23)' : 'Real GDP (Base 2022-23)'); } 
             else if (currentMetric === 'per_capita') { titleText = isMobile ? (isUSD ? 'Nominal Per Capita ($)' : 'Nominal Per Capita (₹)') : (isUSD ? 'Nominal Per Capita GDP (USD)' : 'Nominal Per Capita GDP'); } 
@@ -723,42 +687,16 @@
             else if (currentMetric === 'unemployment') { titleText = 'Unemployment Rate (%)'; } 
             else if (currentMetric === 'fdi') { titleText = isMobile ? 'Net Foreign Direct Investment ($B)' : 'Net Foreign Direct Investment'; }
             else if (currentMetric === 'usd_inr') { titleText = 'Exchange Rate (₹ per $1)'; }
-
             const isDark = document.documentElement.classList.contains('dark');
             const textColor = isDark ? '#cac4d0' : '#49454f';
-
             if (isMobile) {
-                yAxis.title.display = false;
-                yAxis.ticks.minRotation = -90;
-                yAxis.ticks.maxRotation = -90;
-                yAxis.ticks.padding = 0; 
-                yAxis.ticks.align = 'center';     
-                yAxis.ticks.crossAlign = 'center';
-                
-                yAxis.afterFit = function(scale) {
-                    scale.width = 35;
-                };
-
-                window.gdpChartInstance.options.layout.padding.left = 0;
-                window.gdpChartInstance.options.layout.padding.right = 5;
-
-                window.gdpChartInstance.options.plugins.title.display = true;
-                window.gdpChartInstance.options.plugins.title.text = titleText;
-                window.gdpChartInstance.options.plugins.title.align = 'center';
-                window.gdpChartInstance.options.plugins.title.color = textColor;
+                yAxis.title.display = false; yAxis.ticks.minRotation = -90; yAxis.ticks.maxRotation = -90; yAxis.ticks.padding = 0; yAxis.ticks.align = 'center'; yAxis.ticks.crossAlign = 'center';
+                yAxis.afterFit = function(scale) { scale.width = 35; };
+                window.gdpChartInstance.options.layout.padding.left = 0; window.gdpChartInstance.options.layout.padding.right = 5;
+                window.gdpChartInstance.options.plugins.title.display = true; window.gdpChartInstance.options.plugins.title.text = titleText; window.gdpChartInstance.options.plugins.title.align = 'center'; window.gdpChartInstance.options.plugins.title.color = textColor;
             } else {
-                yAxis.title.display = true;
-                yAxis.title.text = titleText;
-                yAxis.ticks.minRotation = 0;
-                yAxis.ticks.maxRotation = 0;
-                yAxis.ticks.padding = 10;
-                yAxis.ticks.align = undefined;     
-                yAxis.ticks.crossAlign = undefined; 
-                yAxis.afterFit = undefined; 
-                
-                window.gdpChartInstance.options.layout.padding.left = 0;
-                window.gdpChartInstance.options.layout.padding.right = 0;
-
+                yAxis.title.display = true; yAxis.title.text = titleText; yAxis.ticks.minRotation = 0; yAxis.ticks.maxRotation = 0; yAxis.ticks.padding = 10; yAxis.ticks.align = undefined; yAxis.ticks.crossAlign = undefined; yAxis.afterFit = undefined; 
+                window.gdpChartInstance.options.layout.padding.left = 0; window.gdpChartInstance.options.layout.padding.right = 0;
                 window.gdpChartInstance.options.plugins.title.display = false;
             }
         }
@@ -789,38 +727,26 @@
         function applyChartTheme(chartInstance) {
             if(!chartInstance) return;
             const isDark = document.documentElement.classList.contains('dark'), textColor = isDark ? '#cac4d0' : '#49454f', gridColor = isDark ? '#2e2c33' : '#f0eef5', trendlineColor = isDark ? 'rgba(230, 224, 233, 0.4)' : 'rgba(29, 27, 32, 0.3)';
-            
             chartInstance.options.scales.x.title.color = textColor; chartInstance.options.scales.x.ticks.color = textColor;
             chartInstance.options.scales.y.title.color = textColor; chartInstance.options.scales.y.ticks.color = textColor; chartInstance.options.scales.y.grid.color = gridColor;
-            
-            if (chartInstance.options.plugins && chartInstance.options.plugins.title) {
-                chartInstance.options.plugins.title.color = textColor;
-            }
-
+            if (chartInstance.options.plugins && chartInstance.options.plugins.title) { chartInstance.options.plugins.title.color = textColor; }
             if (chartInstance.options.scales.y1) { chartInstance.options.scales.y1.title.color = textColor; chartInstance.options.scales.y1.ticks.color = textColor; chartInstance.options.scales.y1.grid.color = gridColor; }
             chartInstance.data.datasets.forEach(dataset => { if (dataset.label.includes('Trendline')) { dataset.borderColor = trendlineColor; } });
-            
-            // Re-render instantly
             chartInstance.update('none');
         }
 
         function createSegmentGradient(ctx, partyFunc) {
             if (ctx.p0DataIndex === undefined || ctx.p1DataIndex === undefined) return '#000';
             if (!ctx.p0 || !ctx.p1 || ctx.p0.x === undefined || ctx.p1.x === undefined) return '#000';
-            
             const year0 = parseInt(dataState.years[ctx.p0DataIndex]);
             const year1 = parseInt(dataState.years[ctx.p1DataIndex]);
             const party0 = partyFunc(year0);
             const party1 = partyFunc(year1);
-
             if (party0.name === party1.name) return party0.color;
-
             const month = party1.month || 6; 
             let fyMonth = month >= 4 ? month - 3 : month + 9;
             let fraction = fyMonth / 12;
-            
             if (year1 - year0 > 1) fraction = 0.5;
-
             const chartCtx = ctx.chart.ctx;
             const gradient = chartCtx.createLinearGradient(ctx.p0.x, ctx.p0.y, ctx.p1.x, ctx.p1.y);
             gradient.addColorStop(0, party0.color);
@@ -834,40 +760,19 @@
             const track = container.querySelector('.scroll-track');
             const leftFade = container.querySelector('.fade-left');
             const rightFade = container.querySelector('.fade-right');
-            
             if (!track || !leftFade || !rightFade) return;
-
             const maxScroll = track.scrollWidth - track.clientWidth;
-            
             if (maxScroll <= 2) {
-                leftFade.style.opacity = '0';
-                leftFade.style.pointerEvents = 'none';
-                rightFade.style.opacity = '0';
-                rightFade.style.pointerEvents = 'none';
+                leftFade.style.opacity = '0'; leftFade.style.pointerEvents = 'none';
+                rightFade.style.opacity = '0'; rightFade.style.pointerEvents = 'none';
                 return;
             }
-
-            if (track.scrollLeft > 2) {
-                leftFade.style.opacity = '1';
-                leftFade.style.pointerEvents = 'auto';
-            } else {
-                leftFade.style.opacity = '0';
-                leftFade.style.pointerEvents = 'none';
-            }
-
-            if (Math.ceil(track.scrollLeft) < maxScroll - 2) {
-                rightFade.style.opacity = '1';
-                rightFade.style.pointerEvents = 'auto';
-            } else {
-                rightFade.style.opacity = '0';
-                rightFade.style.pointerEvents = 'none';
-            }
+            if (track.scrollLeft > 2) { leftFade.style.opacity = '1'; leftFade.style.pointerEvents = 'auto'; } else { leftFade.style.opacity = '0'; leftFade.style.pointerEvents = 'none'; }
+            if (Math.ceil(track.scrollLeft) < maxScroll - 2) { rightFade.style.opacity = '1'; rightFade.style.pointerEvents = 'auto'; } else { rightFade.style.opacity = '0'; rightFade.style.pointerEvents = 'none'; }
         }
 
         function refreshAllRibbons() {
-            document.querySelectorAll('.ribbon-container').forEach(container => {
-                updateRibbonFades(container);
-            });
+            document.querySelectorAll('.ribbon-container').forEach(container => { updateRibbonFades(container); });
         }
 
         function initRibbonScrollFades() {
@@ -896,7 +801,6 @@
                         { label: 'Gujarat GSDP', data: dataState.gjGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getGjPartyInfo) }, pointBackgroundColor: ctx => getGjPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
                         { label: 'Karnataka GSDP', data: dataState.kaGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getKaPartyInfo) }, pointBackgroundColor: ctx => getKaPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
                         { label: 'West Bengal GSDP', data: dataState.wbGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getWbPartyInfo) }, pointBackgroundColor: ctx => getWbPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
-                        
                         { label: 'National Trendline', data: dataState.indiaTrend, hidden: false, order: 0, borderWidth: 2, borderDash: [8, 8], pointRadius: 0, pointHoverRadius: 0, fill: false, borderColor: 'rgba(230, 224, 233, 0.4)', tension: 0 },
                         { label: 'MH Trendline', data: dataState.mhTrend, hidden: true, order: 0, borderWidth: 2, borderDash: [8, 8], pointRadius: 0, pointHoverRadius: 0, fill: false, borderColor: 'rgba(230, 224, 233, 0.4)', tension: 0 },
                         { label: 'TN Trendline', data: dataState.tnTrend, hidden: true, order: 0, borderWidth: 2, borderDash: [8, 8], pointRadius: 0, pointHoverRadius: 0, fill: false, borderColor: 'rgba(230, 224, 233, 0.4)', tension: 0 },
@@ -904,7 +808,6 @@
                         { label: 'GJ Trendline', data: dataState.gjTrend, hidden: true, order: 0, borderWidth: 2, borderDash: [8, 8], pointRadius: 0, pointHoverRadius: 0, fill: false, borderColor: 'rgba(230, 224, 233, 0.4)', tension: 0 },
                         { label: 'KA Trendline', data: dataState.kaTrend, hidden: true, order: 0, borderWidth: 2, borderDash: [8, 8], pointRadius: 0, pointHoverRadius: 0, fill: false, borderColor: 'rgba(230, 224, 233, 0.4)', tension: 0 },
                         { label: 'WB Trendline', data: dataState.wbTrend, hidden: true, order: 0, borderWidth: 2, borderDash: [8, 8], pointRadius: 0, pointHoverRadius: 0, fill: false, borderColor: 'rgba(230, 224, 233, 0.4)', tension: 0 },
-                        
                         { label: 'National Debt Overlay', type: 'bar', data: dataState.indiaDebt, hidden: false, yAxisID: 'y1', order: 3, borderWidth: 0, backgroundColor: ctx => ctx.dataIndex === undefined ? 'transparent' : getIndiaPartyInfo(dataState.years[ctx.dataIndex]).color + '1A', hoverBackgroundColor: ctx => ctx.dataIndex === undefined ? 'transparent' : getIndiaPartyInfo(dataState.years[ctx.dataIndex]).color + '40', barPercentage: 1.0, categoryPercentage: 1.0 },
                         { label: 'Maharashtra Debt Overlay', type: 'bar', data: dataState.mhDebt, hidden: true, yAxisID: 'y1', order: 3, borderWidth: 0, backgroundColor: ctx => ctx.dataIndex === undefined ? 'transparent' : getMhPartyInfo(dataState.years[ctx.dataIndex]).color + '1A', hoverBackgroundColor: ctx => ctx.dataIndex === undefined ? 'transparent' : getMhPartyInfo(dataState.years[ctx.dataIndex]).color + '40', barPercentage: 1.0, categoryPercentage: 1.0 },
                         { label: 'Tamil Nadu Debt Overlay', type: 'bar', data: dataState.tnDebt, hidden: true, yAxisID: 'y1', order: 3, borderWidth: 0, backgroundColor: ctx => ctx.dataIndex === undefined ? 'transparent' : getTnPartyInfo(dataState.years[ctx.dataIndex]).color + '1A', hoverBackgroundColor: ctx => ctx.dataIndex === undefined ? 'transparent' : getTnPartyInfo(dataState.years[ctx.dataIndex]).color + '40', barPercentage: 1.0, categoryPercentage: 1.0 },
@@ -926,7 +829,6 @@
                                 const {chart, tooltip} = context; let tooltipEl = chart.canvas.parentNode.querySelector('div.chartjs-tooltip');
                                 if (!tooltipEl) {
                                     tooltipEl = document.createElement('div');
-                                    // Sped up transition-opacity duration for tooltips to 75ms
                                     tooltipEl.className = 'chartjs-tooltip expressive-shadow rounded-[2rem] border border-m3-light-outline/20 dark:border-m3-dark-outline/20 p-5 absolute z-[999] transition-opacity duration-75 pointer-events-none bg-m3-light-surface/95 dark:bg-m3-dark-surface/95';
                                     chart.canvas.parentNode.appendChild(tooltipEl);
                                 }
@@ -934,8 +836,7 @@
                                 if (tooltip.body) {
                                     const titleLines = tooltip.title || []; let innerHtml = '';
                                     titleLines.forEach(title => { 
-                                        const y = parseInt(title);
-                                        const nextYStr = String(y + 1).slice(-2);
+                                        const y = parseInt(title); const nextYStr = String(y + 1).slice(-2);
                                         innerHtml += `<h4 class="font-bold text-sm text-m3-light-onSurface dark:text-m3-dark-onSurface mb-3 pb-2 border-b border-m3-light-outline/10 dark:border-m3-dark-outline/10 tracking-wide uppercase">FY ${y}-${nextYStr}</h4>`; 
                                     });
                                     innerHtml += `<div class="flex flex-col gap-3">`;
@@ -956,17 +857,12 @@
                                 if (window.innerWidth >= 1024) {
                                     finalLeft = positionX + tooltip.caretX + 20; 
                                     finalTop = positionY + tooltip.caretY - (tooltipHeight / 2);
-                                    
-                                    if (finalLeft + tooltipWidth > chart.canvas.offsetWidth) {
-                                        finalLeft = positionX + tooltip.caretX - tooltipWidth - 20;
-                                    }
-                                    
+                                    if (finalLeft + tooltipWidth > chart.canvas.offsetWidth) { finalLeft = positionX + tooltip.caretX - tooltipWidth - 20; }
                                     if (finalTop < positionY) finalTop = positionY + 10;
                                     if (finalTop + tooltipHeight > positionY + chart.canvas.offsetHeight) finalTop = positionY + chart.canvas.offsetHeight - tooltipHeight - 10;
                                 } else {
                                     const centerX = chartArea.left + (chartArea.right - chartArea.left) / 2, centerY = chartArea.top + (chartArea.bottom - chartArea.top) / 2;
-                                    finalLeft = positionX + centerX - (tooltipWidth / 2);
-                                    finalTop = positionY + centerY - (tooltipHeight / 2);
+                                    finalLeft = positionX + centerX - (tooltipWidth / 2); finalTop = positionY + centerY - (tooltipHeight / 2);
                                 }
                                 tooltipEl.style.opacity = 1; tooltipEl.style.left = finalLeft + 'px'; tooltipEl.style.top = finalTop + 'px';
                             },
@@ -978,7 +874,6 @@
                                     const isUSD = isUsdActive && !['yoy', 'fdi', 'usd_inr', 'unemployment'].includes(currentMetric);
                                     let valStr = '', descMetric = '', isNational = dsLabel.includes('National') || dsLabel.includes('India');
                                     let currencySym = isUSD ? '$' : '₹';
-                                    
                                     if (currentMetric === 'per_capita' || currentMetric === 'real_per_capita') { valStr = currencySym + context.raw.toLocaleString(isUSD ? 'en-US' : 'en-IN', {maximumFractionDigits:0}); descMetric = currentMetric === 'real_per_capita' ? 'Real Per Capita' : 'Nominal Per Capita'; } 
                                     else if (currentMetric === 'yoy') { valStr = (context.raw > 0 ? '+' : '') + context.raw.toFixed(1) + '%'; descMetric = 'Growth'; } 
                                     else if (currentMetric === 'unemployment') { valStr = context.raw.toFixed(1) + '%'; descMetric = 'Unemployment'; } 
@@ -1010,119 +905,49 @@
                     }
                 }
             });
-
-            applyChartTheme(window.gdpChartInstance); 
-            updateChartTitle(); 
-            updateYAxisMin(); 
-            window.gdpChartInstance.update('none'); // Instant initial load
-            
-            initRibbonScrollFades();
-
-            window.addEventListener('resize', () => {
-                if (window.gdpChartInstance) {
-                    updateChartTitle();
-                    window.gdpChartInstance.update('none');
-                }
-            });
-
-            const metricBtn = document.getElementById('metricDropdownBtn');
-            const metricIcon = document.getElementById('metricDropdownIcon');
-            const metricMenu = document.getElementById('metricDropdownMenu');
-            const dropdownItems = document.querySelectorAll('.dropdown-item');
-            
+            applyChartTheme(window.gdpChartInstance); updateChartTitle(); updateYAxisMin(); window.gdpChartInstance.update('none'); initRibbonScrollFades();
+            window.addEventListener('resize', () => { if (window.gdpChartInstance) { updateChartTitle(); window.gdpChartInstance.update('none'); } });
+            const metricBtn = document.getElementById('metricDropdownBtn'), metricIcon = document.getElementById('metricDropdownIcon'), metricMenu = document.getElementById('metricDropdownMenu'), dropdownItems = document.querySelectorAll('.dropdown-item');
             if (metricBtn && metricMenu) {
                 metricBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const isClosed = metricMenu.classList.contains('opacity-0');
-                    
+                    e.stopPropagation(); const isClosed = metricMenu.classList.contains('opacity-0');
                     if (isClosed) {
-                        const rect = metricBtn.getBoundingClientRect();
-                        metricMenu.style.position = 'fixed';
-                        metricMenu.style.top = `${rect.bottom + 8}px`;
-                        
-                        let leftPos = rect.left;
-                        const maxRight = window.innerWidth - 16;
-                        if (leftPos + 180 > maxRight) {
-                            leftPos = maxRight - 180;
-                        }
+                        const rect = metricBtn.getBoundingClientRect(); metricMenu.style.position = 'fixed'; metricMenu.style.top = `${rect.bottom + 8}px`;
+                        let leftPos = rect.left; const maxRight = window.innerWidth - 16;
+                        if (leftPos + 180 > maxRight) { leftPos = maxRight - 180; }
                         metricMenu.style.left = `${Math.max(16, leftPos)}px`;
-                        
-                        metricMenu.classList.remove('opacity-0', 'invisible', 'translate-y-[-10px]');
-                        metricIcon.classList.add('rotate-180');
-                    } else {
-                        metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]');
-                        metricIcon.classList.remove('rotate-180');
-                    }
+                        metricMenu.classList.remove('opacity-0', 'invisible', 'translate-y-[-10px]'); metricIcon.classList.add('rotate-180');
+                    } else { metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]'); metricIcon.classList.remove('rotate-180'); }
                 });
-
-                document.addEventListener('click', () => {
-                    metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]');
-                    metricIcon.classList.remove('rotate-180');
-                });
-                
-                window.addEventListener('scroll', () => {
-                    metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]');
-                    metricIcon.classList.remove('rotate-180');
-                }, { passive: true });
-                
-                document.querySelectorAll('.overflow-x-auto').forEach(el => {
-                    el.addEventListener('scroll', () => {
-                        metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]');
-                        metricIcon.classList.remove('rotate-180');
-                    }, { passive: true });
-                });
+                document.addEventListener('click', () => { metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]'); metricIcon.classList.remove('rotate-180'); });
+                window.addEventListener('scroll', () => { metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]'); metricIcon.classList.remove('rotate-180'); }, { passive: true });
+                document.querySelectorAll('.overflow-x-auto').forEach(el => { el.addEventListener('scroll', () => { metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]'); metricIcon.classList.remove('rotate-180'); }, { passive: true }); });
             }
-
             if(dropdownItems) {
                 dropdownItems.forEach(item => {
                     item.addEventListener('click', (e) => {
-                        e.stopPropagation(); 
-                        currentMetric = item.getAttribute('data-value');
-                        const rawText = item.innerText.trim(); 
-                        const metricText = document.getElementById('metricDropdownText');
+                        e.stopPropagation(); currentMetric = item.getAttribute('data-value');
+                        const rawText = item.innerText.trim(); const metricText = document.getElementById('metricDropdownText');
                         if(metricText) metricText.innerText = 'Indicator: ' + rawText;
-                        
-                        dropdownItems.forEach(i => { 
-                            i.classList.remove('bg-m3-light-secondaryContainer', 'dark:bg-m3-dark-secondaryContainer', 'text-m3-light-onSecondaryContainer', 'dark:text-m3-dark-onSecondaryContainer', 'font-bold'); 
-                            i.classList.add('hover:bg-m3-light-secondaryContainer/50', 'dark:hover:bg-m3-dark-secondaryContainer/50', 'text-m3-light-onSurfaceVariant', 'dark:text-m3-dark-onSurfaceVariant', 'font-semibold'); 
-                        });
-                        item.classList.remove('hover:bg-m3-light-secondaryContainer/50', 'dark:hover:bg-m3-dark-secondaryContainer/50', 'text-m3-light-onSurfaceVariant', 'dark:text-m3-dark-onSurfaceVariant', 'font-semibold'); 
+                        dropdownItems.forEach(i => { i.classList.remove('bg-m3-light-secondaryContainer', 'dark:bg-m3-dark-secondaryContainer', 'text-m3-light-onSecondaryContainer', 'dark:text-m3-dark-onSecondaryContainer', 'font-bold'); i.classList.add('hover:bg-m3-light-secondaryContainer/50', 'dark:hover:bg-m3-dark-secondaryContainer/50', 'text-m3-light-onSurfaceVariant', 'dark:text-m3-dark-onSurfaceVariant', 'font-semibold'); });
                         item.classList.add('bg-m3-light-secondaryContainer', 'dark:bg-m3-dark-secondaryContainer', 'text-m3-light-onSecondaryContainer', 'dark:text-m3-dark-onSecondaryContainer', 'font-bold');
-                        
-                        metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]');
-                        metricIcon.classList.remove('rotate-180');
-
+                        metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]'); metricIcon.classList.remove('rotate-180');
                         applyMetric();
-
                         if (currentMetric === 'nse_cap') {
                             const stateToggles = ['toggle-gj', 'toggle-ka', 'toggle-mh', 'toggle-tn', 'toggle-up', 'toggle-wb'];
-                            stateToggles.forEach(id => {
-                                const el = document.getElementById(id);
-                                if (el && el.getAttribute('data-checked') === 'true') {
-                                    el.click();
-                                }
-                            });
-                            const indEl = document.getElementById('toggle-india');
-                            if (indEl && indEl.getAttribute('data-checked') !== 'true') {
-                                indEl.click();
-                            }
+                            stateToggles.forEach(id => { const el = document.getElementById(id); if (el && el.getAttribute('data-checked') === 'true') { el.click(); } });
+                            const indEl = document.getElementById('toggle-india'); if (indEl && indEl.getAttribute('data-checked') !== 'true') { indEl.click(); }
                         }
                     });
                 });
             }
-
             const toggles = [ { id: 'toggle-india', index: 0, trendIndex: 7, debtIndex: 14 }, { id: 'toggle-mh', index: 1, trendIndex: 8, debtIndex: 15 }, { id: 'toggle-tn', index: 2, trendIndex: 9, debtIndex: 16 }, { id: 'toggle-up', index: 3, trendIndex: 10, debtIndex: 17 }, { id: 'toggle-gj', index: 4, trendIndex: 11, debtIndex: 18 }, { id: 'toggle-ka', index: 5, trendIndex: 12, debtIndex: 19 }, { id: 'toggle-wb', index: 6, trendIndex: 13, debtIndex: 20 } ];
-            
             const stateTogglesOnly = toggles.filter(t => t.id !== 'toggle-india');
-            
             toggles.forEach(toggle => { 
                 const el = document.getElementById(toggle.id); 
                 if(el) { 
                     el.addEventListener('click', function() { 
-                        let isChecked = this.getAttribute('data-checked') === 'true';
-                        isChecked = !isChecked; // Flip state
-                        this.setAttribute('data-checked', isChecked);
-
+                        let isChecked = this.getAttribute('data-checked') === 'true'; isChecked = !isChecked; this.setAttribute('data-checked', isChecked);
                         if (isChecked) {
                             this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer');
                             this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant');
@@ -1130,27 +955,19 @@
                             this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer');
                             this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant');
                         }
-
                         if (isChecked && isUsdActive && toggle.id !== 'toggle-india') {
-                            isUsdActive = false;
-                            const usdBtn = document.getElementById('toggleUsd');
+                            isUsdActive = false; const usdBtn = document.getElementById('toggleUsd');
                             usdBtn.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
                             usdBtn.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); 
                             applyMetric();
                         }
-                        
-                        window.gdpChartInstance.setDatasetVisibility(toggle.index, isChecked); 
-                        window.gdpChartInstance.setDatasetVisibility(toggle.trendIndex, isChecked); 
-                        
+                        window.gdpChartInstance.setDatasetVisibility(toggle.index, isChecked); window.gdpChartInstance.setDatasetVisibility(toggle.trendIndex, isChecked); 
                         const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap'].includes(currentMetric);
-                        if(isDebtOverlayActive && !shouldHideDebt) { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, isChecked); } 
-                        else { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, false); } 
-                        updateYAxisMin(); 
-                        window.gdpChartInstance.update('none'); // Instant rendering on click
+                        if(isDebtOverlayActive && !shouldHideDebt) { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, isChecked); } else { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, false); } 
+                        updateYAxisMin(); window.gdpChartInstance.update('none');
                     }); 
                 } 
             });
-            
             const toggleUsdBtn = document.getElementById('toggleUsd');
             if (toggleUsdBtn) {
                 toggleUsdBtn.addEventListener('click', function() {
@@ -1158,113 +975,63 @@
                     if (isUsdActive) { 
                         this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
                         this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); 
-                        
                         stateTogglesOnly.forEach(toggle => {
                             const el = document.getElementById(toggle.id);
                             if (el && el.getAttribute('data-checked') === 'true') {
-                                el.setAttribute('data-checked', 'false');
-                                el.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer');
+                                el.setAttribute('data-checked', 'false'); el.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer');
                                 el.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant');
-                                
-                                window.gdpChartInstance.setDatasetVisibility(toggle.index, false);
-                                window.gdpChartInstance.setDatasetVisibility(toggle.trendIndex, false);
-                                window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, false);
+                                window.gdpChartInstance.setDatasetVisibility(toggle.index, false); window.gdpChartInstance.setDatasetVisibility(toggle.trendIndex, false); window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, false);
                             }
                         });
-                        
                         const indEl = document.getElementById('toggle-india');
                         if (indEl && indEl.getAttribute('data-checked') !== 'true') {
-                            indEl.setAttribute('data-checked', 'true');
-                            indEl.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer');
+                            indEl.setAttribute('data-checked', 'true'); indEl.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer');
                             indEl.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant');
-                            
-                            window.gdpChartInstance.setDatasetVisibility(0, true);
-                            window.gdpChartInstance.setDatasetVisibility(7, true);
+                            window.gdpChartInstance.setDatasetVisibility(0, true); window.gdpChartInstance.setDatasetVisibility(7, true);
                             const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap'].includes(currentMetric);
                             if(isDebtOverlayActive && !shouldHideDebt) window.gdpChartInstance.setDatasetVisibility(14, true);
                         }
-                    } else { 
-                        this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
-                        this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); 
-                    }
+                    } else { this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); }
                     applyMetric();
                 });
             }
-
             const toggleDebtOverlayBtn = document.getElementById('toggleDebtOverlay');
             if (toggleDebtOverlayBtn) {
                 toggleDebtOverlayBtn.addEventListener('click', function() {
                     isDebtOverlayActive = !isDebtOverlayActive;
-                    if (isDebtOverlayActive) { 
-                        this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
-                        this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); 
-                    } else { 
-                        this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
-                        this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); 
-                    }
+                    if (isDebtOverlayActive) { this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); } 
+                    else { this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); }
                     window.gdpChartInstance.options.scales.y1.display = isDebtOverlayActive;
-                    toggles.forEach(toggle => { 
-                        const el = document.getElementById(toggle.id); 
-                        if(el && el.getAttribute('data-checked') === 'true') { 
-                            window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, isDebtOverlayActive); 
-                        } else { 
-                            window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, false); 
-                        } 
-                    });
-                    window.gdpChartInstance.update('none'); // Instant rendering
+                    toggles.forEach(toggle => { const el = document.getElementById(toggle.id); if(el && el.getAttribute('data-checked') === 'true') { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, isDebtOverlayActive); } else { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, false); } });
+                    window.gdpChartInstance.update('none');
                 });
             }
-            
             const eraToggleBtn = document.getElementById('toggleEra');
             if(eraToggleBtn) { 
                 eraToggleBtn.addEventListener('click', function() { 
-                    const isCurrently1947 = currentEra === 1947; 
-                    currentEra = isCurrently1947 ? 1991 : 1947; 
-                    
-                    if (currentEra === 1947) {
-                        this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
-                        this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); 
-                    } else {
-                        this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
-                        this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); 
-                    }
-
-                    calculateBestFitTrendlines(currentEra); 
-                    window.gdpChartInstance.options.scales.x.min = String(currentEra); 
-                    updateYAxisMin(); 
-                    window.gdpChartInstance.update('none'); // Instant rendering
+                    const isCurrently1947 = currentEra === 1947; currentEra = isCurrently1947 ? 1991 : 1947; 
+                    if (currentEra === 1947) { this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); } 
+                    else { this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); }
+                    calculateBestFitTrendlines(currentEra); window.gdpChartInstance.options.scales.x.min = String(currentEra); updateYAxisMin(); window.gdpChartInstance.update('none');
                 }); 
             }
-            
             const scaleToggleBtn = document.getElementById('toggleScale');
             if(scaleToggleBtn) { 
                 scaleToggleBtn.addEventListener('click', function() { 
-                    if (currentMetric === 'yoy' || currentMetric === 'unemployment') return; 
-                    isLogScale = !isLogScale; 
-                    window.gdpChartInstance.options.scales.y.type = isLogScale ? 'logarithmic' : 'linear'; 
-                    updateYAxisMin(); 
-                    window.gdpChartInstance.update('none'); // Instant rendering
-                    if (isLogScale) {
-                        this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
-                        this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); 
-                    } else {
-                        this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
-                        this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); 
-                    }
+                    if (currentMetric === 'yoy' || currentMetric === 'unemployment') return; isLogScale = !isLogScale; 
+                    window.gdpChartInstance.options.scales.y.type = isLogScale ? 'logarithmic' : 'linear'; updateYAxisMin(); window.gdpChartInstance.update('none');
+                    if (isLogScale) { this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); } 
+                    else { this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); }
                 }); 
             }
-            
             const downloadBtns = document.querySelectorAll('.download-btn');
             downloadBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     const chartCanvas = document.getElementById('gdpChart'), tempCanvas = document.createElement('canvas'), ctx = tempCanvas.getContext('2d'), width = chartCanvas.width, pixelRatio = window.devicePixelRatio || 1, footerHeight = (window.innerWidth < 768 ? 160 : 100) * pixelRatio;
-                    const headerHeightCSS = 60; 
-                    tempCanvas.width = width; tempCanvas.height = chartCanvas.height + (headerHeightCSS * pixelRatio) + footerHeight;
+                    const headerHeightCSS = 60; tempCanvas.width = width; tempCanvas.height = chartCanvas.height + (headerHeightCSS * pixelRatio) + footerHeight;
                     const isDark = document.documentElement.classList.contains('dark');
                     ctx.fillStyle = isDark ? '#141217' : '#ffffff'; ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height); 
-                    
                     ctx.drawImage(chartCanvas, 0, headerHeightCSS * pixelRatio);
-                    
                     ctx.scale(pixelRatio, pixelRatio); const cssWidth = chartCanvas.clientWidth, cssHeight = chartCanvas.clientHeight, activeRegions = [];
                     if(document.getElementById('toggle-india').getAttribute('data-checked') === 'true') activeRegions.push('National'); 
                     if(document.getElementById('toggle-gj').getAttribute('data-checked') === 'true') activeRegions.push('Gujarat'); 
@@ -1273,12 +1040,9 @@
                     if(document.getElementById('toggle-tn').getAttribute('data-checked') === 'true') activeRegions.push('Tamil Nadu'); 
                     if(document.getElementById('toggle-up').getAttribute('data-checked') === 'true') activeRegions.push('Uttar Pradesh'); 
                     if(document.getElementById('toggle-wb').getAttribute('data-checked') === 'true') activeRegions.push('West Bengal');
-                    
                     const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap', 'unemployment'].includes(currentMetric);
                     let mTxt = document.getElementById('metricDropdownText').innerText.replace('Indicator: ', ''); if(isDebtOverlayActive && !shouldHideDebt) mTxt += ' + Debt Overlay';
-                    
                     ctx.fillStyle = isDark ? '#e6e1e5' : '#1c1b1f'; ctx.font = 'bold 16px Outfit, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(`Indicator: ${mTxt}   |   Regions: ${activeRegions.join(', ')}`, cssWidth / 2, headerHeightCSS / 2);
-                    
                     const legendItems = [{ text: 'NDA-BJP', color: '#F97316' }, { text: 'UPA-INC', color: '#2563EB' }, { text: 'SP / CPI-M', color: '#DC2626' }, { text: 'JD-S / AIADMK', color: '#16A34A' }, { text: 'AITC-TMC / MVA', color: '#10B981' }, { text: 'BSP', color: '#1E3A8A' }, { text: "President's Rule", color: '#9CA3AF' }];
                     ctx.font = '600 12px Outfit, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
                     const boxSize = 12, gap = 6, itemSpacing = 20; let currentX = 20, currentY = headerHeightCSS + cssHeight + 30; const maxRowWidth = cssWidth - 40;
