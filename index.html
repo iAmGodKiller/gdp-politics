@@ -88,30 +88,30 @@
 
                 <div class="h-1 w-20 bg-m3-light-primary dark:bg-m3-dark-primary rounded-full mb-5 sm:mb-8"></div>
 
-                <!-- Master Structural Ribbon Container -->
+                <!-- Structure Ribbons -->
                 <div class="w-full flex flex-col gap-3 sm:gap-5 mb-4 sm:mb-5 relative z-20">
                     
                     <!-- ROW 1: Regions -->
-                    <div class="relative w-fit max-w-full mr-auto min-[950px]:w-full ribbon-container z-30">
+                    <div class="relative w-full ribbon-container z-30">
                         
-                        <!-- Fade Masks: Reduced width to w-12 -->
-                        <div class="fade-left absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-m3-light-surfaceVariant/95 via-m3-light-surfaceVariant/60 dark:from-m3-dark-surfaceVariant/95 dark:via-m3-dark-surfaceVariant/50 to-transparent z-10 rounded-l-[1.25rem] sm:rounded-l-[2rem] opacity-0 transition-opacity duration-100 min-[950px]:hidden flex items-center justify-start pl-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: -200, behavior: 'smooth'})">
+                        <!-- Fade Masks -->
+                        <div class="fade-left absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-m3-light-surfaceVariant/95 via-m3-light-surfaceVariant/60 dark:from-m3-dark-surfaceVariant/95 dark:via-m3-dark-surfaceVariant/50 to-transparent z-10 rounded-l-[1.25rem] sm:rounded-l-[2rem] opacity-0 transition-opacity duration-100 min-[1100px]:hidden flex items-center justify-start pl-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: -200, behavior: 'smooth'})">
                             <svg class="w-5 h-5 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
                         </div>
-                        <div class="fade-right absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-m3-light-surfaceVariant/95 via-m3-light-surfaceVariant/60 dark:from-m3-dark-surfaceVariant/95 dark:via-m3-dark-surfaceVariant/50 to-transparent z-10 rounded-r-[1.25rem] sm:rounded-r-[2rem] opacity-0 transition-opacity duration-100 min-[950px]:hidden flex items-center justify-end pr-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: 200, behavior: 'smooth'})">
+                        <div class="fade-right absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-m3-light-surfaceVariant/95 via-m3-light-surfaceVariant/60 dark:from-m3-dark-surfaceVariant/95 dark:via-m3-dark-surfaceVariant/50 to-transparent z-10 rounded-r-[1.25rem] sm:rounded-r-[2rem] opacity-0 transition-opacity duration-100 min-[1100px]:hidden flex items-center justify-end pr-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: 200, behavior: 'smooth'})">
                             <svg class="w-5 h-5 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
                         </div>
 
-                        <!-- Scrollable Track -->
-                        <div class="scroll-track flex flex-nowrap min-[950px]:flex-wrap items-center justify-start min-[950px]:justify-between w-full overflow-x-auto min-[950px]:overflow-visible no-scrollbar bg-m3-light-surfaceVariant/40 dark:bg-m3-dark-surfaceVariant/20 min-[950px]:bg-transparent min-[950px]:dark:bg-transparent border border-m3-light-outline/10 dark:border-m3-dark-outline/10 min-[950px]:border-transparent min-[950px]:dark:border-transparent rounded-[1.25rem] sm:rounded-[2rem] min-[950px]:rounded-none py-1.5 pl-1.5 pr-0 sm:py-2 sm:pl-2 sm:pr-0 min-[950px]:p-0 gap-1.5 sm:gap-2 min-[950px]:gap-4 relative z-0">
+                        <!-- Scrollable Track: Enforced flex-nowrap to prevent wrapping. Unifies < 1100px, Splits >= 1100px -->
+                        <div class="scroll-track flex flex-nowrap items-center justify-start min-[1100px]:justify-between w-full overflow-x-auto min-[1100px]:overflow-visible no-scrollbar bg-m3-light-surfaceVariant/40 dark:bg-m3-dark-surfaceVariant/20 min-[1100px]:bg-transparent min-[1100px]:dark:bg-transparent border border-m3-light-outline/10 dark:border-m3-dark-outline/10 min-[1100px]:border-transparent min-[1100px]:dark:border-transparent rounded-[1.25rem] sm:rounded-[2rem] min-[1100px]:rounded-none py-1.5 pl-1.5 pr-0 sm:py-2 sm:pl-2 sm:pr-0 min-[1100px]:p-0 gap-1.5 sm:gap-2 min-[1100px]:gap-0 relative z-0">
                             
                             <!-- Left Block: National -->
-                            <div class="flex items-center shrink-0 snap-start min-[950px]:bg-m3-light-surfaceVariant/40 min-[950px]:dark:bg-m3-dark-surfaceVariant/20 min-[950px]:border min-[950px]:border-m3-light-outline/10 min-[950px]:dark:border-m3-dark-outline/10 min-[950px]:p-1.5 min-[950px]:sm:p-2 min-[950px]:rounded-[2rem] min-[950px]:shadow-sm">
+                            <div class="flex items-center shrink-0 snap-start min-[1100px]:bg-m3-light-surfaceVariant/40 min-[1100px]:dark:bg-m3-dark-surfaceVariant/20 min-[1100px]:border min-[1100px]:border-m3-light-outline/10 min-[1100px]:dark:border-m3-dark-outline/10 min-[1100px]:p-1.5 min-[1100px]:sm:p-2 min-[1100px]:rounded-[2rem] min-[1100px]:shadow-sm">
                                 <button id="toggle-india" data-checked="true" class="px-3.5 py-1.5 bg-m3-light-primaryContainer dark:bg-m3-dark-primaryContainer text-m3-light-onPrimaryContainer dark:text-m3-dark-onPrimaryContainer border border-m3-light-outline/10 dark:border-m3-dark-outline/10 rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap shadow-sm shrink-0">National</button>
                             </div>
                             
                             <!-- Right Block: States -->
-                            <div class="flex items-center shrink-0 snap-start gap-1.5 sm:gap-2 min-[950px]:bg-m3-light-surfaceVariant/40 min-[950px]:dark:bg-m3-dark-surfaceVariant/20 min-[950px]:border min-[950px]:border-m3-light-outline/10 min-[950px]:dark:border-m3-dark-outline/10 min-[950px]:p-1.5 min-[950px]:sm:p-2 min-[950px]:rounded-[2rem] min-[950px]:shadow-sm">
+                            <div class="flex items-center shrink-0 snap-start gap-1.5 sm:gap-2 min-[1100px]:bg-m3-light-surfaceVariant/40 min-[1100px]:dark:bg-m3-dark-surfaceVariant/20 min-[1100px]:border min-[1100px]:border-m3-light-outline/10 min-[1100px]:dark:border-m3-dark-outline/10 min-[1100px]:p-1.5 min-[1100px]:sm:p-2 min-[1100px]:rounded-[2rem] min-[1100px]:shadow-sm">
                                 <button id="toggle-gj" data-checked="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">Gujarat</button>
                                 <button id="toggle-ka" data-checked="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">Karnataka</button>
                                 <button id="toggle-mh" data-checked="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">Maharashtra</button>
@@ -120,27 +120,27 @@
                                 <button id="toggle-wb" data-checked="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">West Bengal</button>
                             </div>
                             
-                            <!-- Invisible Right Padding Spacer -->
-                            <div class="w-0 shrink-0 min-[950px]:hidden"></div>
+                            <!-- Invisible Right Padding Spacer for mobile -->
+                            <div class="w-1.5 sm:w-2 shrink-0 min-[1100px]:hidden"></div>
                         </div>
                     </div>
                     
                     <!-- ROW 2: Controls & Save -->
-                    <div class="relative w-fit max-w-full mr-auto min-[850px]:w-full ribbon-container z-40">
+                    <div class="relative w-full ribbon-container z-40">
                         
-                        <!-- Fade Masks: Reduced width to w-12 -->
-                        <div class="fade-left absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-m3-light-surfaceVariant/95 via-m3-light-surfaceVariant/60 dark:from-m3-dark-surfaceVariant/95 dark:via-m3-dark-surfaceVariant/50 to-transparent z-10 rounded-l-[1.25rem] sm:rounded-l-[2rem] opacity-0 transition-opacity duration-100 min-[850px]:hidden flex items-center justify-start pl-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: -200, behavior: 'smooth'})">
+                        <!-- Fade Masks -->
+                        <div class="fade-left absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-m3-light-surfaceVariant/95 via-m3-light-surfaceVariant/60 dark:from-m3-dark-surfaceVariant/95 dark:via-m3-dark-surfaceVariant/50 to-transparent z-10 rounded-l-[1.25rem] sm:rounded-l-[2rem] opacity-0 transition-opacity duration-100 min-[1100px]:hidden flex items-center justify-start pl-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: -200, behavior: 'smooth'})">
                             <svg class="w-5 h-5 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
                         </div>
-                        <div class="fade-right absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-m3-light-surfaceVariant/95 via-m3-light-surfaceVariant/60 dark:from-m3-dark-surfaceVariant/95 dark:via-m3-dark-surfaceVariant/50 to-transparent z-10 rounded-r-[1.25rem] sm:rounded-r-[2rem] opacity-0 transition-opacity duration-100 min-[850px]:hidden flex items-center justify-end pr-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: 200, behavior: 'smooth'})">
+                        <div class="fade-right absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-m3-light-surfaceVariant/95 via-m3-light-surfaceVariant/60 dark:from-m3-dark-surfaceVariant/95 dark:via-m3-dark-surfaceVariant/50 to-transparent z-10 rounded-r-[1.25rem] sm:rounded-r-[2rem] opacity-0 transition-opacity duration-100 min-[1100px]:hidden flex items-center justify-end pr-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: 200, behavior: 'smooth'})">
                             <svg class="w-5 h-5 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
                         </div>
 
-                        <!-- Scrollable Track -->
-                        <div class="scroll-track flex flex-nowrap min-[850px]:flex-wrap items-center justify-start min-[850px]:justify-between w-full overflow-x-auto min-[850px]:overflow-visible no-scrollbar bg-m3-light-surfaceVariant/40 dark:bg-m3-dark-surfaceVariant/20 min-[850px]:bg-transparent min-[850px]:dark:bg-transparent border border-m3-light-outline/10 dark:border-m3-dark-outline/10 min-[850px]:border-transparent min-[850px]:dark:border-transparent rounded-[1.25rem] sm:rounded-[2rem] min-[850px]:rounded-none py-1.5 pl-1.5 pr-0 sm:py-2 sm:pl-2 sm:pr-0 min-[850px]:p-0 gap-1.5 sm:gap-2 min-[850px]:gap-4 relative z-0">
+                        <!-- Scrollable Track: Enforced flex-nowrap -->
+                        <div class="scroll-track flex flex-nowrap items-center justify-start min-[1100px]:justify-between w-full overflow-x-auto min-[1100px]:overflow-visible no-scrollbar bg-m3-light-surfaceVariant/40 dark:bg-m3-dark-surfaceVariant/20 min-[1100px]:bg-transparent min-[1100px]:dark:bg-transparent border border-m3-light-outline/10 dark:border-m3-dark-outline/10 min-[1100px]:border-transparent min-[1100px]:dark:border-transparent rounded-[1.25rem] sm:rounded-[2rem] min-[1100px]:rounded-none py-1.5 pl-1.5 pr-0 sm:py-2 sm:pl-2 sm:pr-0 min-[1100px]:p-0 gap-1.5 sm:gap-2 min-[1100px]:gap-0 relative z-0">
                             
                             <!-- Left Block: Controls -->
-                            <div class="flex items-center shrink-0 gap-1.5 sm:gap-2 snap-start min-[850px]:bg-m3-light-surfaceVariant/40 min-[850px]:dark:bg-m3-dark-surfaceVariant/20 min-[850px]:border min-[850px]:border-m3-light-outline/10 min-[850px]:dark:border-m3-dark-outline/10 min-[850px]:p-1.5 min-[850px]:sm:p-2 min-[850px]:rounded-[2rem] min-[850px]:shadow-sm">
+                            <div class="flex items-center shrink-0 gap-1.5 sm:gap-2 snap-start min-[1100px]:bg-m3-light-surfaceVariant/40 min-[1100px]:dark:bg-m3-dark-surfaceVariant/20 min-[1100px]:border min-[1100px]:border-m3-light-outline/10 min-[1100px]:dark:border-m3-dark-outline/10 min-[1100px]:p-1.5 min-[1100px]:sm:p-2 min-[1100px]:rounded-[2rem] min-[1100px]:shadow-sm">
                                 
                                 <!-- Metric Dropdown Toggle -->
                                 <div class="relative shrink-0 flex">
@@ -157,15 +157,15 @@
                             </div>
 
                             <!-- Right Block: Save -->
-                            <div class="flex items-center shrink-0 snap-start min-[850px]:bg-m3-light-surfaceVariant/40 min-[850px]:dark:bg-m3-dark-surfaceVariant/20 min-[850px]:border min-[850px]:border-m3-light-outline/10 min-[850px]:dark:border-m3-dark-outline/10 min-[850px]:p-1.5 min-[850px]:sm:p-2 min-[850px]:rounded-[2rem] min-[850px]:shadow-sm">
+                            <div class="flex items-center shrink-0 snap-start min-[1100px]:bg-m3-light-surfaceVariant/40 min-[1100px]:dark:bg-m3-dark-surfaceVariant/20 min-[1100px]:border min-[1100px]:border-m3-light-outline/10 min-[1100px]:dark:border-m3-dark-outline/10 min-[1100px]:p-1.5 min-[1100px]:sm:p-2 min-[1100px]:rounded-[2rem] min-[1100px]:shadow-sm">
                                 <button class="download-btn px-3.5 py-1.5 flex items-center justify-center rounded-full bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer spring-interactive relative focus:outline-none shadow-sm gap-1.5 font-semibold text-[13px] sm:text-[14px]">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                                     <span>Save</span>
                                 </button>
                             </div>
 
-                            <!-- Invisible Right Padding Spacer -->
-                            <div class="w-0 shrink-0 min-[850px]:hidden"></div>
+                            <!-- Invisible Right Padding Spacer for mobile -->
+                            <div class="w-1.5 sm:w-2 shrink-0 min-[1100px]:hidden"></div>
                         </div>
                     </div>
 
@@ -191,9 +191,9 @@
                     </div>
                 </div>
 
-                <!-- ROW 3: Party Info Legend Ribbon -->
-                <div class="w-full flex justify-center z-20 mb-5 sm:mb-6">
-                    <div class="bg-m3-light-surfaceVariant/40 dark:bg-m3-dark-surfaceVariant/20 border border-m3-light-outline/10 dark:border-m3-dark-outline/10 p-2 sm:px-4 sm:py-2.5 rounded-[1.25rem] sm:rounded-[2rem] flex flex-wrap justify-center items-center gap-x-2 sm:gap-x-6 gap-y-1.5 sm:gap-y-2 shadow-sm w-full">
+                <!-- Party Info Legend -->
+                <div class="w-full relative z-20 mb-5 sm:mb-6">
+                    <div class="flex flex-wrap items-center justify-center w-full bg-m3-light-surfaceVariant/40 dark:bg-m3-dark-surfaceVariant/20 border border-m3-light-outline/10 dark:border-m3-dark-outline/10 p-3 sm:px-5 sm:py-3.5 rounded-[1.25rem] sm:rounded-[2rem] gap-x-3 gap-y-2 sm:gap-x-6 sm:gap-y-3 shadow-sm relative z-0">
                         <div class="flex items-center"><div class="w-2 h-2 bg-[#F97316] rounded-full mr-2 shadow-sm"></div><span class="font-bold text-[10px] uppercase tracking-widest text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant">NDA-BJP</span></div>
                         <div class="flex items-center"><div class="w-2 h-2 bg-[#2563EB] rounded-full mr-2 shadow-sm"></div><span class="font-bold text-[10px] uppercase tracking-widest text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant">UPA-INC</span></div>
                         <div class="flex items-center"><div class="w-2 h-2 bg-[#DC2626] rounded-full mr-2 shadow-sm"></div><span class="font-bold text-[10px] uppercase tracking-widest text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant">SP / CPI-M</span></div>
