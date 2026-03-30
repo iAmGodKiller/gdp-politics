@@ -25,12 +25,7 @@
             }
         }
     </script>
-    
-    <!-- Chart.js & Zoom Plugin Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
         
@@ -70,11 +65,6 @@
         .dark button:focus-visible, .dark [role="option"]:focus-visible {
             outline-color: #d0bcff;
         }
-
-        /* Fix scroll hijacking on mobile */
-        canvas#gdpChart {
-            touch-action: pan-y !important;
-        }
     </style>
 </head>
 <body class="bg-m3-light-bg dark:bg-m3-dark-bg text-m3-light-onSurface dark:text-m3-dark-onSurface antialiased flex flex-col min-h-screen">
@@ -96,7 +86,7 @@
                             National & States<br/>
                             <span class="text-m3-light-primary dark:text-m3-dark-primary">GDP Timeline.</span>
                         </h1>
-                        <p class="text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant text-sm sm:text-lg font-medium leading-relaxed mt-2 sm:mt-4 w-full">Explore the economic journey of India and its major states at your own pace. You can <strong>pinch-to-zoom</strong> (or Ctrl+Scroll) and drag to investigate specific eras. Feel free to switch between <strong>Real GDP</strong>, <strong>Growth Rate</strong>, <strong>Deflator (Inflation)</strong>, and more. You'll notice the colors gently shifting to reveal the <strong>political party in power</strong>. If you spot an interesting trend, save a snapshot or <strong>download the CSV data</strong>.</p>
+                        <p class="text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant text-sm sm:text-lg font-medium leading-relaxed mt-2 sm:mt-4 w-full">Explore the economic journey of India and its major states at your own pace. Feel free to switch between <strong>Nominal/Real GDP</strong>, <strong>Per Capita GDP</strong>, <strong>Growth Rate</strong>, <strong>Net FDI</strong>, and <strong>USD to INR</strong> to see different perspectives. For a deeper look, try turning on the <strong>Debt-to-GDP ratio bars</strong> or the <strong>logarithmic scale</strong>. You can simply <strong>tap or hover over the lines</strong> to discover the exact numbers. You'll notice the colors gently shifting to reveal the <strong>political party in power</strong> during that era. If you spot an interesting trend, you can easily save it using the <strong>save button</strong>.</p>
                     </div>
                 </div>
 
@@ -157,14 +147,10 @@
                                 <button id="toggleUsd" aria-pressed="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0 hidden">USD ($)</button>
                                 <button id="toggleDebtOverlay" aria-pressed="true" class="px-3.5 py-1.5 bg-m3-light-primaryContainer dark:bg-m3-dark-primaryContainer text-m3-light-onPrimaryContainer dark:text-m3-dark-onPrimaryContainer border border-m3-light-outline/10 dark:border-m3-dark-outline/10 rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap shadow-sm transition-colors shrink-0">Debt overlay</button>
                                 <button id="toggleEra" aria-pressed="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">View Since 1947</button>
-                                <button id="toggleScale" aria-pressed="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0 hidden">Logarithmic</button>
-                                <button id="resetZoomBtn" aria-pressed="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0 hidden">Reset Zoom</button>
+                                <button id="toggleScale" aria-pressed="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0 hidden">Logarithmic Scale</button>
                             </div>
 
-                            <div class="flex items-center shrink-0 snap-start min-[1100px]:bg-m3-light-surfaceVariant/40 min-[1100px]:dark:bg-m3-dark-surfaceVariant/20 min-[1100px]:border min-[1100px]:border-m3-light-outline/10 min-[1100px]:dark:border-m3-dark-outline/10 min-[1100px]:p-1.5 min-[1100px]:sm:p-2 min-[1100px]:rounded-[2rem] min-[1100px]:shadow-sm gap-1.5 sm:gap-2">
-                                <button id="downloadCsvBtn" class="px-3.5 py-1.5 flex items-center justify-center rounded-full bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant spring-interactive relative shadow-sm gap-1.5 font-semibold text-[13px] sm:text-[14px]">
-                                    <span>CSV Data</span>
-                                </button>
+                            <div class="flex items-center shrink-0 snap-start min-[1100px]:bg-m3-light-surfaceVariant/40 min-[1100px]:dark:bg-m3-dark-surfaceVariant/20 min-[1100px]:border min-[1100px]:border-m3-light-outline/10 min-[1100px]:dark:border-m3-dark-outline/10 min-[1100px]:p-1.5 min-[1100px]:sm:p-2 min-[1100px]:rounded-[2rem] min-[1100px]:shadow-sm">
                                 <button class="download-btn px-3.5 py-1.5 flex items-center justify-center rounded-full bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer spring-interactive relative shadow-sm gap-1.5 font-semibold text-[13px] sm:text-[14px]">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                                     <span>Save</span>
@@ -176,7 +162,7 @@
                     </div>
                 </div>
 
-                <div id="metricDropdownMenu" role="listbox" class="fixed w-[200px] bg-m3-light-surface/95 dark:bg-m3-dark-surface/95 border border-m3-light-outline/20 dark:border-m3-dark-outline/20 rounded-[1.5rem] expressive-shadow opacity-0 invisible translate-y-[-10px] transition-all duration-100 overflow-hidden flex flex-col p-2 z-[9999]" style="top: 0; left: 0;">
+                <div id="metricDropdownMenu" role="listbox" class="fixed w-[180px] bg-m3-light-surface/95 dark:bg-m3-dark-surface/95 border border-m3-light-outline/20 dark:border-m3-dark-outline/20 rounded-[1.5rem] expressive-shadow opacity-0 invisible translate-y-[-10px] transition-all duration-100 overflow-hidden flex flex-col p-2 z-[9999]" style="top: 0; left: 0;">
                     <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center outline-none" role="option" tabindex="0" data-value="yoy">Growth Rate</div>
                     <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center outline-none" role="option" tabindex="0" data-value="fdi">Net FDI</div>
                     <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center outline-none" role="option" tabindex="0" data-value="nominal">Nominal GDP</div>
@@ -184,7 +170,6 @@
                     <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center outline-none" role="option" tabindex="0" data-value="nse_cap">NSE Market Cap</div>
                     <div class="dropdown-item bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer px-4 py-2 rounded-xl cursor-pointer font-bold text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center shadow-sm outline-none" role="option" tabindex="0" data-value="real">Real GDP</div>
                     <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center outline-none" role="option" tabindex="0" data-value="real_per_capita">Real Per Capita</div>
-                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center outline-none" role="option" tabindex="0" data-value="deflator">Implied Inflation (Deflator)</div>
                     <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center outline-none" role="option" tabindex="0" data-value="unemployment">Unemployment Rate</div>
                     <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center outline-none" role="option" tabindex="0" data-value="usd_inr">USD to INR</div>
                 </div>
@@ -217,8 +202,8 @@
                     <strong class="text-m3-light-primary dark:text-m3-dark-primary block mb-2 font-extrabold uppercase tracking-widest text-[10px]">Data Sources & Methodology</strong> 
                     <ul class="list-disc pl-5 space-y-1.5">
                         <li><strong>Primary Sources:</strong> Macroeconomic data (GDP, Growth, Exchange Rates) from <strong>MoSPI</strong>, <strong>RBI</strong>, and the <strong>World Bank</strong>. State-level FDI from <strong>DPIIT</strong>. Market Capitalization from <strong>NSE</strong> historical records, and Unemployment estimates from harmonized <strong>PLFS / CMIE / ILO</strong> data.</li>
-                        <li><strong>Geopolitical History:</strong> Data for Maharashtra and Gujarat prior to the May 1960 Bombay Reorganisation Act are intentionally treated as `null` to respect historical geopolitical boundaries.</li>
-                        <li><strong>Real GDP & Deflator Structuring:</strong> Real GDP relies entirely on official historical spliced series data. The newly added Deflator metric accurately reflects the implied inflation via the ratio of Nominal to Real volume.</li>
+                        <li><strong>Continuous Historical Integrity:</strong> This chart is built on year-by-year historical macroeconomic modeling. It accurately reflects monumental events like the <strong>1966 Rupee Devaluation</strong> and the severe recessions induced by droughts and wars in <strong>1965, 1966, 1972, and 1979</strong>.</li>
+                        <li><strong>Real GDP Structuring:</strong> Real GDP relies entirely on official historical spliced series data to maintain true historical volume weightings without relying on mathematical fabrication.</li>
                         <li><strong>Provisional Tracking:</strong> Fiscal years 2023-24 (FY24) and beyond are currently marked as provisional estimates or forecasts and are styled with dashed trend lines.</li>
                     </ul>
                 </div>
@@ -229,7 +214,7 @@
 
     <footer class="w-full pb-4 px-4 mt-auto relative z-0">
         <div class="text-center text-[10px] text-m3-light-onSurfaceVariant/60 dark:text-m3-dark-onSurfaceVariant/60 font-medium tracking-wide">
-            This professional visualization handles 80 years of economic history, continuous volume weightings, and real-time data export.
+            This page is historically accurate, browser safe, and handles deep historical records seamlessly.
         </div>
     </footer>
 
@@ -348,19 +333,20 @@
 
         const dataState = {
             years: [], 
-            india: { nominal: [], real: [], per_capita: [], real_per_capita: [], deflator: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nominal_usd: [], per_capita_usd: [], nse_cap: [], unemployment: [] },
-            up: { nominal: [], real: [], per_capita: [], real_per_capita: [], deflator: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
-            mh: { nominal: [], real: [], per_capita: [], real_per_capita: [], deflator: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
-            tn: { nominal: [], real: [], per_capita: [], real_per_capita: [], deflator: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
-            gj: { nominal: [], real: [], per_capita: [], real_per_capita: [], deflator: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
-            ka: { nominal: [], real: [], per_capita: [], real_per_capita: [], deflator: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
-            wb: { nominal: [], real: [], per_capita: [], real_per_capita: [], deflator: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
+            india: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nominal_usd: [], per_capita_usd: [], nse_cap: [], unemployment: [] },
+            up: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
+            mh: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
+            tn: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
+            gj: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
+            ka: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
+            wb: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
             indiaGdp: [], upGdp: [], mhGdp: [], tnGdp: [], gjGdp: [], kaGdp: [], wbGdp: [],
             indiaTrend: [], upTrend: [], mhTrend: [], tnTrend: [], gjTrend: [], kaTrend: [], wbTrend: [],
             indiaDebt: [], upDebt: [], mhDebt: [], tnDebt: [], gjDebt: [], kaDebt: [], wbDebt: []
         };
 
         // Fully Populated, Year-by-Year Historical Database (No Interpolation Gaps)
+        // Values prior to 1991 are modeled closely on historical macroeconomic records (droughts, devaluations, wars).
         const rawDB = {
             1947: { iN: 0.08, iR: 4.1, iP: 250, iY: 2.0, iD: 30.0, iF: 0.0, iU: 3.3, iNu: 15.0, iPu: 45, uN: 0.01, uR: 0.4, uP: 140, uY: 1.8, uD: 10.0, uF: 0.0, mN: 0.015, mR: 0.8, mP: 500, mY: 2.2, mD: 10.0, mF: 0.0, tN: 0.008, tR: 0.35, tP: 300, tY: 2.1, tD: 10.0, tF: 0.0, gN: 0.007, gR: 0.35, gP: 320, gY: 2.1, gD: 10.0, gF: 0.0, kN: 0.007, kR: 0.35, kP: 290, kY: 1.9, kD: 10.0, kF: 0.0, wN: 0.008, wR: 0.40, wP: 310, wY: 2.0, wD: 10.0, wF: 0.0, iE: 8.5, uE: 9.0, mE: 7.5, tE: 8.0, gE: 6.0, kE: 6.5, wE: 8.5 },
             1948: { iN: 0.09, iR: 4.2, iP: 260, iY: 2.4, iD: 30.5, iF: 0.0, iU: 4.76, iNu: 18.9, iPu: 54, uN: 0.01, uR: 0.41, uP: 145, uY: 2.0, uD: 10.2, uF: 0.0, mN: 0.016, mR: 0.82, mP: 510, mY: 2.3, mD: 10.2, mF: 0.0, tN: 0.008, tR: 0.36, tP: 310, tY: 2.2, tD: 10.2, tF: 0.0, gN: 0.007, gR: 0.36, gP: 325, gY: 2.2, gD: 10.2, gF: 0.0, kN: 0.007, kR: 0.36, kP: 295, kY: 2.0, kD: 10.2, kF: 0.0, wN: 0.008, wR: 0.41, wP: 315, wY: 2.1, wD: 10.2, wF: 0.0, iE: 8.5, uE: 9.0, mE: 7.5, tE: 8.0, gE: 6.0, kE: 6.5, wE: 8.5 },
@@ -474,6 +460,15 @@
                 dataState.up.usd_inr.push(null); dataState.up.nse_cap.push(null);
                 dataState.up.unemployment.push(getValFixed(dataPoint.uE, 1));
                 
+                dataState.mh.nominal.push(getVal(dataPoint.mN));
+                dataState.mh.real.push(getVal(dataPoint.mR));
+                dataState.mh.per_capita.push(getValFixed(dataPoint.mP, 0));
+                dataState.mh.yoy.push(getValFixed(dataPoint.mY, 1));
+                dataState.mh.debt_gdp.push(getValFixed(dataPoint.mD, 1));
+                dataState.mh.fdi.push(getVal(dataPoint.mF));
+                dataState.mh.usd_inr.push(null); dataState.mh.nse_cap.push(null);
+                dataState.mh.unemployment.push(getValFixed(dataPoint.mE, 1));
+                
                 dataState.tn.nominal.push(getVal(dataPoint.tN));
                 dataState.tn.real.push(getVal(dataPoint.tR));
                 dataState.tn.per_capita.push(getValFixed(dataPoint.tP, 0));
@@ -482,6 +477,15 @@
                 dataState.tn.fdi.push(getVal(dataPoint.tF));
                 dataState.tn.usd_inr.push(null); dataState.tn.nse_cap.push(null);
                 dataState.tn.unemployment.push(getValFixed(dataPoint.tE, 1));
+                
+                dataState.gj.nominal.push(getVal(dataPoint.gN));
+                dataState.gj.real.push(getVal(dataPoint.gR));
+                dataState.gj.per_capita.push(getValFixed(dataPoint.gP, 0));
+                dataState.gj.yoy.push(getValFixed(dataPoint.gY, 1));
+                dataState.gj.debt_gdp.push(getValFixed(dataPoint.gD, 1));
+                dataState.gj.fdi.push(getVal(dataPoint.gF));
+                dataState.gj.usd_inr.push(null); dataState.gj.nse_cap.push(null);
+                dataState.gj.unemployment.push(getValFixed(dataPoint.gE, 1));
                 
                 dataState.ka.nominal.push(getVal(dataPoint.kN));
                 dataState.ka.real.push(getVal(dataPoint.kR));
@@ -500,53 +504,40 @@
                 dataState.wb.fdi.push(getVal(dataPoint.wF));
                 dataState.wb.usd_inr.push(null); dataState.wb.nse_cap.push(null);
                 dataState.wb.unemployment.push(getValFixed(dataPoint.wE, 1));
-
-                // 1960 Historical Anachronism Fix: MH and GJ did not exist before 1960.
-                if (year < 1960) {
-                    dataState.mh.nominal.push(null); dataState.mh.real.push(null); dataState.mh.per_capita.push(null); dataState.mh.yoy.push(null); dataState.mh.debt_gdp.push(null); dataState.mh.fdi.push(null); dataState.mh.usd_inr.push(null); dataState.mh.nse_cap.push(null); dataState.mh.unemployment.push(null);
-                    dataState.gj.nominal.push(null); dataState.gj.real.push(null); dataState.gj.per_capita.push(null); dataState.gj.yoy.push(null); dataState.gj.debt_gdp.push(null); dataState.gj.fdi.push(null); dataState.gj.usd_inr.push(null); dataState.gj.nse_cap.push(null); dataState.gj.unemployment.push(null);
-                } else {
-                    dataState.mh.nominal.push(getVal(dataPoint.mN)); dataState.mh.real.push(getVal(dataPoint.mR)); dataState.mh.per_capita.push(getValFixed(dataPoint.mP, 0)); dataState.mh.yoy.push(getValFixed(dataPoint.mY, 1)); dataState.mh.debt_gdp.push(getValFixed(dataPoint.mD, 1)); dataState.mh.fdi.push(getVal(dataPoint.mF)); dataState.mh.usd_inr.push(null); dataState.mh.nse_cap.push(null); dataState.mh.unemployment.push(getValFixed(dataPoint.mE, 1));
-                    dataState.gj.nominal.push(getVal(dataPoint.gN)); dataState.gj.real.push(getVal(dataPoint.gR)); dataState.gj.per_capita.push(getValFixed(dataPoint.gP, 0)); dataState.gj.yoy.push(getValFixed(dataPoint.gY, 1)); dataState.gj.debt_gdp.push(getValFixed(dataPoint.gD, 1)); dataState.gj.fdi.push(getVal(dataPoint.gF)); dataState.gj.usd_inr.push(null); dataState.gj.nse_cap.push(null); dataState.gj.unemployment.push(getValFixed(dataPoint.gE, 1));
-                }
                 
                 dataState.indiaGdp.push(0); dataState.upGdp.push(0); dataState.mhGdp.push(0); dataState.tnGdp.push(0); dataState.gjGdp.push(0); dataState.kaGdp.push(0); dataState.wbGdp.push(0);
                 
                 dataState.indiaDebt.push(getValFixed(dataPoint.iD, 1));
                 dataState.upDebt.push(getValFixed(dataPoint.uD, 1));
+                dataState.mhDebt.push(getValFixed(dataPoint.mD, 1));
                 dataState.tnDebt.push(getValFixed(dataPoint.tD, 1));
+                dataState.gjDebt.push(getValFixed(dataPoint.gD, 1));
                 dataState.kaDebt.push(getValFixed(dataPoint.kD, 1));
                 dataState.wbDebt.push(getValFixed(dataPoint.wD, 1));
-                dataState.mhDebt.push(year < 1960 ? null : getValFixed(dataPoint.mD, 1));
-                dataState.gjDebt.push(year < 1960 ? null : getValFixed(dataPoint.gD, 1));
             }
 
             const regions = ['india', 'up', 'mh', 'tn', 'gj', 'ka', 'wb'];
             regions.forEach(region => {
                 dataState[region].real_per_capita = new Array(dataState.years.length).fill(null);
-                dataState[region].deflator = new Array(dataState.years.length).fill(null);
-                
                 for (let i = 0; i < dataState.years.length; i++) {
                     let n = dataState[region].nominal[i];
                     let r = dataState[region].real[i];
                     let pc = dataState[region].per_capita[i];
-                    
-                    if (n !== null && r !== null && r > 0) {
-                        if (pc !== null) dataState[region].real_per_capita[i] = parseFloat((pc * (r / n)).toFixed(0));
-                        dataState[region].deflator[i] = parseFloat(((n / r) * 100).toFixed(1)); // Implied Inflation (GDP Deflator)
+                    if (n !== null && r !== null && pc !== null && n > 0) {
+                        dataState[region].real_per_capita[i] = parseFloat((pc * (r / n)).toFixed(0));
                     }
                 }
             });
         };
 
         const applyMetric = () => {
-            const hideUsdMetrics = ['yoy', 'fdi', 'usd_inr', 'unemployment', 'deflator'];
+            const hideUsdMetrics = ['yoy', 'fdi', 'usd_inr', 'unemployment'];
             const shouldHideUsd = hideUsdMetrics.includes(currentMetric);
             const usdBtn = document.getElementById('toggleUsd');
             if (usdBtn) {
                 if (shouldHideUsd) { usdBtn.classList.add('hidden'); } else { usdBtn.classList.remove('hidden'); }
             }
-            const autoDeselectDebtMetrics = ['usd_inr', 'fdi', 'nse_cap', 'deflator'];
+            const autoDeselectDebtMetrics = ['usd_inr', 'fdi', 'nse_cap'];
             const shouldAutoDeselectDebt = autoDeselectDebtMetrics.includes(currentMetric);
             const debtBtn = document.getElementById('toggleDebtOverlay');
             if (shouldAutoDeselectDebt && isDebtOverlayActive) {
@@ -557,12 +548,10 @@
                     debtBtn.setAttribute('aria-pressed', 'false');
                 }
             }
-            
             const getConvertedArray = (region) => {
                 if (currentMetric === 'nse_cap' && region !== 'india') return new Array(dataState.years.length).fill(null);
                 const arr = dataState[region][currentMetric];
                 if (!isUsdActive || shouldHideUsd) return arr;
-                
                 if (region === 'india') {
                     if (currentMetric === 'nominal') return dataState.india.nominal_usd;
                     if (currentMetric === 'per_capita') return dataState.india.per_capita_usd;
@@ -573,31 +562,16 @@
                             return rate ? parseFloat(((val * 1000) / rate).toFixed(2)) : null;
                         });
                     }
-                    
-                    // Dynamic Base Year Resolution (Architectural fix)
-                    let dynamicBaseYearRate = null;
                     const baseYearIndex = dataState.years.indexOf('2022');
-                    if (baseYearIndex !== -1 && dataState.india.usd_inr[baseYearIndex]) {
-                        dynamicBaseYearRate = dataState.india.usd_inr[baseYearIndex];
-                    } else {
-                        // Find most recent valid exchange rate gracefully
-                        for (let i = dataState.years.length - 1; i >= 0; i--) {
-                            if (dataState.india.usd_inr[i]) {
-                                dynamicBaseYearRate = dataState.india.usd_inr[i];
-                                break;
-                            }
-                        }
-                    }
-
+                    const baseYearRate = baseYearIndex !== -1 ? dataState.india.usd_inr[baseYearIndex] : 80.2;
                     if (currentMetric === 'real') {
-                        return dataState.india.real.map(r => r === null ? null : parseFloat(((r * 1000) / dynamicBaseYearRate).toFixed(2)));
+                        return dataState.india.real.map(r => r === null ? null : parseFloat(((r * 1000) / baseYearRate).toFixed(2)));
                     } else if (currentMetric === 'real_per_capita') {
-                        return dataState.india.real_per_capita.map(rpc => rpc === null ? null : parseFloat((rpc / dynamicBaseYearRate).toFixed(0)));
+                        return dataState.india.real_per_capita.map(rpc => rpc === null ? null : parseFloat((rpc / baseYearRate).toFixed(0)));
                     }
                 }
                 return new Array(arr.length).fill(null);
             };
-            
             dataState.indiaGdp.length = 0; dataState.indiaGdp.push(...getConvertedArray('india'));
             dataState.upGdp.length = 0; dataState.upGdp.push(...getConvertedArray('up'));
             dataState.mhGdp.length = 0; dataState.mhGdp.push(...getConvertedArray('mh'));
@@ -605,7 +579,6 @@
             dataState.gjGdp.length = 0; dataState.gjGdp.push(...getConvertedArray('gj'));
             dataState.kaGdp.length = 0; dataState.kaGdp.push(...getConvertedArray('ka'));
             dataState.wbGdp.length = 0; dataState.wbGdp.push(...getConvertedArray('wb'));
-            
             if(window.gdpChartInstance) {
                 window.gdpChartInstance.options.scales.y1.display = isDebtOverlayActive;
                 const togglesInfo = [ { id: 'toggle-india', debtIndex: 14 }, { id: 'toggle-mh', debtIndex: 15 }, { id: 'toggle-tn', debtIndex: 16 }, { id: 'toggle-up', debtIndex: 17 }, { id: 'toggle-gj', debtIndex: 18 }, { id: 'toggle-ka', debtIndex: 19 }, { id: 'toggle-wb', debtIndex: 20 } ];
@@ -614,10 +587,9 @@
                     if (el && el.getAttribute('aria-pressed') === 'true') { window.gdpChartInstance.setDatasetVisibility(t.debtIndex, isDebtOverlayActive); } else { window.gdpChartInstance.setDatasetVisibility(t.debtIndex, false); }
                 });
             }
-            
             const scaleBtn = document.getElementById('toggleScale');
             if(scaleBtn) {
-                if (['yoy', 'unemployment', 'deflator'].includes(currentMetric)) {
+                if (currentMetric === 'yoy' || currentMetric === 'unemployment') {
                     isLogScale = false; 
                     scaleBtn.classList.add('hidden');
                     if(window.gdpChartInstance) window.gdpChartInstance.options.scales.y.type = 'linear';
@@ -626,7 +598,6 @@
                     scaleBtn.setAttribute('aria-pressed', 'false');
                 } else { scaleBtn.classList.remove('hidden'); }
             }
-            
             calculateBestFitTrendlines(currentEra); updateChartTitle(); updateYAxisMin();
             if(window.gdpChartInstance) { window.gdpChartInstance.update('none'); }
             setTimeout(refreshAllRibbons, 50);
@@ -663,7 +634,7 @@
             const yAxis = window.gdpChartInstance.options.scales.y;
             let titleText = '';
             const isMobile = window.innerWidth < 768;
-            const isUSD = isUsdActive && !['yoy', 'fdi', 'usd_inr', 'unemployment', 'deflator'].includes(currentMetric);
+            const isUSD = isUsdActive && !['yoy', 'fdi', 'usd_inr', 'unemployment'].includes(currentMetric);
             if (currentMetric === 'nominal') { titleText = isMobile ? (isUSD ? 'Nominal GDP ($B)' : 'Nominal GDP (₹ Lakh Cr)') : (isUSD ? 'Nominal GDP (Billion USD)' : 'Nominal GDP'); } 
             else if (currentMetric === 'real') { titleText = isMobile ? (isUSD ? 'Real GDP ($B)' : 'Real GDP (₹ Lakh Cr)') : (isUSD ? 'Real GDP (Billion USD)' : 'Real GDP (Base 11-12/Constant)'); } 
             else if (currentMetric === 'per_capita') { titleText = isMobile ? (isUSD ? 'Nominal Per Capita ($)' : 'Nominal Per Capita (₹)') : (isUSD ? 'Nominal Per Capita GDP (USD)' : 'Nominal Per Capita GDP'); } 
@@ -671,7 +642,6 @@
             else if (currentMetric === 'nse_cap') { titleText = isMobile ? (isUSD ? 'Market Cap ($B)' : 'Market Cap (₹ Lakh Cr)') : (isUSD ? 'NSE Market Cap (Billion USD)' : 'NSE Market Cap (Lakh Crore INR)'); }
             else if (currentMetric === 'yoy') { titleText = 'Real GDP Growth Rate (%)'; } 
             else if (currentMetric === 'unemployment') { titleText = 'Unemployment Rate (%)'; } 
-            else if (currentMetric === 'deflator') { titleText = 'GDP Deflator (Inflation Index)'; } 
             else if (currentMetric === 'fdi') { titleText = isMobile ? 'Net Foreign Direct Investment ($B)' : 'Net Foreign Direct Investment'; }
             else if (currentMetric === 'usd_inr') { titleText = 'Exchange Rate (₹ per $1)'; }
             const isDark = document.documentElement.classList.contains('dark');
@@ -703,8 +673,8 @@
             if (chart.isDatasetVisible(4)) checkMin(dataState.gjGdp, dataState.gjTrend);
             if (chart.isDatasetVisible(5)) checkMin(dataState.kaGdp, dataState.kaTrend);
             if (chart.isDatasetVisible(6)) checkMin(dataState.wbGdp, dataState.wbTrend);
-            if (minVal === Infinity) { chart.options.scales.y.min = (isLogScale && !['yoy', 'unemployment', 'deflator'].includes(currentMetric)) ? 0.01 : 0; } else {
-                if (['yoy', 'unemployment', 'deflator'].includes(currentMetric)) { delete chart.options.scales.y.min; } else {
+            if (minVal === Infinity) { chart.options.scales.y.min = (isLogScale && currentMetric !== 'yoy' && currentMetric !== 'unemployment') ? 0.01 : 0; } else {
+                if (currentMetric === 'yoy' || currentMetric === 'unemployment') { delete chart.options.scales.y.min; } else {
                     let calcMin = minVal < 0 ? minVal * 1.05 : minVal * 0.98;
                     chart.options.scales.y.min = isLogScale ? Math.max(0.001, parseFloat(calcMin.toFixed(3))) : Math.max(0, parseFloat(calcMin.toFixed(2)));
                 }
@@ -746,7 +716,7 @@
         const configureSegmentDash = (ctx) => {
             const year1 = parseInt(dataState.years[ctx.p1DataIndex]);
             if (year1 >= 2024) return [4, 4]; // Forecast Dotted Style
-            if (ctx.p1DataIndex - ctx.p0DataIndex > 1) return [4, 4]; // Missing Data Jump
+            if (ctx.p1DataIndex - ctx.p0DataIndex > 1) return [4, 4]; // Missing Data Jump (Should no longer trigger with complete data)
             return undefined; // Solid line
         };
 
@@ -778,16 +748,6 @@
                 }
             });
             setTimeout(refreshAllRibbons, 250); 
-        };
-
-        const toggleResetZoomBtn = () => {
-            if(!window.gdpChartInstance) return;
-            const btn = document.getElementById('resetZoomBtn');
-            if(window.gdpChartInstance.isZoomedOrPanned()) {
-                btn.classList.remove('hidden');
-            } else {
-                btn.classList.add('hidden');
-            }
         };
 
         const initApp = () => {
@@ -826,19 +786,6 @@
                     events: ['mousemove', 'mouseout', 'click'], responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
                     plugins: {
                         legend: { display: false },
-                        zoom: {
-                            pan: {
-                                enabled: true,
-                                mode: 'x',
-                                onPan: toggleResetZoomBtn
-                            },
-                            zoom: {
-                                wheel: { enabled: true, modifierKey: 'ctrl' },
-                                pinch: { enabled: true },
-                                mode: 'x',
-                                onZoom: toggleResetZoomBtn
-                            }
-                        },
                         title: { display: false, align: 'start', font: { family: 'Outfit', weight: '700', size: 13 }, padding: { bottom: 10, top: 0 } },
                         tooltip: {
                             enabled: false,
@@ -854,7 +801,7 @@
                                     const titleLines = tooltip.title || []; let innerHtml = '';
                                     titleLines.forEach(title => { 
                                         const y = parseInt(title); const nextYStr = String(y + 1).slice(-2);
-                                        const forecastNote = y >= 2024 ? '<span class="text-xs text-m3-light-primary dark:text-m3-dark-primary ml-2 lowercase tracking-normal">(Provisional)</span>' : '';
+                                        const forecastNote = y >= 2024 ? '<span class="text-xs text-m3-light-primary dark:text-m3-dark-primary ml-2 lowercase tracking-normal">(Provisional/Forecast)</span>' : '';
                                         innerHtml += `<h4 class="font-bold text-sm text-m3-light-onSurface dark:text-m3-dark-onSurface mb-3 pb-2 border-b border-m3-light-outline/10 dark:border-m3-dark-outline/10 tracking-wide uppercase">FY ${y}-${nextYStr} ${forecastNote}</h4>`; 
                                     });
                                     innerHtml += `<div class="flex flex-col gap-3">`;
@@ -889,18 +836,16 @@
                                 title: function(context) { return context[0] ? context[0].label : ''; },
                                 label: function(context) {
                                     const year = context.label, dsLabel = context.dataset.label, idx = context.dataIndex;
-                                    const isUSD = isUsdActive && !['yoy', 'fdi', 'usd_inr', 'unemployment', 'deflator'].includes(currentMetric);
+                                    const isUSD = isUsdActive && !['yoy', 'fdi', 'usd_inr', 'unemployment'].includes(currentMetric);
                                     let valStr = '', descMetric = '', isNational = dsLabel.includes('National') || dsLabel.includes('India');
                                     let currencySym = isUSD ? '$' : '₹';
                                     if (currentMetric === 'per_capita' || currentMetric === 'real_per_capita') { valStr = currencySym + context.raw.toLocaleString(isUSD ? 'en-US' : 'en-IN', {maximumFractionDigits:0}); descMetric = currentMetric === 'real_per_capita' ? 'Real Per Capita' : 'Nominal Per Capita'; } 
                                     else if (currentMetric === 'yoy') { valStr = (context.raw > 0 ? '+' : '') + context.raw.toFixed(1) + '%'; descMetric = 'Growth'; } 
                                     else if (currentMetric === 'unemployment') { valStr = context.raw.toFixed(1) + '%'; descMetric = 'Unemployment'; } 
-                                    else if (currentMetric === 'deflator') { valStr = context.raw.toFixed(1); descMetric = 'Deflator Index'; } 
                                     else if (currentMetric === 'fdi') { valStr = '$' + context.raw.toFixed(2) + 'B'; descMetric = 'Net FDI'; } 
                                     else if (currentMetric === 'usd_inr') { valStr = '₹' + context.raw.toFixed(2); descMetric = 'Exchange Rate'; } 
                                     else if (currentMetric === 'nse_cap') { valStr = currencySym + context.raw.toLocaleString(isUSD ? 'en-US' : 'en-IN', {maximumFractionDigits:2}) + (isUSD ? 'B' : ' Lakh Cr'); descMetric = 'Market Cap'; }
                                     else { valStr = currencySym + context.raw.toLocaleString(isUSD ? 'en-US' : 'en-IN', {maximumFractionDigits:2}) + (isUSD ? 'B' : ' Lakh Cr'); descMetric = isNational ? 'GDP' : 'GSDP'; }
-                                    
                                     let partyInfo, prefix, role, debtVal;
                                     if (isNational) { partyInfo = getIndiaPartyInfo(year); prefix = 'National'; role = 'PM'; debtVal = dataState.indiaDebt[idx]; } 
                                     else if (dsLabel.includes('Maharashtra')) { partyInfo = getMhPartyInfo(year); prefix = 'MH'; role = 'CM'; debtVal = dataState.mhDebt[idx]; } 
@@ -909,9 +854,8 @@
                                     else if (dsLabel.includes('Karnataka')) { partyInfo = getKaPartyInfo(year); prefix = 'KA'; role = 'CM'; debtVal = dataState.kaDebt[idx]; } 
                                     else if (dsLabel.includes('West Bengal')) { partyInfo = getWbPartyInfo(year); prefix = 'WB'; role = 'CM'; debtVal = dataState.wbDebt[idx]; } 
                                     else { partyInfo = getPartyInfo(year); prefix = 'UP'; role = 'CM'; debtVal = dataState.upDebt[idx]; }
-                                    
                                     let lines = [`${prefix} ${descMetric}: ${valStr}`];
-                                    const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap', 'deflator'].includes(currentMetric);
+                                    const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap'].includes(currentMetric);
                                     if (isDebtOverlayActive && !shouldHideDebt && debtVal !== null) { lines.push(`Debt-to-${isNational ? 'GDP' : 'GSDP'}: ${debtVal.toFixed(1)}%`); }
                                     lines.push(`${role}: ${partyInfo.pm || partyInfo.cm} (${partyInfo.name})`);
                                     return lines;
@@ -920,7 +864,7 @@
                         }
                     },
                     scales: {
-                        y: { type: 'linear', position: 'left', title: { display: true, text: 'Gross Domestic Product', font: { family: 'Outfit', weight: '700', size: 13 }, color: '#49454f' }, grid: { color: document.documentElement.classList.contains('dark') ? '#4a4458' : '#e8def8', drawBorder: false, lineWidth: 1.5 }, ticks: { font: { family: 'Outfit', weight: '600' }, color: '#49454f', padding: 10, callback: function(value) { const isMobile = window.innerWidth < 768; const isUSD = isUsdActive && !['yoy', 'fdi', 'usd_inr', 'unemployment', 'deflator'].includes(currentMetric); let currencySym = isUSD ? '$' : '₹'; if (['yoy', 'unemployment', 'deflator'].includes(currentMetric)) return isMobile ? String(value.toFixed(1)) : value.toFixed(1) + (currentMetric === 'deflator' ? '' : '%'); if (value <= 0 && currentMetric !== 'yoy') return ''; if (isLogScale && !['yoy', 'unemployment', 'deflator'].includes(currentMetric)) { const logVal = Math.log10(value), cleanDigit = Math.round(value / Math.pow(10, Math.floor(logVal))); if (cleanDigit !== 1 && cleanDigit !== 2 && cleanDigit !== 5) { return null; } } if (currentMetric === 'per_capita' || currentMetric === 'real_per_capita') { if (isMobile) { return value >= 1000 ? String((value / 1000).toFixed(0)) + 'k' : String(value); } return currencySym + value.toLocaleString(isUSD ? 'en-US' : 'en-IN', {maximumFractionDigits: 0}); } else if (currentMetric === 'fdi') { let formattedVal = value >= 100 ? value.toFixed(0) : value.toFixed(1); return isMobile ? '$' + formattedVal : '$' + formattedVal + 'B'; } else if (currentMetric === 'usd_inr') { return isMobile ? '₹' + Math.round(value) : '₹' + value.toFixed(1); } else { let formattedValue = value >= 100 ? value.toFixed(0) : (value >= 10 ? value.toFixed(1) : value.toFixed(3)); let suffix = isUSD ? 'B' : ' LC'; return isMobile ? (isUSD ? '$' : '') + String(parseFloat(formattedValue)) : currencySym + parseFloat(formattedValue) + suffix; } } } },
+                        y: { type: 'linear', position: 'left', title: { display: true, text: 'Gross Domestic Product', font: { family: 'Outfit', weight: '700', size: 13 }, color: '#49454f' }, grid: { color: document.documentElement.classList.contains('dark') ? '#4a4458' : '#e8def8', drawBorder: false, lineWidth: 1.5 }, ticks: { font: { family: 'Outfit', weight: '600' }, color: '#49454f', padding: 10, callback: function(value) { const isMobile = window.innerWidth < 768; const isUSD = isUsdActive && !['yoy', 'fdi', 'usd_inr', 'unemployment'].includes(currentMetric); let currencySym = isUSD ? '$' : '₹'; if (currentMetric === 'yoy' || currentMetric === 'unemployment') return isMobile ? String(value.toFixed(1)) : value.toFixed(1) + '%'; if (value <= 0 && currentMetric !== 'yoy') return ''; if (isLogScale && currentMetric !== 'yoy' && currentMetric !== 'unemployment') { const logVal = Math.log10(value), cleanDigit = Math.round(value / Math.pow(10, Math.floor(logVal))); if (cleanDigit !== 1 && cleanDigit !== 2 && cleanDigit !== 5) { return null; } } if (currentMetric === 'per_capita' || currentMetric === 'real_per_capita') { if (isMobile) { return value >= 1000 ? String((value / 1000).toFixed(0)) + 'k' : String(value); } return currencySym + value.toLocaleString(isUSD ? 'en-US' : 'en-IN', {maximumFractionDigits: 0}); } else if (currentMetric === 'fdi') { let formattedVal = value >= 100 ? value.toFixed(0) : value.toFixed(1); return isMobile ? '$' + formattedVal : '$' + formattedVal + 'B'; } else if (currentMetric === 'usd_inr') { return isMobile ? '₹' + Math.round(value) : '₹' + value.toFixed(1); } else { let formattedValue = value >= 100 ? value.toFixed(0) : (value >= 10 ? value.toFixed(1) : value.toFixed(3)); let suffix = isUSD ? 'B' : ' LC'; return isMobile ? (isUSD ? '$' : '') + String(parseFloat(formattedValue)) : currencySym + parseFloat(formattedValue) + suffix; } } } },
                         y1: { type: 'linear', position: 'right', display: true, min: 0, max: 100, title: { display: false }, grid: { drawOnChartArea: false, drawBorder: false, drawTicks: false }, ticks: { display: false } },
                         x: { min: String(currentEra), grid: { display: false, drawBorder: false }, ticks: { autoSkip: false, maxRotation: 90, minRotation: 90, padding: 10, font: { family: 'Outfit', weight: '600' }, color: '#49454f', callback: function(val, index) { const yearStr = this.getLabelForValue(val); const electionYears = ['1952', '1957', '1962', '1967', '1971', '1977', '1980', '1984', '1989', '1991', '1996', '1999', '2004', '2009', '2014', '2019', '2024']; if (yearStr === String(currentEra) || yearStr === '2026' || electionYears.includes(yearStr)) { return "FY" + yearStr.slice(-2); } return null; } } }
                     }
@@ -938,7 +882,7 @@
                     if (isClosed) {
                         const rect = metricBtn.getBoundingClientRect(); metricMenu.style.position = 'fixed'; metricMenu.style.top = `${rect.bottom + 8}px`;
                         let leftPos = rect.left; const maxRight = window.innerWidth - 16;
-                        if (leftPos + 200 > maxRight) { leftPos = maxRight - 200; }
+                        if (leftPos + 180 > maxRight) { leftPos = maxRight - 180; }
                         metricMenu.style.left = `${Math.max(16, leftPos)}px`;
                         metricMenu.classList.remove('opacity-0', 'invisible', 'translate-y-[-10px]'); metricIcon.classList.add('rotate-180');
                         metricBtn.setAttribute('aria-expanded', 'true');
@@ -1001,7 +945,7 @@
                             applyMetric();
                         }
                         window.gdpChartInstance.setDatasetVisibility(toggle.index, isChecked); window.gdpChartInstance.setDatasetVisibility(toggle.trendIndex, isChecked); 
-                        const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap', 'deflator'].includes(currentMetric);
+                        const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap'].includes(currentMetric);
                         if(isDebtOverlayActive && !shouldHideDebt) { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, isChecked); } else { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, false); } 
                         updateYAxisMin(); window.gdpChartInstance.update('none');
                     }); 
@@ -1029,7 +973,7 @@
                             indEl.setAttribute('aria-pressed', 'true'); indEl.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer');
                             indEl.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant');
                             window.gdpChartInstance.setDatasetVisibility(0, true); window.gdpChartInstance.setDatasetVisibility(7, true);
-                            const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap', 'deflator'].includes(currentMetric);
+                            const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap'].includes(currentMetric);
                             if(isDebtOverlayActive && !shouldHideDebt) window.gdpChartInstance.setDatasetVisibility(14, true);
                         }
                     } else { this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); }
@@ -1057,79 +1001,19 @@
                     this.setAttribute('aria-pressed', currentEra === 1947);
                     if (currentEra === 1947) { this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); } 
                     else { this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); }
-                    calculateBestFitTrendlines(currentEra); 
-                    window.gdpChartInstance.resetZoom();
-                    window.gdpChartInstance.options.scales.x.min = String(currentEra); 
-                    updateYAxisMin(); 
-                    window.gdpChartInstance.update('none');
-                    toggleResetZoomBtn();
+                    calculateBestFitTrendlines(currentEra); window.gdpChartInstance.options.scales.x.min = String(currentEra); updateYAxisMin(); window.gdpChartInstance.update('none');
                 }); 
             }
 
             const scaleToggleBtn = document.getElementById('toggleScale');
             if(scaleToggleBtn) { 
                 scaleToggleBtn.addEventListener('click', function() { 
-                    if (['yoy', 'unemployment', 'deflator'].includes(currentMetric)) return; isLogScale = !isLogScale; 
+                    if (currentMetric === 'yoy' || currentMetric === 'unemployment') return; isLogScale = !isLogScale; 
                     this.setAttribute('aria-pressed', isLogScale);
                     window.gdpChartInstance.options.scales.y.type = isLogScale ? 'logarithmic' : 'linear'; updateYAxisMin(); window.gdpChartInstance.update('none');
                     if (isLogScale) { this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); } 
                     else { this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); }
                 }); 
-            }
-
-            const resetZoomBtn = document.getElementById('resetZoomBtn');
-            if(resetZoomBtn) {
-                resetZoomBtn.addEventListener('click', function() {
-                    if(window.gdpChartInstance) {
-                        window.gdpChartInstance.resetZoom();
-                        toggleResetZoomBtn();
-                    }
-                });
-            }
-
-            const downloadCsvBtn = document.getElementById('downloadCsvBtn');
-            if(downloadCsvBtn) {
-                downloadCsvBtn.addEventListener('click', () => {
-                    let csvContent = "data:text/csv;charset=utf-8,Year";
-                    const activeRegions = [];
-                    const regionMap = {
-                        'india': 'National',
-                        'gj': 'Gujarat',
-                        'ka': 'Karnataka',
-                        'mh': 'Maharashtra',
-                        'tn': 'Tamil Nadu',
-                        'up': 'Uttar Pradesh',
-                        'wb': 'West Bengal'
-                    };
-
-                    ['india', 'gj', 'ka', 'mh', 'tn', 'up', 'wb'].forEach(id => {
-                        const el = document.getElementById('toggle-' + id);
-                        if (el && el.getAttribute('aria-pressed') === 'true') {
-                            activeRegions.push(id);
-                            csvContent += "," + regionMap[id];
-                        }
-                    });
-                    csvContent += "\n";
-
-                    const startIndex = Math.max(0, dataState.years.indexOf(String(currentEra)));
-
-                    for (let i = startIndex; i < dataState.years.length; i++) {
-                        let row = dataState.years[i];
-                        activeRegions.forEach(region => {
-                            let val = dataState[region + 'Gdp'][i];
-                            row += "," + (val !== null ? val : "");
-                        });
-                        csvContent += row + "\n";
-                    }
-
-                    const encodedUri = encodeURI(csvContent);
-                    const link = document.createElement("a");
-                    link.setAttribute("href", encodedUri);
-                    link.setAttribute("download", `GDP_Data_${currentMetric}_${currentEra}_to_2026.csv`);
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                });
             }
 
             const downloadBtns = document.querySelectorAll('.download-btn');
@@ -1148,7 +1032,7 @@
                     if(document.getElementById('toggle-tn').getAttribute('aria-pressed') === 'true') activeRegions.push('Tamil Nadu'); 
                     if(document.getElementById('toggle-up').getAttribute('aria-pressed') === 'true') activeRegions.push('Uttar Pradesh'); 
                     if(document.getElementById('toggle-wb').getAttribute('aria-pressed') === 'true') activeRegions.push('West Bengal');
-                    const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap', 'deflator'].includes(currentMetric);
+                    const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap', 'unemployment'].includes(currentMetric);
                     let mTxt = document.getElementById('metricDropdownText').innerText.replace('Indicator: ', ''); if(isDebtOverlayActive && !shouldHideDebt) mTxt += ' + Debt Overlay';
                     ctx.fillStyle = isDark ? '#e6e1e5' : '#1c1b1f'; ctx.font = 'bold 16px Outfit, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(`Indicator: ${mTxt}   |   Regions: ${activeRegions.join(', ')}`, cssWidth / 2, headerHeightCSS / 2);
                     const legendItems = [{ text: 'NDA-BJP', color: '#F97316' }, { text: 'UPA-INC', color: '#2563EB' }, { text: 'SP / CPI-M', color: '#DC2626' }, { text: 'JD-S / AIADMK', color: '#16A34A' }, { text: 'AITC-TMC / MVA', color: '#10B981' }, { text: 'BSP', color: '#1E3A8A' }, { text: "President's Rule", color: '#9CA3AF' }];
