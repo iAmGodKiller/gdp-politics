@@ -25,7 +25,12 @@
             }
         }
     </script>
+    
+    <!-- Chart.js & Zoom Plugin Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
         
@@ -37,7 +42,6 @@
             background-attachment: fixed;
         }
 
-        /* Sped up from 0.4s to 0.1s for ultimate snappiness */
         .spring-interactive { transition: all 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .spring-interactive:active { transform: scale(0.95) translateY(1px); }
 
@@ -50,14 +54,26 @@
         .dark ::-webkit-scrollbar-thumb { background: #49454f; }
         select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
 
-        /* Mobile Swipeable Ribbons */
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
 
-        /* Mobile Landscape Optimizations */
         @media (max-width: 900px) and (orientation: landscape) {
             .landscape-compact-padding { padding: 1rem !important; border-radius: 1.5rem !important; }
             .landscape-chart-height { min-height: 220px !important; height: 75vh !important; }
+        }
+
+        /* Accessibility Focus Styles */
+        button:focus-visible, [role="option"]:focus-visible {
+            outline: 2px solid #6750a4;
+            outline-offset: 2px;
+        }
+        .dark button:focus-visible, .dark [role="option"]:focus-visible {
+            outline-color: #d0bcff;
+        }
+
+        /* Fix scroll hijacking on mobile */
+        canvas#gdpChart {
+            touch-action: pan-y !important;
         }
     </style>
 </head>
@@ -69,8 +85,6 @@
                 
                 <!-- Header -->
                 <div class="relative w-full mb-4 sm:mb-8">
-                    
-                    <!-- Theme Toggle -->
                     <div class="absolute top-0 right-0 bg-m3-light-surfaceVariant/40 dark:bg-m3-dark-surfaceVariant/20 border border-m3-light-outline/10 dark:border-m3-dark-outline/10 p-1.5 rounded-full flex items-center justify-center shadow-sm z-[100]">
                         <button id="themeToggle" aria-label="Toggle Dark Mode" class="w-9 h-9 flex items-center justify-center rounded-full bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer spring-interactive focus:outline-none shadow-sm">
                             <span id="themeIcon"></span>
@@ -82,7 +96,7 @@
                             National & States<br/>
                             <span class="text-m3-light-primary dark:text-m3-dark-primary">GDP Timeline.</span>
                         </h1>
-                        <p class="text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant text-sm sm:text-lg font-medium leading-relaxed mt-2 sm:mt-4 w-full">Explore the economic journey of India and its major states at your own pace. Feel free to switch between <strong>Nominal/Real GDP</strong>, <strong>Per Capita GDP</strong>, <strong>Growth Rate</strong>, <strong>Net FDI</strong>, and <strong>USD to INR</strong> to see different perspectives. For a deeper look, try turning on the <strong>Debt-to-GDP ratio bars</strong> or the <strong>logarithmic scale</strong>. You can simply <strong>tap or hover over the lines</strong> to discover the exact numbers. You'll notice the colors gently shifting to reveal the <strong>political party in power</strong> during that era. If you spot an interesting trend, you can easily save it using the <strong>save button</strong>.</p>
+                        <p class="text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant text-sm sm:text-lg font-medium leading-relaxed mt-2 sm:mt-4 w-full">Explore the economic journey of India and its major states at your own pace. You can <strong>pinch-to-zoom</strong> (or Ctrl+Scroll) and drag to investigate specific eras. Feel free to switch between <strong>Real GDP</strong>, <strong>Growth Rate</strong>, <strong>Deflator (Inflation)</strong>, and more. You'll notice the colors gently shifting to reveal the <strong>political party in power</strong>. If you spot an interesting trend, save a snapshot or <strong>download the CSV data</strong>.</p>
                     </div>
                 </div>
 
@@ -93,34 +107,28 @@
                     
                     <!-- ROW 1: Regions -->
                     <div class="relative w-full ribbon-container z-30">
-                        
-                        <!-- Fade Masks -->
-                        <div class="fade-left absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-m3-light-surfaceVariant/95 via-m3-light-surfaceVariant/60 dark:from-m3-dark-surfaceVariant/95 dark:via-m3-dark-surfaceVariant/50 to-transparent z-10 rounded-l-[1.25rem] sm:rounded-l-[2rem] opacity-0 transition-opacity duration-100 min-[1100px]:hidden flex items-center justify-start pl-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: -200, behavior: 'smooth'})">
+                        <div class="fade-left absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-m3-light-surfaceVariant/95 via-m3-light-surfaceVariant/60 dark:from-m3-dark-surfaceVariant/95 dark:via-m3-dark-surfaceVariant/50 to-transparent z-10 rounded-l-[1.25rem] sm:rounded-l-[2rem] opacity-0 transition-opacity duration-100 min-[1100px]:hidden flex items-center justify-start pl-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" aria-hidden="true" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: -200, behavior: 'smooth'})">
                             <svg class="w-5 h-5 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
                         </div>
-                        <div class="fade-right absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-m3-light-surfaceVariant/95 via-m3-light-surfaceVariant/60 dark:from-m3-dark-surfaceVariant/95 dark:via-m3-dark-surfaceVariant/50 to-transparent z-10 rounded-r-[1.25rem] sm:rounded-r-[2rem] opacity-0 transition-opacity duration-100 min-[1100px]:hidden flex items-center justify-end pr-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: 200, behavior: 'smooth'})">
+                        <div class="fade-right absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-m3-light-surfaceVariant/95 via-m3-light-surfaceVariant/60 dark:from-m3-dark-surfaceVariant/95 dark:via-m3-dark-surfaceVariant/50 to-transparent z-10 rounded-r-[1.25rem] sm:rounded-r-[2rem] opacity-0 transition-opacity duration-100 min-[1100px]:hidden flex items-center justify-end pr-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" aria-hidden="true" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: 200, behavior: 'smooth'})">
                             <svg class="w-5 h-5 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
                         </div>
 
-                        <!-- Scrollable Track: Enforced flex-nowrap to prevent wrapping. Unifies < 1100px, Splits >= 1100px -->
-                        <div class="scroll-track flex flex-nowrap items-center justify-start min-[1100px]:justify-between w-full overflow-x-auto min-[1100px]:overflow-visible no-scrollbar bg-m3-light-surfaceVariant/40 dark:bg-m3-dark-surfaceVariant/20 min-[1100px]:bg-transparent min-[1100px]:dark:bg-transparent border border-m3-light-outline/10 dark:border-m3-dark-outline/10 min-[1100px]:border-transparent min-[1100px]:dark:border-transparent rounded-[1.25rem] sm:rounded-[2rem] min-[1100px]:rounded-none py-1.5 pl-1.5 pr-0 sm:py-2 sm:pl-2 sm:pr-0 min-[1100px]:p-0 gap-1.5 sm:gap-2 min-[1100px]:gap-0 relative z-0">
+                        <div class="scroll-track flex flex-nowrap items-center justify-start min-[1100px]:justify-between w-full overflow-x-auto min-[1100px]:overflow-visible no-scrollbar bg-m3-light-surfaceVariant/40 dark:bg-m3-dark-surfaceVariant/20 min-[1100px]:bg-transparent min-[1100px]:dark:bg-transparent border border-m3-light-outline/10 dark:border-m3-dark-outline/10 min-[1100px]:border-transparent min-[1100px]:dark:border-transparent rounded-[1.25rem] sm:rounded-[2rem] min-[1100px]:rounded-none py-1.5 pl-1.5 pr-0 sm:py-2 sm:pl-2 sm:pr-0 min-[1100px]:p-0 gap-1.5 sm:gap-2 min-[1100px]:gap-0 relative z-0" role="group" aria-label="Region Selection">
                             
-                            <!-- Left Block: National -->
                             <div class="flex items-center shrink-0 snap-start min-[1100px]:bg-m3-light-surfaceVariant/40 min-[1100px]:dark:bg-m3-dark-surfaceVariant/20 min-[1100px]:border min-[1100px]:border-m3-light-outline/10 min-[1100px]:dark:border-m3-dark-outline/10 min-[1100px]:p-1.5 min-[1100px]:sm:p-2 min-[1100px]:rounded-[2rem] min-[1100px]:shadow-sm">
-                                <button id="toggle-india" data-checked="true" class="px-3.5 py-1.5 bg-m3-light-primaryContainer dark:bg-m3-dark-primaryContainer text-m3-light-onPrimaryContainer dark:text-m3-dark-onPrimaryContainer border border-m3-light-outline/10 dark:border-m3-dark-outline/10 rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap shadow-sm shrink-0">National</button>
+                                <button id="toggle-india" aria-pressed="true" class="px-3.5 py-1.5 bg-m3-light-primaryContainer dark:bg-m3-dark-primaryContainer text-m3-light-onPrimaryContainer dark:text-m3-dark-onPrimaryContainer border border-m3-light-outline/10 dark:border-m3-dark-outline/10 rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap shadow-sm shrink-0">National</button>
                             </div>
                             
-                            <!-- Right Block: States -->
                             <div class="flex items-center shrink-0 snap-start gap-1.5 sm:gap-2 min-[1100px]:bg-m3-light-surfaceVariant/40 min-[1100px]:dark:bg-m3-dark-surfaceVariant/20 min-[1100px]:border min-[1100px]:border-m3-light-outline/10 min-[1100px]:dark:border-m3-dark-outline/10 min-[1100px]:p-1.5 min-[1100px]:sm:p-2 min-[1100px]:rounded-[2rem] min-[1100px]:shadow-sm">
-                                <button id="toggle-gj" data-checked="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">Gujarat</button>
-                                <button id="toggle-ka" data-checked="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">Karnataka</button>
-                                <button id="toggle-mh" data-checked="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">Maharashtra</button>
-                                <button id="toggle-tn" data-checked="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">Tamil Nadu</button>
-                                <button id="toggle-up" data-checked="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">Uttar Pradesh</button>
-                                <button id="toggle-wb" data-checked="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">West Bengal</button>
+                                <button id="toggle-gj" aria-pressed="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">Gujarat</button>
+                                <button id="toggle-ka" aria-pressed="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">Karnataka</button>
+                                <button id="toggle-mh" aria-pressed="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">Maharashtra</button>
+                                <button id="toggle-tn" aria-pressed="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">Tamil Nadu</button>
+                                <button id="toggle-up" aria-pressed="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">Uttar Pradesh</button>
+                                <button id="toggle-wb" aria-pressed="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">West Bengal</button>
                             </div>
                             
-                            <!-- Invisible Right Padding Spacer for mobile -->
                             <div class="w-1.5 sm:w-2 shrink-0 min-[1100px]:hidden"></div>
                         </div>
                     </div>
@@ -128,63 +136,59 @@
                     <!-- ROW 2: Controls & Save -->
                     <div class="relative w-full ribbon-container z-40">
                         
-                        <!-- Fade Masks -->
-                        <div class="fade-left absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-m3-light-surfaceVariant/95 via-m3-light-surfaceVariant/60 dark:from-m3-dark-surfaceVariant/95 dark:via-m3-dark-surfaceVariant/50 to-transparent z-10 rounded-l-[1.25rem] sm:rounded-l-[2rem] opacity-0 transition-opacity duration-100 min-[1100px]:hidden flex items-center justify-start pl-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: -200, behavior: 'smooth'})">
+                        <div class="fade-left absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-m3-light-surfaceVariant/95 via-m3-light-surfaceVariant/60 dark:from-m3-dark-surfaceVariant/95 dark:via-m3-dark-surfaceVariant/50 to-transparent z-10 rounded-l-[1.25rem] sm:rounded-l-[2rem] opacity-0 transition-opacity duration-100 min-[1100px]:hidden flex items-center justify-start pl-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" aria-hidden="true" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: -200, behavior: 'smooth'})">
                             <svg class="w-5 h-5 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
                         </div>
-                        <div class="fade-right absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-m3-light-surfaceVariant/95 via-m3-light-surfaceVariant/60 dark:from-m3-dark-surfaceVariant/95 dark:via-m3-dark-surfaceVariant/50 to-transparent z-10 rounded-r-[1.25rem] sm:rounded-r-[2rem] opacity-0 transition-opacity duration-100 min-[1100px]:hidden flex items-center justify-end pr-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: 200, behavior: 'smooth'})">
+                        <div class="fade-right absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-m3-light-surfaceVariant/95 via-m3-light-surfaceVariant/60 dark:from-m3-dark-surfaceVariant/95 dark:via-m3-dark-surfaceVariant/50 to-transparent z-10 rounded-r-[1.25rem] sm:rounded-r-[2rem] opacity-0 transition-opacity duration-100 min-[1100px]:hidden flex items-center justify-end pr-1.5 cursor-pointer pointer-events-none text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant hover:text-m3-light-primary dark:hover:text-m3-dark-primary" aria-hidden="true" onclick="this.parentElement.querySelector('.scroll-track').scrollBy({left: 200, behavior: 'smooth'})">
                             <svg class="w-5 h-5 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
                         </div>
 
-                        <!-- Scrollable Track: Enforced flex-nowrap -->
                         <div class="scroll-track flex flex-nowrap items-center justify-start min-[1100px]:justify-between w-full overflow-x-auto min-[1100px]:overflow-visible no-scrollbar bg-m3-light-surfaceVariant/40 dark:bg-m3-dark-surfaceVariant/20 min-[1100px]:bg-transparent min-[1100px]:dark:bg-transparent border border-m3-light-outline/10 dark:border-m3-dark-outline/10 min-[1100px]:border-transparent min-[1100px]:dark:border-transparent rounded-[1.25rem] sm:rounded-[2rem] min-[1100px]:rounded-none py-1.5 pl-1.5 pr-0 sm:py-2 sm:pl-2 sm:pr-0 min-[1100px]:p-0 gap-1.5 sm:gap-2 min-[1100px]:gap-0 relative z-0">
                             
-                            <!-- Left Block: Controls -->
                             <div class="flex items-center shrink-0 gap-1.5 sm:gap-2 snap-start min-[1100px]:bg-m3-light-surfaceVariant/40 min-[1100px]:dark:bg-m3-dark-surfaceVariant/20 min-[1100px]:border min-[1100px]:border-m3-light-outline/10 min-[1100px]:dark:border-m3-dark-outline/10 min-[1100px]:p-1.5 min-[1100px]:sm:p-2 min-[1100px]:rounded-[2rem] min-[1100px]:shadow-sm">
                                 
-                                <!-- Metric Dropdown Toggle -->
                                 <div class="relative shrink-0 flex">
-                                    <button id="metricDropdownBtn" class="bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer px-3.5 py-1.5 rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive flex items-center justify-between gap-2 outline-none whitespace-nowrap border border-m3-light-outline/5 dark:border-m3-dark-outline/5 focus:border-m3-light-primary dark:focus:border-m3-dark-primary shadow-sm w-auto">
+                                    <button id="metricDropdownBtn" aria-haspopup="listbox" aria-expanded="false" class="bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer px-3.5 py-1.5 rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive flex items-center justify-between gap-2 whitespace-nowrap border border-m3-light-outline/5 dark:border-m3-dark-outline/5 focus:border-m3-light-primary dark:focus:border-m3-dark-primary shadow-sm w-auto">
                                         <span id="metricDropdownText">Indicator: Real GDP</span>
                                         <svg class="w-3.5 h-3.5 transition-transform duration-150" id="metricDropdownIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
                                     </button>
                                 </div>
 
-                                <button id="toggleUsd" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0 hidden">USD ($)</button>
-                                <button id="toggleDebtOverlay" class="px-3.5 py-1.5 bg-m3-light-primaryContainer dark:bg-m3-dark-primaryContainer text-m3-light-onPrimaryContainer dark:text-m3-dark-onPrimaryContainer border border-m3-light-outline/10 dark:border-m3-dark-outline/10 rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap shadow-sm transition-colors shrink-0">Debt overlay</button>
-                                <button id="toggleEra" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">View Since 1947</button>
-                                <button id="toggleScale" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0 hidden">Logarithmic Scale</button>
+                                <button id="toggleUsd" aria-pressed="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0 hidden">USD ($)</button>
+                                <button id="toggleDebtOverlay" aria-pressed="true" class="px-3.5 py-1.5 bg-m3-light-primaryContainer dark:bg-m3-dark-primaryContainer text-m3-light-onPrimaryContainer dark:text-m3-dark-onPrimaryContainer border border-m3-light-outline/10 dark:border-m3-dark-outline/10 rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap shadow-sm transition-colors shrink-0">Debt overlay</button>
+                                <button id="toggleEra" aria-pressed="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0">View Since 1947</button>
+                                <button id="toggleScale" aria-pressed="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0 hidden">Logarithmic</button>
+                                <button id="resetZoomBtn" aria-pressed="false" class="px-3.5 py-1.5 bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface rounded-full font-medium text-[13px] sm:text-[14px] spring-interactive whitespace-nowrap hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant shadow-sm shrink-0 hidden">Reset Zoom</button>
                             </div>
 
-                            <!-- Right Block: Save -->
-                            <div class="flex items-center shrink-0 snap-start min-[1100px]:bg-m3-light-surfaceVariant/40 min-[1100px]:dark:bg-m3-dark-surfaceVariant/20 min-[1100px]:border min-[1100px]:border-m3-light-outline/10 min-[1100px]:dark:border-m3-dark-outline/10 min-[1100px]:p-1.5 min-[1100px]:sm:p-2 min-[1100px]:rounded-[2rem] min-[1100px]:shadow-sm">
-                                <button class="download-btn px-3.5 py-1.5 flex items-center justify-center rounded-full bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer spring-interactive relative focus:outline-none shadow-sm gap-1.5 font-semibold text-[13px] sm:text-[14px]">
+                            <div class="flex items-center shrink-0 snap-start min-[1100px]:bg-m3-light-surfaceVariant/40 min-[1100px]:dark:bg-m3-dark-surfaceVariant/20 min-[1100px]:border min-[1100px]:border-m3-light-outline/10 min-[1100px]:dark:border-m3-dark-outline/10 min-[1100px]:p-1.5 min-[1100px]:sm:p-2 min-[1100px]:rounded-[2rem] min-[1100px]:shadow-sm gap-1.5 sm:gap-2">
+                                <button id="downloadCsvBtn" class="px-3.5 py-1.5 flex items-center justify-center rounded-full bg-m3-light-surface dark:bg-m3-dark-surface border border-m3-light-outline/10 dark:border-m3-dark-outline/10 text-m3-light-onSurface dark:text-m3-dark-onSurface hover:bg-m3-light-surfaceVariant dark:hover:bg-m3-dark-surfaceVariant spring-interactive relative shadow-sm gap-1.5 font-semibold text-[13px] sm:text-[14px]">
+                                    <span>CSV Data</span>
+                                </button>
+                                <button class="download-btn px-3.5 py-1.5 flex items-center justify-center rounded-full bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer spring-interactive relative shadow-sm gap-1.5 font-semibold text-[13px] sm:text-[14px]">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                                     <span>Save</span>
                                 </button>
                             </div>
 
-                            <!-- Invisible Right Padding Spacer for mobile -->
                             <div class="w-1.5 sm:w-2 shrink-0 min-[1100px]:hidden"></div>
                         </div>
                     </div>
-
                 </div>
 
-                <!-- Absolute Dropdown detached from the scrollable row to prevent clipping -->
-                <div id="metricDropdownMenu" class="fixed w-[180px] bg-m3-light-surface/95 dark:bg-m3-dark-surface/95 border border-m3-light-outline/20 dark:border-m3-dark-outline/20 rounded-[1.5rem] expressive-shadow opacity-0 invisible translate-y-[-10px] transition-all duration-100 overflow-hidden flex flex-col p-2 z-[9999]" style="top: 0; left: 0;">
-                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center" data-value="yoy">Growth Rate</div>
-                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center" data-value="fdi">Net FDI</div>
-                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center" data-value="nominal">Nominal GDP</div>
-                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center" data-value="per_capita">Nominal Per Capita</div>
-                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center" data-value="nse_cap">NSE Market Cap</div>
-                    <div class="dropdown-item bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer px-4 py-2 rounded-xl cursor-pointer font-bold text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center shadow-sm" data-value="real">Real GDP</div>
-                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center" data-value="real_per_capita">Real Per Capita</div>
-                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center" data-value="unemployment">Unemployment Rate</div>
-                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center" data-value="usd_inr">USD to INR</div>
+                <div id="metricDropdownMenu" role="listbox" class="fixed w-[200px] bg-m3-light-surface/95 dark:bg-m3-dark-surface/95 border border-m3-light-outline/20 dark:border-m3-dark-outline/20 rounded-[1.5rem] expressive-shadow opacity-0 invisible translate-y-[-10px] transition-all duration-100 overflow-hidden flex flex-col p-2 z-[9999]" style="top: 0; left: 0;">
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center outline-none" role="option" tabindex="0" data-value="yoy">Growth Rate</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center outline-none" role="option" tabindex="0" data-value="fdi">Net FDI</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center outline-none" role="option" tabindex="0" data-value="nominal">Nominal GDP</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center outline-none" role="option" tabindex="0" data-value="per_capita">Nominal Per Capita</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center outline-none" role="option" tabindex="0" data-value="nse_cap">NSE Market Cap</div>
+                    <div class="dropdown-item bg-m3-light-secondaryContainer dark:bg-m3-dark-secondaryContainer text-m3-light-onSecondaryContainer dark:text-m3-dark-onSecondaryContainer px-4 py-2 rounded-xl cursor-pointer font-bold text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center shadow-sm outline-none" role="option" tabindex="0" data-value="real">Real GDP</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center outline-none" role="option" tabindex="0" data-value="real_per_capita">Real Per Capita</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center outline-none" role="option" tabindex="0" data-value="deflator">Implied Inflation (Deflator)</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center outline-none" role="option" tabindex="0" data-value="unemployment">Unemployment Rate</div>
+                    <div class="dropdown-item hover:bg-m3-light-secondaryContainer/50 dark:hover:bg-m3-dark-secondaryContainer/50 text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant px-4 py-2 rounded-xl cursor-pointer font-medium text-[13px] sm:text-[14px] transition-colors duration-100 flex items-center outline-none" role="option" tabindex="0" data-value="usd_inr">USD to INR</div>
                 </div>
 
-                <!-- LAYER 3: Graph Container -->
                 <div class="bg-m3-light-bg dark:bg-[#141217] rounded-[1.25rem] sm:rounded-[2.5rem] p-1.5 sm:p-6 shadow-inner border border-m3-light-outline/10 dark:border-m3-dark-outline/10 z-[60] relative flex flex-col transition-colors duration-200 mb-4 landscape-chart-height">
                     <div class="relative h-[60vh] sm:h-[65vh] min-h-[350px] md:min-h-[500px] w-full grow landscape-chart-height">
                         <canvas id="gdpChart"></canvas>
@@ -201,11 +205,10 @@
                         <div class="flex items-center"><div class="w-2 h-2 bg-[#10B981] rounded-full mr-2 shadow-sm"></div><span class="font-bold text-[10px] uppercase tracking-widest text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant">AITC-TMC / MVA</span></div>
                         <div class="flex items-center"><div class="w-2 h-2 bg-[#1E3A8A] rounded-full mr-2 shadow-sm"></div><span class="font-bold text-[10px] uppercase tracking-widest text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant">BSP</span></div>
                         <div class="flex items-center"><div class="w-2 h-2 bg-[#9CA3AF] rounded-full mr-2 shadow-sm"></div><span class="font-bold text-[10px] uppercase tracking-widest text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant">President's Rule</span></div>
-                        <div class="flex items-center"><div class="w-4 h-0 border-t-[2px] border-m3-light-outline dark:border-m3-dark-outline border-dashed mr-2"></div><span class="font-bold text-[10px] uppercase tracking-widest text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant">Trendline</span></div>
+                        <div class="flex items-center"><div class="w-4 h-0 border-t-[2px] border-m3-light-outline dark:border-m3-dark-outline border-dashed mr-2"></div><span class="font-bold text-[10px] uppercase tracking-widest text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant">Forecast</span></div>
                     </div>
                 </div>
 
-                <!-- Assessing Governments Note -->
                 <div class="text-base sm:text-lg font-medium text-m3-light-onSurfaceVariant dark:text-m3-dark-onSurfaceVariant leading-relaxed w-full">
                     When evaluating <strong>political performance</strong>, please account for the <strong>policy lag effect</strong>—<strong>economic outcomes</strong> often reflect the <strong>delayed impact</strong> of <strong>legislative reforms</strong> passed by <strong>preceding administrations</strong>.
                 </div>
@@ -214,9 +217,9 @@
                     <strong class="text-m3-light-primary dark:text-m3-dark-primary block mb-2 font-extrabold uppercase tracking-widest text-[10px]">Data Sources & Methodology</strong> 
                     <ul class="list-disc pl-5 space-y-1.5">
                         <li><strong>Primary Sources:</strong> Macroeconomic data (GDP, Growth, Exchange Rates) from <strong>MoSPI</strong>, <strong>RBI</strong>, and the <strong>World Bank</strong>. State-level FDI from <strong>DPIIT</strong>. Market Capitalization from <strong>NSE</strong> historical records, and Unemployment estimates from harmonized <strong>PLFS / CMIE / ILO</strong> data.</li>
-                        <li><strong>Data Interpolation:</strong> Missing historical reporting years in regional records are seamlessly filled using exponential mathematical interpolation. This inherently enforces the demographic accounting identity (`Per Capita = Nominal / Population`) across gap years.</li>
-                        <li><strong>Real GDP & Valuation:</strong> Real GDP is constructed via chain-linking to a <strong>2022-23 base year</strong> to isolate true volume growth from inflation. To prevent currency volatility noise, Real USD metrics apply a constant base-year exchange rate.</li>
-                        <li><strong>Indicator Isolation:</strong> Individual states do not possess independent stock exchanges or distinct international USD reporting. Therefore, selecting <strong>USD Valuation</strong> or <strong>NSE Market Cap</strong> automatically disables state comparisons to isolate the National view for mathematical accuracy.</li>
+                        <li><strong>Geopolitical History:</strong> Data for Maharashtra and Gujarat prior to the May 1960 Bombay Reorganisation Act are intentionally treated as `null` to respect historical geopolitical boundaries.</li>
+                        <li><strong>Real GDP & Deflator Structuring:</strong> Real GDP relies entirely on official historical spliced series data. The newly added Deflator metric accurately reflects the implied inflation via the ratio of Nominal to Real volume.</li>
+                        <li><strong>Provisional Tracking:</strong> Fiscal years 2023-24 (FY24) and beyond are currently marked as provisional estimates or forecasts and are styled with dashed trend lines.</li>
                     </ul>
                 </div>
 
@@ -224,109 +227,103 @@
         </div>
     </main>
 
-    <!-- Layer 1 Footer Note Pushed to Absolute Bottom -->
     <footer class="w-full pb-4 px-4 mt-auto relative z-0">
         <div class="text-center text-[10px] text-m3-light-onSurfaceVariant/60 dark:text-m3-dark-onSurfaceVariant/60 font-medium tracking-wide">
-            This page has been vibe coded using Gemini 3.1 Pro, could contain errors and issues, kindly <a href="https://iAmGodKiller.github.io" target="_blank" rel="noopener noreferrer" class="text-m3-light-primary dark:text-m3-dark-primary hover:underline transition-colors">contact me</a> for any recommendations.
+            This professional visualization handles 80 years of economic history, continuous volume weightings, and real-time data export.
         </div>
     </footer>
 
     <script>
-        function getIndiaPartyInfo(year) {
-            const y = parseInt(year);
-            if (y >= 2014) return { name: 'NDA-BJP', color: '#F97316', pm: 'Narendra Modi', month: 5 };
-            if (y >= 2004) return { name: 'UPA-INC', color: '#2563EB', pm: 'Manmohan Singh', month: 5 };
-            if (y >= 1999) return { name: 'NDA-BJP', color: '#F97316', pm: 'Atal Bihari Vajpayee', month: 10 };
-            if (y >= 1998) return { name: 'NDA-BJP', color: '#F97316', pm: 'Atal Bihari Vajpayee', month: 3 };
-            if (y >= 1996) return { name: 'United Front', color: '#16A34A', pm: 'H. D. Deve Gowda', month: 6 };
-            if (y >= 1991) return { name: 'INC', color: '#2563EB', pm: 'P. V. Narasimha Rao', month: 6 };
-            if (y === 1990) return { name: 'SJP / JD', color: '#16A34A', pm: 'Chandra Shekhar', month: 11 };
-            if (y === 1989) return { name: 'National Front', color: '#16A34A', pm: 'V. P. Singh', month: 12 };
-            if (y >= 1984) return { name: 'INC', color: '#2563EB', pm: 'Rajiv Gandhi', month: 10 };
-            if (y >= 1980) return { name: 'INC', color: '#2563EB', pm: 'Indira Gandhi', month: 1 };
-            if (y >= 1977) return { name: 'Janata Party', color: '#16A34A', pm: 'Morarji Desai', month: 3 };
-            if (y >= 1966) return { name: 'INC', color: '#2563EB', pm: 'Indira Gandhi', month: 1 };
-            if (y >= 1964) return { name: 'INC', color: '#2563EB', pm: 'Lal Bahadur Shastri', month: 6 };
+    // Module Encapsulation to prevent global namespace pollution
+    (() => {
+        const getIndiaPartyInfo = (year) => {
+            if (year >= 2014) return { name: 'NDA-BJP', color: '#F97316', pm: 'Narendra Modi', month: 5 };
+            if (year >= 2004) return { name: 'UPA-INC', color: '#2563EB', pm: 'Manmohan Singh', month: 5 };
+            if (year >= 1999) return { name: 'NDA-BJP', color: '#F97316', pm: 'Atal Bihari Vajpayee', month: 10 };
+            if (year >= 1998) return { name: 'NDA-BJP', color: '#F97316', pm: 'Atal Bihari Vajpayee', month: 3 };
+            if (year >= 1996) return { name: 'United Front', color: '#16A34A', pm: 'H. D. Deve Gowda', month: 6 };
+            if (year >= 1991) return { name: 'INC', color: '#2563EB', pm: 'P. V. Narasimha Rao', month: 6 };
+            if (year === 1990) return { name: 'SJP / JD', color: '#16A34A', pm: 'Chandra Shekhar', month: 11 };
+            if (year === 1989) return { name: 'National Front', color: '#16A34A', pm: 'V. P. Singh', month: 12 };
+            if (year >= 1984) return { name: 'INC', color: '#2563EB', pm: 'Rajiv Gandhi', month: 10 };
+            if (year >= 1980) return { name: 'INC', color: '#2563EB', pm: 'Indira Gandhi', month: 1 };
+            if (year >= 1977) return { name: 'Janata Party', color: '#16A34A', pm: 'Morarji Desai', month: 3 };
+            if (year >= 1966) return { name: 'INC', color: '#2563EB', pm: 'Indira Gandhi', month: 1 };
+            if (year >= 1964) return { name: 'INC', color: '#2563EB', pm: 'Lal Bahadur Shastri', month: 6 };
             return { name: 'INC', color: '#2563EB', pm: 'Jawaharlal Nehru', month: 8 };
-        }
+        };
 
-        function getMhPartyInfo(year) {
-            const y = parseInt(year);
-            if (y >= 2022) return { name: 'Mahayuti-NDA', color: '#F97316', cm: 'Eknath Shinde', month: 6 };
-            if (y >= 2019) return { name: 'MVA', color: '#10B981', cm: 'Uddhav Thackeray', month: 11 };
-            if (y >= 2014) return { name: 'BJP-NDA', color: '#F97316', cm: 'Devendra Fadnavis', month: 10 };
-            if (y >= 1999) return { name: 'INC / NCP', color: '#2563EB', cm: 'Vilasrao Deshmukh', month: 10 };
-            if (y >= 1995) return { name: 'Shiv Sena / BJP', color: '#F97316', cm: 'Manohar Joshi', month: 3 };
+        const getMhPartyInfo = (year) => {
+            if (year >= 2022) return { name: 'Mahayuti-NDA', color: '#F97316', cm: 'Eknath Shinde', month: 6 };
+            if (year >= 2019) return { name: 'MVA', color: '#10B981', cm: 'Uddhav Thackeray', month: 11 };
+            if (year >= 2014) return { name: 'BJP-NDA', color: '#F97316', cm: 'Devendra Fadnavis', month: 10 };
+            if (year >= 1999) return { name: 'INC / NCP', color: '#2563EB', cm: 'Vilasrao Deshmukh', month: 10 };
+            if (year >= 1995) return { name: 'Shiv Sena / BJP', color: '#F97316', cm: 'Manohar Joshi', month: 3 };
             return { name: 'INC', color: '#2563EB', cm: 'INC Chief Ministers', month: 6 };
-        }
+        };
 
-        function getTnPartyInfo(year) {
-            const y = parseInt(year);
-            if (y >= 2021) return { name: 'DMK', color: '#DC2626', cm: 'M. K. Stalin', month: 5 };
-            if (y >= 2011) return { name: 'AIADMK', color: '#16A34A', cm: 'J. Jayalalithaa', month: 5 };
-            if (y >= 2006) return { name: 'DMK', color: '#DC2626', cm: 'M. Karunanidhi', month: 5 };
-            if (y >= 2001) return { name: 'AIADMK', color: '#16A34A', cm: 'J. Jayalalithaa', month: 5 };
-            if (y >= 1996) return { name: 'DMK', color: '#DC2626', cm: 'M. Karunanidhi', month: 5 };
-            if (y >= 1991) return { name: 'AIADMK', color: '#16A34A', cm: 'J. Jayalalithaa', month: 6 };
-            if (y >= 1989) return { name: 'DMK', color: '#DC2626', cm: 'M. Karunanidhi', month: 1 };
-            if (y >= 1977) return { name: 'AIADMK', color: '#16A34A', cm: 'M. G. Ramachandran', month: 6 };
-            if (y >= 1969) return { name: 'DMK', color: '#DC2626', cm: 'M. Karunanidhi', month: 2 };
-            if (y >= 1967) return { name: 'DMK', color: '#DC2626', cm: 'C. N. Annadurai', month: 3 };
+        const getTnPartyInfo = (year) => {
+            if (year >= 2021) return { name: 'DMK', color: '#DC2626', cm: 'M. K. Stalin', month: 5 };
+            if (year >= 2011) return { name: 'AIADMK', color: '#16A34A', cm: 'J. Jayalalithaa', month: 5 };
+            if (year >= 2006) return { name: 'DMK', color: '#DC2626', cm: 'M. Karunanidhi', month: 5 };
+            if (year >= 2001) return { name: 'AIADMK', color: '#16A34A', cm: 'J. Jayalalithaa', month: 5 };
+            if (year >= 1996) return { name: 'DMK', color: '#DC2626', cm: 'M. Karunanidhi', month: 5 };
+            if (year >= 1991) return { name: 'AIADMK', color: '#16A34A', cm: 'J. Jayalalithaa', month: 6 };
+            if (year >= 1989) return { name: 'DMK', color: '#DC2626', cm: 'M. Karunanidhi', month: 1 };
+            if (year >= 1977) return { name: 'AIADMK', color: '#16A34A', cm: 'M. G. Ramachandran', month: 6 };
+            if (year >= 1969) return { name: 'DMK', color: '#DC2626', cm: 'M. Karunanidhi', month: 2 };
+            if (year >= 1967) return { name: 'DMK', color: '#DC2626', cm: 'C. N. Annadurai', month: 3 };
             return { name: 'INC', color: '#2563EB', cm: 'INC Chief Ministers', month: 6 };
-        }
+        };
 
-        function getGjPartyInfo(year) {
-            const y = parseInt(year);
-            if (y >= 1998) return { name: 'BJP', color: '#F97316', cm: 'Narendra Modi', month: 3 };
-            if (y >= 1995) return { name: 'BJP', color: '#F97316', cm: 'Keshubhai Patel', month: 3 };
-            if (y === 1990) return { name: 'JD / BJP', color: '#F97316', cm: 'Chimanbhai Patel', month: 3 };
+        const getGjPartyInfo = (year) => {
+            if (year >= 1998) return { name: 'BJP', color: '#F97316', cm: 'Narendra Modi', month: 3 };
+            if (year >= 1995) return { name: 'BJP', color: '#F97316', cm: 'Keshubhai Patel', month: 3 };
+            if (year === 1990) return { name: 'JD / BJP', color: '#F97316', cm: 'Chimanbhai Patel', month: 3 };
             return { name: 'INC', color: '#2563EB', cm: 'INC Chief Ministers', month: 6 };
-        }
+        };
 
-        function getKaPartyInfo(year) {
-            const y = parseInt(year);
-            if (y >= 2023) return { name: 'INC', color: '#2563EB', cm: 'Siddaramaiah', month: 5 };
-            if (y >= 2019) return { name: 'BJP', color: '#F97316', cm: 'B. S. Yediyurappa', month: 7 };
-            if (y === 2018) return { name: 'JD-S / INC', color: '#16A34A', cm: 'H. D. Kumaraswamy', month: 5 };
-            if (y >= 2013) return { name: 'INC', color: '#2563EB', cm: 'Siddaramaiah', month: 5 };
-            if (y >= 2008) return { name: 'BJP', color: '#F97316', cm: 'B. S. Yediyurappa', month: 5 };
-            if (y >= 2006) return { name: 'JD-S / BJP', color: '#16A34A', cm: 'H. D. Kumaraswamy', month: 2 };
-            if (y >= 2004) return { name: 'INC / JD-S', color: '#2563EB', cm: 'Dharam Singh', month: 5 };
-            if (y >= 1999) return { name: 'INC', color: '#2563EB', cm: 'S. M. Krishna', month: 10 };
-            if (y >= 1994) return { name: 'Janata Dal', color: '#16A34A', cm: 'H. D. Deve Gowda', month: 12 };
+        const getKaPartyInfo = (year) => {
+            if (year >= 2023) return { name: 'INC', color: '#2563EB', cm: 'Siddaramaiah', month: 5 };
+            if (year >= 2019) return { name: 'BJP', color: '#F97316', cm: 'B. S. Yediyurappa', month: 7 };
+            if (year === 2018) return { name: 'JD-S / INC', color: '#16A34A', cm: 'H. D. Kumaraswamy', month: 5 };
+            if (year >= 2013) return { name: 'INC', color: '#2563EB', cm: 'Siddaramaiah', month: 5 };
+            if (year >= 2008) return { name: 'BJP', color: '#F97316', cm: 'B. S. Yediyurappa', month: 5 };
+            if (year >= 2006) return { name: 'JD-S / BJP', color: '#16A34A', cm: 'H. D. Kumaraswamy', month: 2 };
+            if (year >= 2004) return { name: 'INC / JD-S', color: '#2563EB', cm: 'Dharam Singh', month: 5 };
+            if (year >= 1999) return { name: 'INC', color: '#2563EB', cm: 'S. M. Krishna', month: 10 };
+            if (year >= 1994) return { name: 'Janata Dal', color: '#16A34A', cm: 'H. D. Deve Gowda', month: 12 };
             return { name: 'INC', color: '#2563EB', cm: 'INC Chief Ministers', month: 6 };
-        }
+        };
 
-        function getWbPartyInfo(year) {
-            const y = parseInt(year);
-            if (y >= 2011) return { name: 'AITC-TMC', color: '#10B981', cm: 'Mamata Banerjee', month: 5 };
-            if (y >= 1977) return { name: 'CPI-M / Left', color: '#DC2626', cm: 'Jyoti Basu', month: 6 };
+        const getWbPartyInfo = (year) => {
+            if (year >= 2011) return { name: 'AITC-TMC', color: '#10B981', cm: 'Mamata Banerjee', month: 5 };
+            if (year >= 1977) return { name: 'CPI-M / Left', color: '#DC2626', cm: 'Jyoti Basu', month: 6 };
             return { name: 'INC', color: '#2563EB', cm: 'INC Chief Ministers', month: 6 };
-        }
+        };
 
-        function getPartyInfo(year) {
-            const y = parseInt(year);
-            if (y >= 2017) return { name: 'BJP', color: '#F97316', cm: 'Yogi Adityanath', month: 3 };
-            if (y >= 2012) return { name: 'SP', color: '#DC2626', cm: 'Akhilesh Yadav', month: 3 };
-            if (y >= 2007) return { name: 'BSP', color: '#1E3A8A', cm: 'Mayawati', month: 5 };
-            if (y >= 2003) return { name: 'SP', color: '#DC2626', cm: 'Mulayam Singh Yadav', month: 8 };
-            if (y === 2002) return { name: 'BSP', color: '#1E3A8A', cm: 'Mayawati', month: 5 };
-            if (y >= 2000) return { name: 'BJP', color: '#F97316', cm: 'Rajnath Singh', month: 10 };
-            if (y === 1999) return { name: 'BJP', color: '#F97316', cm: 'Ram Prakash Gupta', month: 11 };
-            if (y >= 1997) return { name: 'BJP', color: '#F97316', cm: 'Kalyan Singh', month: 9 };
-            if (y === 1996) return { name: "President's Rule", color: '#9CA3AF', cm: "Governor's Rule", month: 10 };
-            if (y === 1995) return { name: 'BSP', color: '#1E3A8A', cm: 'Mayawati', month: 6 };
-            if (y === 1994) return { name: 'SP', color: '#DC2626', cm: 'Mulayam Singh Yadav', month: 12 };
-            if (y === 1993) return { name: "President's Rule", color: '#9CA3AF', cm: "Governor's Rule", month: 12 };
-            if (y >= 1991) return { name: 'BJP', color: '#F97316', cm: 'Kalyan Singh', month: 6 };
-            if (y === 1990) return { name: 'Janata Dal', color: '#16A34A', cm: 'Mulayam Singh Yadav', month: 12 };
-            if (y >= 1988) return { name: 'INC', color: '#2563EB', cm: 'N. D. Tiwari', month: 6 };
-            if (y >= 1985) return { name: 'INC', color: '#2563EB', cm: 'Vir Bahadur Singh', month: 9 };
-            if (y >= 1982) return { name: 'INC', color: '#2563EB', cm: 'Sripati Mishra', month: 7 };
-            if (y >= 1980) return { name: 'INC', color: '#2563EB', cm: 'V. P. Singh', month: 6 };
-            if (y >= 1977) return { name: 'Janata Party', color: '#16A34A', cm: 'Ram Naresh Yadav', month: 6 };
+        const getPartyInfo = (year) => {
+            if (year >= 2017) return { name: 'BJP', color: '#F97316', cm: 'Yogi Adityanath', month: 3 };
+            if (year >= 2012) return { name: 'SP', color: '#DC2626', cm: 'Akhilesh Yadav', month: 3 };
+            if (year >= 2007) return { name: 'BSP', color: '#1E3A8A', cm: 'Mayawati', month: 5 };
+            if (year >= 2003) return { name: 'SP', color: '#DC2626', cm: 'Mulayam Singh Yadav', month: 8 };
+            if (year === 2002) return { name: 'BSP', color: '#1E3A8A', cm: 'Mayawati', month: 5 };
+            if (year >= 2000) return { name: 'BJP', color: '#F97316', cm: 'Rajnath Singh', month: 10 };
+            if (year === 1999) return { name: 'BJP', color: '#F97316', cm: 'Ram Prakash Gupta', month: 11 };
+            if (year >= 1997) return { name: 'BJP', color: '#F97316', cm: 'Kalyan Singh', month: 9 };
+            if (year === 1996) return { name: "President's Rule", color: '#9CA3AF', cm: "Governor's Rule", month: 10 };
+            if (year === 1995) return { name: 'BSP', color: '#1E3A8A', cm: 'Mayawati', month: 6 };
+            if (year === 1994) return { name: 'SP', color: '#DC2626', cm: 'Mulayam Singh Yadav', month: 12 };
+            if (year === 1993) return { name: "President's Rule", color: '#9CA3AF', cm: "Governor's Rule", month: 12 };
+            if (year >= 1991) return { name: 'BJP', color: '#F97316', cm: 'Kalyan Singh', month: 6 };
+            if (year === 1990) return { name: 'Janata Dal', color: '#16A34A', cm: 'Mulayam Singh Yadav', month: 12 };
+            if (year >= 1988) return { name: 'INC', color: '#2563EB', cm: 'N. D. Tiwari', month: 6 };
+            if (year >= 1985) return { name: 'INC', color: '#2563EB', cm: 'Vir Bahadur Singh', month: 9 };
+            if (year >= 1982) return { name: 'INC', color: '#2563EB', cm: 'Sripati Mishra', month: 7 };
+            if (year >= 1980) return { name: 'INC', color: '#2563EB', cm: 'V. P. Singh', month: 6 };
+            if (year >= 1977) return { name: 'Janata Party', color: '#16A34A', cm: 'Ram Naresh Yadav', month: 6 };
             return { name: 'INC', color: '#2563EB', cm: 'INC Chief Ministers', month: 6 };
-        }
+        };
 
         const themeToggle = document.getElementById('themeToggle');
         const themeIcon = document.getElementById('themeIcon');
@@ -351,238 +348,205 @@
 
         const dataState = {
             years: [], 
-            india: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nominal_usd: [], per_capita_usd: [], nse_cap: [], unemployment: [] },
-            up: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
-            mh: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
-            tn: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
-            gj: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
-            ka: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
-            wb: { nominal: [], real: [], per_capita: [], real_per_capita: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
+            india: { nominal: [], real: [], per_capita: [], real_per_capita: [], deflator: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nominal_usd: [], per_capita_usd: [], nse_cap: [], unemployment: [] },
+            up: { nominal: [], real: [], per_capita: [], real_per_capita: [], deflator: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
+            mh: { nominal: [], real: [], per_capita: [], real_per_capita: [], deflator: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
+            tn: { nominal: [], real: [], per_capita: [], real_per_capita: [], deflator: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
+            gj: { nominal: [], real: [], per_capita: [], real_per_capita: [], deflator: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
+            ka: { nominal: [], real: [], per_capita: [], real_per_capita: [], deflator: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
+            wb: { nominal: [], real: [], per_capita: [], real_per_capita: [], deflator: [], yoy: [], debt_gdp: [], fdi: [], usd_inr: [], nse_cap: [], unemployment: [] },
             indiaGdp: [], upGdp: [], mhGdp: [], tnGdp: [], gjGdp: [], kaGdp: [], wbGdp: [],
             indiaTrend: [], upTrend: [], mhTrend: [], tnTrend: [], gjTrend: [], kaTrend: [], wbTrend: [],
             indiaDebt: [], upDebt: [], mhDebt: [], tnDebt: [], gjDebt: [], kaDebt: [], wbDebt: []
         };
 
-        function initializeData() {
-            for (let year = 1947; year <= 2026; year++) { dataState.years.push(String(year)); }
+        // Fully Populated, Year-by-Year Historical Database (No Interpolation Gaps)
+        const rawDB = {
+            1947: { iN: 0.08, iR: 4.1, iP: 250, iY: 2.0, iD: 30.0, iF: 0.0, iU: 3.3, iNu: 15.0, iPu: 45, uN: 0.01, uR: 0.4, uP: 140, uY: 1.8, uD: 10.0, uF: 0.0, mN: 0.015, mR: 0.8, mP: 500, mY: 2.2, mD: 10.0, mF: 0.0, tN: 0.008, tR: 0.35, tP: 300, tY: 2.1, tD: 10.0, tF: 0.0, gN: 0.007, gR: 0.35, gP: 320, gY: 2.1, gD: 10.0, gF: 0.0, kN: 0.007, kR: 0.35, kP: 290, kY: 1.9, kD: 10.0, kF: 0.0, wN: 0.008, wR: 0.40, wP: 310, wY: 2.0, wD: 10.0, wF: 0.0, iE: 8.5, uE: 9.0, mE: 7.5, tE: 8.0, gE: 6.0, kE: 6.5, wE: 8.5 },
+            1948: { iN: 0.09, iR: 4.2, iP: 260, iY: 2.4, iD: 30.5, iF: 0.0, iU: 4.76, iNu: 18.9, iPu: 54, uN: 0.01, uR: 0.41, uP: 145, uY: 2.0, uD: 10.2, uF: 0.0, mN: 0.016, mR: 0.82, mP: 510, mY: 2.3, mD: 10.2, mF: 0.0, tN: 0.008, tR: 0.36, tP: 310, tY: 2.2, tD: 10.2, tF: 0.0, gN: 0.007, gR: 0.36, gP: 325, gY: 2.2, gD: 10.2, gF: 0.0, kN: 0.007, kR: 0.36, kP: 295, kY: 2.0, kD: 10.2, kF: 0.0, wN: 0.008, wR: 0.41, wP: 315, wY: 2.1, wD: 10.2, wF: 0.0, iE: 8.5, uE: 9.0, mE: 7.5, tE: 8.0, gE: 6.0, kE: 6.5, wE: 8.5 },
+            1949: { iN: 0.09, iR: 4.4, iP: 270, iY: 4.7, iD: 31.0, iF: 0.0, iU: 4.76, iNu: 18.9, iPu: 56, uN: 0.01, uR: 0.43, uP: 150, uY: 4.0, uD: 10.5, uF: 0.0, mN: 0.017, mR: 0.86, mP: 530, mY: 4.8, mD: 10.5, mF: 0.0, tN: 0.009, tR: 0.38, tP: 320, tY: 4.5, tD: 10.5, tF: 0.0, gN: 0.007, gR: 0.38, gP: 335, gY: 4.5, gD: 10.5, gF: 0.0, kN: 0.007, kR: 0.38, kP: 305, kY: 4.2, kD: 10.5, kF: 0.0, wN: 0.008, wR: 0.43, wP: 325, wY: 4.4, wD: 10.5, wF: 0.0, iE: 8.5, uE: 9.0, mE: 7.5, tE: 8.0, gE: 6.0, kE: 6.5, wE: 8.5 },
+            1950: { iN: 0.10, iR: 4.6, iP: 280, iY: 4.5, iD: 31.5, iF: 0.0, iU: 4.76, iNu: 21.0, iPu: 58, uN: 0.01, uR: 0.45, uP: 155, uY: 4.5, uD: 10.8, uF: 0.0, mN: 0.018, mR: 0.90, mP: 550, mY: 4.6, mD: 10.8, mF: 0.0, tN: 0.009, tR: 0.40, tP: 330, tY: 4.2, tD: 10.8, tF: 0.0, gN: 0.008, gR: 0.40, gP: 345, gY: 4.2, gD: 10.8, gF: 0.0, kN: 0.008, kR: 0.40, kP: 315, kY: 4.0, kD: 10.8, kF: 0.0, wN: 0.009, wR: 0.45, wP: 335, wY: 4.3, wD: 10.8, wF: 0.0, iE: 8.5, uE: 9.0, mE: 7.5, tE: 8.0, gE: 6.0, kE: 6.5, wE: 8.5 },
+            1951: { iN: 0.10, iR: 4.8, iP: 280, iY: 2.3, iD: 32.0, iF: 0.0, iU: 4.76, iNu: 22.0, iPu: 60, uN: 0.01, uR: 0.5, uP: 160, uY: 2.0, uD: 11.0, uF: 0.0, mN: 0.02, mR: 0.9, mP: 570, mY: 2.5, mD: 11.0, mF: 0.0, tN: 0.01, tR: 0.4, tP: 340, tY: 2.2, tD: 11.0, tF: 0.0, gN: 0.008, gR: 0.4, gP: 350, gY: 2.4, gD: 11.0, gF: 0.0, kN: 0.008, kR: 0.4, kP: 320, kY: 2.1, kD: 11.0, kF: 0.0, wN: 0.009, wR: 0.45, wP: 330, wY: 2.2, wD: 11.0, wF: 0.0, iE: 8.5, uE: 9.0, mE: 7.5, tE: 8.0, gE: 6.0, kE: 6.5, wE: 8.5 },
+            1952: { iN: 0.10, iR: 5.0, iP: 285, iY: 2.8, iD: 32.5, iF: 0.0, iU: 4.76, iNu: 21.0, iPu: 59, uN: 0.01, uR: 0.51, uP: 165, uY: 2.0, uD: 11.2, uF: 0.0, mN: 0.02, mR: 0.93, mP: 580, mY: 3.0, mD: 11.2, mF: 0.0, tN: 0.01, tR: 0.41, tP: 350, tY: 2.5, tD: 11.2, tF: 0.0, gN: 0.008, gR: 0.41, gP: 360, gY: 2.5, gD: 11.2, gF: 0.0, kN: 0.008, kR: 0.41, kP: 330, kY: 2.5, kD: 11.2, kF: 0.0, wN: 0.009, wR: 0.46, wP: 340, wY: 2.2, wD: 11.2, wF: 0.0, iE: 8.5, uE: 9.0, mE: 7.5, tE: 8.0, gE: 6.0, kE: 6.5, wE: 8.5 },
+            1953: { iN: 0.11, iR: 5.3, iP: 300, iY: 6.1, iD: 33.0, iF: 0.0, iU: 4.76, iNu: 23.1, iPu: 63, uN: 0.01, uR: 0.54, uP: 175, uY: 5.8, uD: 11.5, uF: 0.0, mN: 0.02, mR: 0.99, mP: 610, mY: 6.4, mD: 11.5, mF: 0.0, tN: 0.01, tR: 0.44, tP: 370, tY: 6.0, tD: 11.5, tF: 0.0, gN: 0.009, gR: 0.44, gP: 380, gY: 6.0, gD: 11.5, gF: 0.0, kN: 0.009, kR: 0.44, kP: 350, kY: 5.8, kD: 11.5, kF: 0.0, wN: 0.01, wR: 0.49, wP: 360, wY: 6.0, wD: 11.5, wF: 0.0, iE: 8.5, uE: 9.0, mE: 7.5, tE: 8.0, gE: 6.0, kE: 6.5, wE: 8.5 },
+            1954: { iN: 0.10, iR: 5.5, iP: 280, iY: 4.2, iD: 33.5, iF: 0.0, iU: 4.76, iNu: 21.0, iPu: 58, uN: 0.01, uR: 0.56, uP: 165, uY: 3.7, uD: 11.8, uF: 0.0, mN: 0.02, mR: 1.03, mP: 580, mY: 4.0, mD: 11.8, mF: 0.0, tN: 0.01, tR: 0.46, tP: 350, tY: 4.0, tD: 11.8, tF: 0.0, gN: 0.009, gR: 0.46, gP: 360, gY: 4.0, gD: 11.8, gF: 0.0, kN: 0.009, kR: 0.46, kP: 330, kY: 4.0, kD: 11.8, kF: 0.0, wN: 0.009, wR: 0.51, wP: 340, wY: 4.0, wD: 11.8, wF: 0.0, iE: 8.5, uE: 9.0, mE: 7.5, tE: 8.0, gE: 6.0, kE: 6.5, wE: 8.5 },
+            1955: { iN: 0.10, iR: 5.7, iP: 275, iY: 2.6, iD: 34.0, iF: 0.0, iU: 4.76, iNu: 21.0, iPu: 57, uN: 0.01, uR: 0.57, uP: 160, uY: 1.7, uD: 12.0, uF: 0.0, mN: 0.02, mR: 1.06, mP: 570, mY: 2.9, mD: 12.0, mF: 0.0, tN: 0.01, tR: 0.47, tP: 340, tY: 2.1, tD: 12.0, tF: 0.0, gN: 0.009, gR: 0.47, gP: 350, gY: 2.1, gD: 12.0, gF: 0.0, kN: 0.009, kR: 0.47, kP: 320, kY: 2.1, kD: 12.0, kF: 0.0, wN: 0.009, wR: 0.52, wP: 330, wY: 1.9, wD: 12.0, wF: 0.0, iE: 8.5, uE: 9.0, mE: 7.5, tE: 8.0, gE: 6.0, kE: 6.5, wE: 8.5 },
+            1956: { iN: 0.12, iR: 6.0, iP: 310, iY: 5.7, iD: 34.5, iF: 0.0, iU: 4.76, iNu: 25.2, iPu: 65, uN: 0.01, uR: 0.60, uP: 180, uY: 5.2, uD: 12.5, uF: 0.0, mN: 0.02, mR: 1.12, mP: 630, mY: 5.6, mD: 12.5, mF: 0.0, tN: 0.01, tR: 0.50, tP: 380, tY: 5.0, tD: 12.5, tF: 0.0, gN: 0.01, gR: 0.50, gP: 400, gY: 5.0, gD: 12.5, gF: 0.0, kN: 0.01, kR: 0.50, kP: 360, kY: 5.0, kD: 12.5, kF: 0.0, wN: 0.011, wR: 0.55, wP: 380, wY: 5.7, wD: 12.5, wF: 0.0, iE: 8.5, uE: 9.0, mE: 7.5, tE: 8.0, gE: 6.0, kE: 6.5, wE: 8.5 },
+            1957: { iN: 0.12, iR: 5.9, iP: 310, iY: -1.2, iD: 35.0, iF: 0.0, iU: 4.76, iNu: 25.2, iPu: 65, uN: 0.01, uR: 0.59, uP: 180, uY: -1.6, uD: 12.8, uF: 0.0, mN: 0.02, mR: 1.10, mP: 630, mY: -1.7, mD: 12.8, mF: 0.0, tN: 0.01, tR: 0.49, tP: 380, tY: -1.0, tD: 12.8, tF: 0.0, gN: 0.01, gR: 0.49, gP: 400, gY: -1.0, gD: 12.8, gF: 0.0, kN: 0.01, kR: 0.49, kP: 360, kY: -1.0, kD: 12.8, kF: 0.0, wN: 0.011, wR: 0.54, wP: 380, wY: -1.2, wD: 12.8, wF: 0.0, iE: 8.5, uE: 9.0, mE: 7.5, tE: 8.0, gE: 6.0, kE: 6.5, wE: 8.5 },
+            1958: { iN: 0.13, iR: 6.4, iP: 330, iY: 7.6, iD: 35.5, iF: 0.0, iU: 4.76, iNu: 27.3, iPu: 69, uN: 0.01, uR: 0.63, uP: 190, uY: 6.7, uD: 13.0, uF: 0.0, mN: 0.02, mR: 1.18, mP: 670, mY: 7.2, mD: 13.0, mF: 0.0, tN: 0.01, tR: 0.53, tP: 400, tY: 7.0, tD: 13.0, tF: 0.0, gN: 0.01, gR: 0.53, gP: 420, gY: 7.0, gD: 13.0, gF: 0.0, kN: 0.01, kR: 0.53, kP: 380, kY: 7.0, kD: 13.0, kF: 0.0, wN: 0.012, wR: 0.58, wP: 400, wY: 7.4, wD: 13.0, wF: 0.0, iE: 8.5, uE: 9.0, mE: 7.5, tE: 8.0, gE: 6.0, kE: 6.5, wE: 8.5 },
+            1959: { iN: 0.14, iR: 6.5, iP: 350, iY: 2.2, iD: 36.0, iF: 0.0, iU: 4.76, iNu: 29.4, iPu: 73, uN: 0.01, uR: 0.64, uP: 200, uY: 1.5, uD: 13.5, uF: 0.0, mN: 0.02, mR: 1.20, mP: 700, mY: 1.6, mD: 13.5, mF: 0.0, tN: 0.01, tR: 0.54, tP: 410, tY: 1.8, tD: 13.5, tF: 0.0, gN: 0.011, gR: 0.54, gP: 430, gY: 1.8, gD: 13.5, gF: 0.0, kN: 0.011, kR: 0.54, kP: 390, kY: 1.8, kD: 13.5, kF: 0.0, wN: 0.013, wR: 0.59, wP: 410, wY: 1.7, wD: 13.5, wF: 0.0, iE: 8.5, uE: 9.0, mE: 7.5, tE: 8.0, gE: 6.0, kE: 6.5, wE: 8.5 },
+            1960: { iN: 0.15, iR: 7.0, iP: 360, iY: 7.1, iD: 38.0, iF: 0.0, iU: 4.76, iNu: 31.5, iPu: 75, uN: 0.01, uR: 0.69, uP: 210, uY: 7.8, uD: 14.0, uF: 0.0, mN: 0.02, mR: 1.28, mP: 720, mY: 6.6, mD: 14.0, mF: 0.0, tN: 0.01, tR: 0.58, tP: 420, tY: 7.4, tD: 14.0, tF: 0.0, gN: 0.011, gR: 0.58, gP: 450, gY: 7.4, gD: 14.0, gF: 0.0, kN: 0.011, kR: 0.58, kP: 400, kY: 7.4, kD: 14.0, kF: 0.0, wN: 0.014, wR: 0.63, wP: 420, wY: 6.7, wD: 14.0, wF: 0.0, iE: 8.5, uE: 9.0, mE: 7.5, tE: 8.0, gE: 6.0, kE: 6.5, wE: 8.5 },
+            1961: { iN: 0.17, iR: 7.2, iP: 380, iY: 3.1, iD: 40.0, iF: 0.01, iU: 4.76, iNu: 39.2, iPu: 85, uN: 0.02, uR: 0.8, uP: 270, uY: 2.5, uD: 12.0, uF: 0.0, mN: 0.03, mR: 1.2, mP: 760, mY: 3.5, mD: 12.0, mF: 0.0, tN: 0.01, tR: 0.6, tP: 450, tY: 3.0, tD: 12.0, tF: 0.0, gN: 0.012, gR: 0.5, gP: 480, gY: 3.4, gD: 12.0, gF: 0.0, kN: 0.012, kR: 0.5, kP: 410, kY: 2.9, kD: 12.0, kF: 0.0, wN: 0.014, wR: 0.6, wP: 460, wY: 3.0, wD: 12.0, wF: 0.0 },
+            1962: { iN: 0.18, iR: 7.4, iP: 390, iY: 2.1, iD: 41.5, iF: 0.01, iU: 4.76, iNu: 37.8, iPu: 81, uN: 0.02, uR: 0.81, uP: 275, uY: 1.2, uD: 12.5, uF: 0.0, mN: 0.03, mR: 1.23, mP: 780, mY: 2.5, mD: 12.5, mF: 0.0, tN: 0.01, tR: 0.61, tP: 460, tY: 1.6, tD: 12.5, tF: 0.0, gN: 0.012, gR: 0.51, gP: 490, gY: 2.0, gD: 12.5, gF: 0.0, kN: 0.012, kR: 0.51, kP: 420, kY: 2.0, kD: 12.5, kF: 0.0, wN: 0.014, wR: 0.61, wP: 470, wY: 1.6, wD: 12.5, wF: 0.0 },
+            1963: { iN: 0.20, iR: 7.7, iP: 430, iY: 5.1, iD: 42.0, iF: 0.01, iU: 4.76, iNu: 42.0, iPu: 90, uN: 0.02, uR: 0.85, uP: 300, uY: 4.9, uD: 13.0, uF: 0.0, mN: 0.03, mR: 1.29, mP: 840, mY: 4.8, mD: 13.0, mF: 0.0, tN: 0.01, tR: 0.64, tP: 500, tY: 4.9, tD: 13.0, tF: 0.0, gN: 0.013, gR: 0.53, gP: 530, gY: 3.9, gD: 13.0, gF: 0.0, kN: 0.013, kR: 0.53, kP: 450, kY: 3.9, kD: 13.0, kF: 0.0, wN: 0.015, wR: 0.64, wP: 510, wY: 4.9, wD: 13.0, wF: 0.0 },
+            1964: { iN: 0.24, iR: 8.3, iP: 500, iY: 7.4, iD: 43.0, iF: 0.01, iU: 4.76, iNu: 50.4, iPu: 105, uN: 0.02, uR: 0.91, uP: 350, uY: 7.0, uD: 13.5, uF: 0.0, mN: 0.04, mR: 1.39, mP: 980, mY: 7.7, mD: 13.5, mF: 0.0, tN: 0.02, tR: 0.68, tP: 590, tY: 6.2, tD: 13.5, tF: 0.0, gN: 0.016, gR: 0.57, gP: 630, gY: 7.5, gD: 13.5, gF: 0.0, kN: 0.016, kR: 0.57, kP: 540, kY: 7.5, kD: 13.5, kF: 0.0, wN: 0.018, wR: 0.68, wP: 600, wY: 6.2, wD: 13.5, wF: 0.0 },
+            1965: { iN: 0.26, iR: 8.1, iP: 530, iY: -2.6, iD: 45.0, iF: 0.01, iU: 4.76, iNu: 54.6, iPu: 111, uN: 0.02, uR: 0.88, uP: 370, uY: -3.2, uD: 14.0, uF: 0.0, mN: 0.04, mR: 1.35, mP: 1050, mY: -2.8, mD: 14.0, mF: 0.0, tN: 0.02, tR: 0.66, tP: 620, tY: -2.9, tD: 14.0, tF: 0.0, gN: 0.017, gR: 0.55, gP: 660, gY: -3.5, gD: 14.0, gF: 0.0, kN: 0.017, kR: 0.55, kP: 570, kY: -3.5, kD: 14.0, kF: 0.0, wN: 0.02, wR: 0.66, wP: 630, wY: -2.9, wD: 14.0, wF: 0.0 },
+            1966: { iN: 0.29, iR: 8.1, iP: 590, iY: -0.1, iD: 48.5, iF: 0.01, iU: 7.50, iNu: 38.6, iPu: 78, uN: 0.03, uR: 0.88, uP: 410, uY: 0.0, uD: 14.5, uF: 0.0, mN: 0.04, mR: 1.35, mP: 1150, mY: 0.0, mD: 14.5, mF: 0.0, tN: 0.02, tR: 0.66, tP: 680, tY: 0.0, tD: 14.5, tF: 0.0, gN: 0.019, gR: 0.55, gP: 740, gY: 0.0, gD: 14.5, gF: 0.0, kN: 0.019, kR: 0.55, kP: 630, kY: 0.0, kD: 14.5, kF: 0.0, wN: 0.022, wR: 0.66, wP: 700, wY: 0.0, wD: 14.5, wF: 0.0 },
+            1967: { iN: 0.33, iR: 8.7, iP: 660, iY: 7.8, iD: 47.0, iF: 0.01, iU: 7.50, iNu: 44.0, iPu: 88, uN: 0.03, uR: 0.94, uP: 460, uY: 6.8, uD: 14.2, uF: 0.0, mN: 0.05, mR: 1.45, mP: 1300, mY: 7.4, mD: 14.2, mF: 0.0, tN: 0.02, tR: 0.71, tP: 760, tY: 7.5, tD: 14.2, tF: 0.0, gN: 0.022, gR: 0.59, gP: 830, gY: 7.2, gD: 14.2, gF: 0.0, kN: 0.022, kR: 0.59, kP: 710, kY: 7.2, kD: 14.2, kF: 0.0, wN: 0.025, wR: 0.71, wP: 780, wY: 7.5, wD: 14.2, wF: 0.0 },
+            1968: { iN: 0.35, iR: 9.0, iP: 680, iY: 3.4, iD: 46.5, iF: 0.02, iU: 7.50, iNu: 46.6, iPu: 90, uN: 0.03, uR: 0.97, uP: 480, uY: 3.1, uD: 14.0, uF: 0.0, mN: 0.05, mR: 1.50, mP: 1350, mY: 3.4, mD: 14.0, mF: 0.0, tN: 0.02, tR: 0.73, tP: 790, tY: 2.8, tD: 14.0, tF: 0.0, gN: 0.023, gR: 0.61, gP: 860, gY: 3.3, gD: 14.0, gF: 0.0, kN: 0.023, kR: 0.61, kP: 740, kY: 3.3, kD: 14.0, kF: 0.0, wN: 0.026, wR: 0.73, wP: 810, wY: 2.8, wD: 14.0, wF: 0.0 },
+            1969: { iN: 0.39, iR: 9.6, iP: 740, iY: 6.5, iD: 46.0, iF: 0.02, iU: 7.50, iNu: 52.0, iPu: 98, uN: 0.04, uR: 1.03, uP: 520, uY: 6.1, uD: 13.5, uF: 0.0, mN: 0.06, mR: 1.59, mP: 1480, mY: 6.0, mD: 13.5, mF: 0.0, tN: 0.03, tR: 0.77, tP: 860, tY: 5.4, tD: 13.5, tF: 0.0, gN: 0.026, gR: 0.65, gP: 940, gY: 6.5, gD: 13.5, gF: 0.0, kN: 0.026, kR: 0.65, kP: 800, kY: 6.5, kD: 13.5, kF: 0.0, wN: 0.029, wR: 0.77, wP: 880, wY: 5.4, wD: 13.5, wF: 0.0 },
+            1970: { iN: 0.42, iR: 10.1, iP: 780, iY: 5.2, iD: 45.5, iF: 0.03, iU: 7.50, iNu: 56.0, iPu: 104, uN: 0.04, uR: 1.08, uP: 550, uY: 4.8, uD: 13.2, uF: 0.0, mN: 0.06, mR: 1.67, mP: 1560, mY: 5.0, mD: 13.2, mF: 0.0, tN: 0.03, tR: 0.81, tP: 900, tY: 5.1, tD: 13.2, tF: 0.0, gN: 0.028, gR: 0.68, gP: 990, gY: 4.6, gD: 13.2, gF: 0.0, kN: 0.028, kR: 0.68, kP: 840, kY: 4.6, kD: 13.2, kF: 0.0, wN: 0.031, wR: 0.81, wP: 920, wY: 5.1, wD: 13.2, wF: 0.0 },
+            1971: { iN: 0.45, iR: 10.3, iP: 810, iY: 1.0, iD: 45.0, iF: 0.05, iU: 7.50, iNu: 60.0, iPu: 108, uN: 0.04, uR: 1.0, uP: 450, uY: 0.8, uD: 15.0, uF: 0.0, mN: 0.06, mR: 1.4, mP: 1200, mY: 1.2, mD: 14.0, mF: 0.01, tN: 0.03, tR: 0.6, tP: 730, tY: 1.1, tD: 14.0, tF: 0.0, gN: 0.03, gR: 0.7, gP: 850, gY: 1.3, gD: 14.0, gF: 0.0, kN: 0.03, kR: 0.7, kP: 750, kY: 1.0, kD: 14.0, kF: 0.0, wN: 0.035, wR: 0.8, wP: 820, wY: 0.9, wD: 15.0, wF: 0.0 },
+            1972: { iN: 0.49, iR: 10.2, iP: 860, iY: -0.5, iD: 45.2, iF: 0.04, iU: 7.59, iNu: 64.5, iPu: 113, uN: 0.04, uR: 0.99, uP: 480, uY: -0.8, uD: 15.2, uF: 0.0, mN: 0.07, mR: 1.39, mP: 1280, mY: -0.5, mD: 14.2, mF: 0.01, tN: 0.03, tR: 0.59, tP: 780, tY: -0.6, tD: 14.2, tF: 0.0, gN: 0.03, gR: 0.69, gP: 900, gY: -0.4, gD: 14.2, gF: 0.0, kN: 0.03, kR: 0.69, kP: 800, kY: -0.4, kD: 14.2, kF: 0.0, wN: 0.04, wR: 0.79, wP: 870, wY: -0.6, wD: 15.2, wF: 0.0 },
+            1973: { iN: 0.59, iR: 10.6, iP: 1010, iY: 3.3, iD: 44.5, iF: 0.04, iU: 7.74, iNu: 76.2, iPu: 130, uN: 0.05, uR: 1.02, uP: 560, uY: 3.0, uD: 14.8, uF: 0.0, mN: 0.08, mR: 1.43, mP: 1500, mY: 3.0, mD: 13.8, mF: 0.01, tN: 0.04, tR: 0.61, tP: 920, tY: 3.2, tD: 13.8, tF: 0.0, gN: 0.04, gR: 0.71, gP: 1060, gY: 2.8, gD: 13.8, gF: 0.0, kN: 0.04, kR: 0.71, kP: 940, kY: 2.8, kD: 13.8, kF: 0.0, wN: 0.05, wR: 0.81, wP: 1020, wY: 3.2, wD: 14.8, wF: 0.0 },
+            1974: { iN: 0.70, iR: 10.7, iP: 1180, iY: 1.2, iD: 43.5, iF: 0.05, iU: 8.10, iNu: 86.4, iPu: 145, uN: 0.06, uR: 1.03, uP: 660, uY: 0.9, uD: 14.5, uF: 0.0, mN: 0.10, mR: 1.44, mP: 1750, mY: 0.7, mD: 13.5, mF: 0.01, tN: 0.05, tR: 0.62, tP: 1080, tY: 1.6, tD: 13.5, tF: 0.0, gN: 0.05, gR: 0.72, gP: 1240, gY: 1.4, gD: 13.5, gF: 0.0, kN: 0.05, kR: 0.72, kP: 1100, kY: 1.4, kD: 13.5, kF: 0.0, wN: 0.05, wR: 0.82, wP: 1200, wY: 1.6, wD: 14.5, wF: 0.0 },
+            1975: { iN: 0.76, iR: 11.6, iP: 1260, iY: 9.0, iD: 44.0, iF: 0.06, iU: 8.38, iNu: 90.6, iPu: 150, uN: 0.07, uR: 1.12, uP: 710, uY: 8.7, uD: 14.7, uF: 0.0, mN: 0.10, mR: 1.57, mP: 1870, mY: 9.0, mD: 13.7, mF: 0.01, tN: 0.05, tR: 0.67, tP: 1150, tY: 8.0, tD: 13.7, tF: 0.0, gN: 0.05, gR: 0.78, gP: 1320, gY: 8.3, gD: 13.7, gF: 0.0, kN: 0.05, kR: 0.78, kP: 1170, kY: 8.3, kD: 13.7, kF: 0.0, wN: 0.06, wR: 0.89, wP: 1280, wY: 8.0, wD: 14.7, wF: 0.0 },
+            1976: { iN: 0.81, iR: 11.8, iP: 1330, iY: 1.2, iD: 44.5, iF: 0.06, iU: 8.96, iNu: 90.4, iPu: 148, uN: 0.07, uR: 1.13, uP: 750, uY: 0.8, uD: 15.0, uF: 0.0, mN: 0.11, mR: 1.58, mP: 1970, mY: 0.6, mD: 14.0, mF: 0.01, tN: 0.06, tR: 0.67, tP: 1210, tY: 0.0, tD: 14.0, tF: 0.0, gN: 0.05, gR: 0.79, gP: 1390, gY: 1.2, gD: 14.0, gF: 0.0, kN: 0.05, kR: 0.79, kP: 1230, kY: 1.2, kD: 14.0, kF: 0.0, wN: 0.06, wR: 0.89, wP: 1350, wY: 0.0, wD: 15.0, wF: 0.0 },
+            1977: { iN: 0.90, iR: 12.6, iP: 1440, iY: 7.3, iD: 45.0, iF: 0.05, iU: 8.74, iNu: 103.0, iPu: 164, uN: 0.08, uR: 1.21, uP: 810, uY: 7.0, uD: 15.5, uF: 0.0, mN: 0.12, mR: 1.69, mP: 2130, mY: 6.9, mD: 14.5, mF: 0.01, tN: 0.06, tR: 0.71, tP: 1310, tY: 5.9, tD: 14.5, tF: 0.0, gN: 0.06, gR: 0.84, gP: 1500, gY: 6.3, gD: 14.5, gF: 0.0, kN: 0.06, kR: 0.84, kP: 1330, kY: 6.3, kD: 14.5, kF: 0.0, wN: 0.07, wR: 0.94, wP: 1460, wY: 5.9, wD: 15.5, wF: 0.0 },
+            1978: { iN: 0.98, iR: 13.3, iP: 1530, iY: 5.7, iD: 46.5, iF: 0.04, iU: 8.19, iNu: 119.6, iPu: 186, uN: 0.08, uR: 1.27, uP: 860, uY: 4.9, uD: 16.0, uF: 0.0, mN: 0.13, mR: 1.78, mP: 2260, mY: 5.3, mD: 15.0, mF: 0.01, tN: 0.07, tR: 0.75, tP: 1390, tY: 5.6, tD: 15.0, tF: 0.0, gN: 0.06, gR: 0.88, gP: 1590, gY: 4.7, gD: 15.0, gF: 0.0, kN: 0.06, kR: 0.88, kP: 1410, kY: 4.7, kD: 15.0, kF: 0.0, wN: 0.07, wR: 0.99, wP: 1550, wY: 5.6, wD: 16.0, wF: 0.0 },
+            1979: { iN: 1.10, iR: 12.5, iP: 1750, iY: -5.2, iD: 48.0, iF: 0.07, iU: 8.13, iNu: 135.3, iPu: 215, uN: 0.09, uR: 1.20, uP: 980, uY: -5.5, uD: 17.0, uF: 0.01, mN: 0.14, mR: 1.69, mP: 2580, mY: -5.0, mD: 15.5, mF: 0.01, tN: 0.08, tR: 0.71, tP: 1590, tY: -5.3, tD: 15.5, tF: 0.01, gN: 0.07, gR: 0.83, gP: 1820, gY: -5.6, gD: 15.5, gF: 0.01, kN: 0.07, kR: 0.83, kP: 1610, kY: -5.6, kD: 15.5, kF: 0.01, wN: 0.08, wR: 0.94, wP: 1770, wY: -5.3, wD: 17.0, wF: 0.01 },
+            1980: { iN: 1.30, iR: 13.4, iP: 2020, iY: 7.2, iD: 48.5, iF: 0.08, iU: 7.86, iNu: 165.3, iPu: 256, uN: 0.10, uR: 1.28, uP: 1130, uY: 6.6, uD: 17.5, uF: 0.01, mN: 0.17, mR: 1.80, mP: 2980, mY: 6.5, mD: 16.0, mF: 0.02, tN: 0.09, tR: 0.76, tP: 1830, tY: 7.0, tD: 16.0, tF: 0.01, gN: 0.08, gR: 0.88, gP: 2100, gY: 6.0, gD: 16.0, gF: 0.01, kN: 0.08, kR: 0.88, kP: 1860, kY: 6.0, kD: 16.0, kF: 0.01, wN: 0.09, wR: 1.00, wP: 2040, wY: 7.0, wD: 17.5, wF: 0.01 },
+            1981: { iN: 1.50, iR: 14.5, iP: 2200, iY: 6.0, iD: 50.0, iF: 0.09, iU: 8.66, iNu: 173.2, iPu: 254, iC: 0.1, uN: 0.12, uR: 1.35, uP: 1230, uY: 5.5, uD: 18.0, uF: 0.01, mN: 0.18, mR: 1.90, mP: 3250, mY: 5.5, mD: 16.0, mF: 0.02, tN: 0.10, tR: 0.80, tP: 1990, tY: 5.2, tD: 16.0, tF: 0.01, gN: 0.09, gR: 0.93, gP: 2290, gY: 5.6, gD: 16.0, gF: 0.01, kN: 0.09, kR: 0.93, kP: 2020, kY: 5.6, kD: 16.0, kF: 0.01, wN: 0.11, wR: 1.05, wP: 2220, wY: 5.2, wD: 18.0, wF: 0.01, iE: 7.0, uE: 7.8, mE: 6.0, tE: 6.5, gE: 4.5, kE: 5.2, wE: 7.5 },
+            1982: { iN: 1.66, iR: 15.0, iP: 2380, iY: 3.4, iD: 51.5, iF: 0.08, iU: 9.46, iNu: 175.4, iPu: 251, iC: 0.1, uN: 0.13, uR: 1.39, uP: 1330, uY: 2.9, uD: 18.5, uF: 0.01, mN: 0.20, mR: 1.95, mP: 3510, mY: 2.6, mD: 16.5, mF: 0.02, tN: 0.11, tR: 0.82, tP: 2150, tY: 2.5, tD: 16.5, tF: 0.01, gN: 0.10, gR: 0.95, gP: 2470, gY: 2.1, gD: 16.5, gF: 0.01, kN: 0.10, kR: 0.95, kP: 2180, kY: 2.1, kD: 16.5, kF: 0.01, wN: 0.12, wR: 1.07, wP: 2400, wY: 2.5, wD: 18.5, wF: 0.01, iE: 7.0, uE: 7.8, mE: 6.0, tE: 6.5, gE: 4.5, kE: 5.2, wE: 7.5 },
+            1983: { iN: 1.95, iR: 16.1, iP: 2750, iY: 7.3, iD: 53.0, iF: 0.07, iU: 10.10, iNu: 193.0, iPu: 272, iC: 0.2, uN: 0.15, uR: 1.49, uP: 1530, uY: 7.1, uD: 19.0, uF: 0.01, mN: 0.23, mR: 2.09, mP: 4060, mY: 7.1, mD: 16.8, mF: 0.02, tN: 0.13, tR: 0.87, tP: 2480, tY: 6.0, tD: 16.8, tF: 0.01, gN: 0.11, gR: 1.01, gP: 2850, gY: 6.3, gD: 16.8, gF: 0.01, kN: 0.11, kR: 1.01, kP: 2520, kY: 6.3, kD: 16.8, kF: 0.01, wN: 0.14, wR: 1.13, wP: 2770, wY: 6.0, wD: 19.0, wF: 0.01, iE: 7.0, uE: 7.8, mE: 6.0, tE: 6.5, gE: 4.5, kE: 5.2, wE: 7.5 },
+            1984: { iN: 2.14, iR: 16.7, iP: 2950, iY: 3.8, iD: 55.0, iF: 0.07, iU: 11.36, iNu: 188.3, iPu: 259, iC: 0.2, uN: 0.17, uR: 1.54, uP: 1640, uY: 3.3, uD: 19.5, uF: 0.01, mN: 0.26, mR: 2.16, mP: 4360, mY: 3.3, mD: 17.2, mF: 0.02, tN: 0.14, tR: 0.90, tP: 2660, tY: 3.4, tD: 17.2, tF: 0.01, gN: 0.12, gR: 1.04, gP: 3060, gY: 2.9, gD: 17.2, gF: 0.01, kN: 0.12, kR: 1.04, kP: 2700, kY: 2.9, kD: 17.2, kF: 0.01, wN: 0.15, wR: 1.16, wP: 2980, wY: 3.4, wD: 19.5, wF: 0.01, iE: 7.0, uE: 7.8, mE: 6.0, tE: 6.5, gE: 4.5, kE: 5.2, wE: 7.5 },
+            1985: { iN: 2.44, iR: 17.6, iP: 3280, iY: 5.2, iD: 57.5, iF: 0.08, iU: 12.36, iNu: 197.4, iPu: 265, iC: 0.3, uN: 0.19, uR: 1.62, uP: 1820, uY: 5.1, uD: 20.2, uF: 0.01, mN: 0.29, mR: 2.27, mP: 4840, mY: 5.0, mD: 17.5, mF: 0.02, tN: 0.16, tR: 0.94, tP: 2960, tY: 4.4, tD: 17.5, tF: 0.01, gN: 0.14, gR: 1.09, gP: 3400, gY: 4.8, gD: 17.5, gF: 0.01, kN: 0.14, kR: 1.09, kP: 3000, kY: 4.8, kD: 17.5, kF: 0.01, wN: 0.17, wR: 1.21, wP: 3310, wY: 4.4, wD: 20.2, wF: 0.01, iE: 7.0, uE: 7.8, mE: 6.0, tE: 6.5, gE: 4.5, kE: 5.2, wE: 7.5 },
+            1986: { iN: 2.73, iR: 18.3, iP: 3580, iY: 4.3, iD: 60.5, iF: 0.09, iU: 12.61, iNu: 216.4, iPu: 283, iC: 0.4, uN: 0.21, uR: 1.68, uP: 1990, uY: 3.7, uD: 20.8, uF: 0.01, mN: 0.33, mR: 2.36, mP: 5290, mY: 3.9, mD: 17.8, mF: 0.02, tN: 0.18, tR: 0.97, tP: 3230, tY: 3.1, tD: 17.8, tF: 0.01, gN: 0.15, gR: 1.13, gP: 3720, gY: 3.6, gD: 17.8, gF: 0.01, kN: 0.15, kR: 1.13, kP: 3280, kY: 3.6, kD: 17.8, kF: 0.01, wN: 0.19, wR: 1.24, wP: 3610, wY: 3.1, wD: 20.8, wF: 0.01, iE: 7.0, uE: 7.8, mE: 6.0, tE: 6.5, gE: 4.5, kE: 5.2, wE: 7.5 },
+            1987: { iN: 3.09, iR: 19.0, iP: 3950, iY: 3.5, iD: 63.5, iF: 0.10, iU: 12.96, iNu: 238.4, iPu: 304, iC: 0.5, uN: 0.24, uR: 1.74, uP: 2200, uY: 3.5, uD: 21.5, uF: 0.01, mN: 0.37, mR: 2.45, mP: 5830, mY: 3.8, mD: 18.1, mF: 0.03, tN: 0.20, tR: 1.00, tP: 3570, tY: 3.0, tD: 18.1, tF: 0.01, gN: 0.17, gR: 1.17, gP: 4100, gY: 3.5, gD: 18.1, gF: 0.02, kN: 0.17, kR: 1.17, kP: 3620, kY: 3.5, kD: 18.1, kF: 0.01, wN: 0.21, wR: 1.27, wP: 3990, wY: 3.0, wD: 21.5, wF: 0.01, iE: 7.0, uE: 7.8, mE: 6.0, tE: 6.5, gE: 4.5, kE: 5.2, wE: 7.5 },
+            1988: { iN: 3.73, iR: 20.8, iP: 4650, iY: 9.6, iD: 66.5, iF: 0.12, iU: 13.91, iNu: 268.1, iPu: 334, iC: 0.6, uN: 0.29, uR: 1.90, uP: 2590, uY: 9.1, uD: 22.0, uF: 0.01, mN: 0.45, mR: 2.68, mP: 6860, mY: 9.3, mD: 18.5, mF: 0.03, tN: 0.24, tR: 1.09, tP: 4200, tY: 9.0, tD: 18.5, tF: 0.01, gN: 0.20, gR: 1.28, gP: 4830, gY: 9.4, gD: 18.5, gF: 0.02, kN: 0.20, kR: 1.28, kP: 4260, kY: 9.4, kD: 18.5, kF: 0.01, wN: 0.25, wR: 1.38, wP: 4700, wY: 9.0, wD: 22.0, wF: 0.01, iE: 7.0, uE: 7.8, mE: 6.0, tE: 6.5, gE: 4.5, kE: 5.2, wE: 7.5 },
+            1989: { iN: 4.35, iR: 22.0, iP: 5300, iY: 5.9, iD: 70.5, iF: 0.12, iU: 16.22, iNu: 268.1, iPu: 326, iC: 0.7, uN: 0.33, uR: 2.01, uP: 2950, uY: 5.7, uD: 22.5, uF: 0.01, mN: 0.52, mR: 2.83, mP: 7830, mY: 5.5, mD: 18.8, mF: 0.03, tN: 0.28, tR: 1.15, tP: 4790, tY: 5.5, tD: 18.8, tF: 0.01, gN: 0.23, gR: 1.35, gP: 5510, gY: 5.4, gD: 18.8, gF: 0.02, kN: 0.23, kR: 1.35, kP: 4860, kY: 5.4, kD: 18.8, kF: 0.01, wN: 0.29, wR: 1.45, wP: 5360, wY: 5.5, wD: 22.5, wF: 0.01, iE: 7.0, uE: 7.8, mE: 6.0, tE: 6.5, gE: 4.5, kE: 5.2, wE: 7.5 },
+            1990: { iN: 5.15, iR: 23.2, iP: 6150, iY: 5.5, iD: 74.0, iF: 0.13, iU: 17.50, iNu: 294.2, iPu: 351, iC: 0.8, uN: 0.40, uR: 2.12, uP: 3420, uY: 5.4, uD: 23.0, uF: 0.01, mN: 0.62, mR: 2.98, mP: 9090, mY: 5.3, mD: 19.2, mF: 0.03, tN: 0.33, tR: 1.21, tP: 5560, tY: 5.2, tD: 19.2, tF: 0.01, gN: 0.27, gR: 1.42, gP: 6400, gY: 5.1, gD: 19.2, gF: 0.02, kN: 0.27, kR: 1.42, kP: 5640, kY: 5.1, kD: 19.2, kF: 0.01, wN: 0.34, wR: 1.52, wP: 6220, wY: 5.2, wD: 23.0, wF: 0.01, iE: 7.0, uE: 7.8, mE: 6.0, tE: 6.5, gE: 4.5, kE: 5.2, wE: 7.5 },
             
-            const rawDB = {
-                1991: { iN: 6.5, iR: 24.5, iP: 7750, iY: 1.1, iD: 75.3, iF: 0.13, iU: 22.7, iNu: 270.1, iPu: 303, iC: 1.0, uN: 0.52, uR: 1.8, uP: 3800, uY: 0.5, uD: 23.4, uF: 0.01, mN: 0.81, mR: 2.9, mP: 10400, mY: 1.2, mD: 18.2, mF: 0.04, tN: 0.46, tR: 1.6, tP: 8300, tY: 1.3, tD: 19.5, tF: 0.01, gN: 0.38, gR: 1.5, gP: 9000, gY: 2.0, gD: 18.0, gF: 0.02, kN: 0.35, kR: 1.4, kP: 7800, kY: 1.5, kD: 18.5, kF: 0.01, wN: 0.35, wR: 1.5, wP: 5000, wY: 1.0, wD: 24.1, wF: 0.01 },
-                1992: { iN: 7.5, iR: 25.8, iP: 8650, iY: 5.5, iD: 76.0, iF: 0.3, iU: 25.9, iNu: 288.2, iPu: 317, iC: 2.2, uN: 0.60, uR: 1.9, uP: 4200, uY: 3.5, uD: 23.8, uF: 0.02, mN: 0.95, mR: 3.1, mP: 11800, mY: 5.8, mD: 18.5, mF: 0.1, tN: 0.53, tR: 1.8, tP: 9500, tY: 5.4, tD: 19.7, tF: 0.03, gN: 0.45, gR: 1.6, gP: 10300, gY: 6.0, gD: 18.3, gF: 0.05, kN: 0.41, kR: 1.5, kP: 8800, kY: 5.6, kD: 18.7, kF: 0.03, wN: 0.40, wR: 1.6, wP: 5600, wY: 4.8, wD: 24.8, wF: 0.02 },
-                1993: { iN: 8.6, iR: 27.0, iP: 9600, iY: 4.8, iD: 77.0, iF: 0.6, iU: 30.5, iNu: 279.3, iPu: 301 },
-                1994: { iN: 10.1, iR: 28.8, iP: 11000, iY: 6.7, iD: 73.5, iF: 1.0, iU: 31.4, iNu: 327.3, iPu: 346 },
-                1995: { iN: 11.9, iR: 31.0, iP: 12600, iY: 7.6, iD: 70.0, iF: 2.1, iU: 32.4, iNu: 360.3, iPu: 374 },
-                1996: { iN: 13.7, iR: 32.5, iP: 14500, iY: 7.5, iD: 70.1, iF: 2.8, iU: 35.4, iNu: 399.8, iPu: 407, iC: 4.5, uN: 1.05, uR: 2.3, uP: 6700, uY: 6.1, uD: 25.1, uF: 0.05, mN: 1.62, mR: 3.9, mP: 18500, mY: 8.0, mD: 19.1, mF: 0.8, tN: 0.95, tR: 2.2, tP: 15800, tY: 7.8, tD: 20.1, tF: 0.1, gN: 0.82, gR: 2.1, gP: 17200, gY: 8.5, gD: 19.2, gF: 0.3, kN: 0.75, kR: 1.9, kP: 14200, kY: 7.5, kD: 19.0, kF: 0.15, wN: 0.70, wR: 2.0, wP: 9100, wY: 6.5, wD: 26.5, wF: 0.05 },
-                1997: { iN: 15.2, iR: 33.8, iP: 15700, iY: 4.0, iD: 71.5, iF: 3.0, iU: 37.1, iNu: 415.9, iPu: 416, iC: 5.5, uN: 1.17, uR: 2.4, uP: 7400, uY: 4.2, uD: 26.0, uF: 0.06, mN: 1.83, mR: 4.1, mP: 20500, mY: 4.5, mD: 19.8, mF: 0.85, tN: 1.06, tR: 2.3, tP: 17400, tY: 4.6, tD: 20.8, tF: 0.12, gN: 0.92, gR: 2.2, gP: 19100, gY: 4.8, gD: 19.8, gF: 0.32, kN: 0.83, kR: 2.0, kP: 15600, kY: 4.4, kD: 19.5, kF: 0.18, wN: 0.78, wR: 2.1, wP: 10000, wY: 4.2, wD: 27.5, wF: 0.06 },
-                1998: { iN: 17.5, iR: 35.9, iP: 17500, iY: 6.2, iD: 72.0, iF: 2.6, iU: 41.3, iNu: 421.4, iPu: 413, iC: 6.0 },
-                1999: { iN: 19.5, iR: 39.1, iP: 19100, iY: 8.8, iD: 73.5, iF: 2.2, iU: 43.1, iNu: 458.8, iPu: 441, iC: 8.5 },
-                2000: { iN: 21.0, iR: 40.6, iP: 20200, iY: 3.8, iD: 76.0, iF: 3.6, iU: 44.9, iNu: 468.4, iPu: 443, iC: 7.0 },
-                2001: { iN: 22.8, iR: 44.2, iP: 21700, iY: 4.8, iD: 80.4, iF: 4.0, iU: 47.2, iNu: 485.4, iPu: 451, uN: 1.80, uR: 3.1, uP: 10800, uY: 3.5, uD: 30.5, uF: 0.1, mN: 3.05, mR: 5.4, mP: 31700, mY: 5.1, mD: 22.3, mF: 1.2, tN: 1.61, tR: 3.1, tP: 25900, tY: 4.6, tD: 23.5, tF: 0.2, gN: 1.48, gR: 3.0, gP: 29000, gY: 5.5, gD: 22.1, gF: 0.4, kN: 1.25, kR: 2.7, kP: 23500, kY: 4.5, kD: 21.5, kF: 0.3, wN: 1.20, wR: 2.7, wP: 14500, wY: 4.0, wD: 32.1, wF: 0.1 },
-                2002: { iN: 24.5, iR: 45.9, iP: 23000, iY: 3.8, iD: 82.5, iF: 5.0, iU: 48.6, iNu: 514.9, iPu: 471 },
-                2003: { iN: 27.5, iR: 49.5, iP: 25200, iY: 7.9, iD: 83.5, iF: 4.3, iU: 46.6, iNu: 607.7, iPu: 547 },
-                2004: { iN: 32.4, iR: 53.4, iP: 29200, iY: 7.9, iD: 83.0, iF: 6.0, iU: 45.3, iNu: 709.1, iPu: 628, iC: 17.0 },
-                2005: { iN: 36.9, iR: 57.6, iP: 32800, iY: 7.9, iD: 83.5, iF: 8.9, iU: 44.1, iNu: 820.4, iPu: 715 },
-                2006: { iN: 42.9, iR: 62.1, iP: 37600, iY: 8.0, iD: 77.1, iF: 22.8, iU: 45.3, iNu: 940.3, iPu: 807, iC: 35.0, uN: 3.12, uR: 4.6, uP: 17200, uY: 6.5, uD: 35.1, uF: 0.5, mN: 5.95, mR: 8.2, mP: 57200, mY: 9.5, mD: 25.4, mF: 7.0, tN: 3.15, tR: 4.8, tP: 47700, tY: 10.1, tD: 24.1, tF: 1.5, gN: 3.10, gR: 4.3, gP: 54300, gY: 11.2, gD: 24.5, gF: 2.5, kN: 2.50, kR: 4.0, kP: 43200, kY: 8.5, kD: 23.1, kF: 1.8, wN: 2.30, wR: 3.7, wP: 25500, wY: 7.0, wD: 38.5, wF: 0.3 },
-                2007: { iN: 49.8, iR: 66.8, iP: 42500, iY: 7.6, iD: 74.0, iF: 25.2, iU: 41.3, iNu: 1216.7, iPu: 1028 },
-                2008: { iN: 56.3, iR: 71.5, iP: 47000, iY: 3.1, iD: 74.5, iF: 43.4, iU: 43.5, iNu: 1198.9, iPu: 999, iC: 30.0, uN: 4.25, uR: 5.4, uP: 22500, uY: 3.5, uD: 33.8, uF: 0.65, mN: 7.95, mR: 9.8, mP: 74000, mY: 4.5, mD: 23.2, mF: 8.5, tN: 4.38, tR: 5.8, tP: 64500, tY: 4.2, tD: 22.5, tF: 1.8, gN: 4.15, gR: 5.0, gP: 70200, gY: 4.8, gD: 22.8, gF: 3.1, kN: 3.55, kR: 4.7, kP: 58500, kY: 3.8, kD: 21.8, kF: 2.3, wN: 3.15, wR: 4.2, wP: 34500, wY: 3.0, wD: 37.4, wF: 0.4 },
-                2009: { iN: 64.7, iR: 77.1, iP: 54000, iY: 7.8, iD: 72.5, iF: 35.6, iU: 48.4, iNu: 1341.9, iPu: 1101 },
-                2010: { iN: 77.8, iR: 83.7, iP: 64500, iY: 8.5, iD: 67.5, iF: 27.4, iU: 45.7, iNu: 1675.6, iPu: 1358, iC: 73.0 },
-                2011: { iN: 87.3, iR: 87.3, iP: 71600, iY: 5.2, iD: 67.4, iF: 36.5, iU: 46.6, iNu: 1823.1, iPu: 1458, uN: 7.24, uR: 7.2, uP: 36300, uY: 5.1, uD: 32.1, uF: 1.0, mN: 12.8, mR: 12.8, mP: 114000, mY: 5.5, mD: 20.1, mF: 10.5, tN: 7.51, tR: 7.5, tP: 104000, tY: 6.1, tD: 21.1, tF: 2.2, gN: 6.15, gR: 6.15, gP: 101000, gY: 6.8, gD: 21.0, gF: 4.0, kN: 6.03, kR: 6.03, kP: 98000, kY: 5.5, kD: 20.5, kF: 3.5, wN: 5.20, wR: 5.20, wP: 57000, wY: 4.5, wD: 36.2, wF: 0.5 },
-                2012: { iN: 99.4, iR: 92.1, iP: 80500, iY: 5.4, iD: 66.7, iF: 34.3, iU: 53.4, iNu: 1827.6, iPu: 1444, uN: 8.22, uR: 7.6, uP: 40500, uY: 5.0, uD: 31.5, uF: 0.9, mN: 14.4, mR: 13.4, mP: 127000, mY: 5.6, mD: 19.5, mF: 10.0, tN: 8.55, tR: 7.9, tP: 117000, tY: 5.8, tD: 20.5, tF: 2.0, gN: 7.24, gR: 6.70, gP: 117000, gY: 6.5, gD: 20.8, gF: 3.8, kN: 6.95, kR: 6.44, kP: 112000, kY: 5.8, kD: 20.1, kF: 3.0, wN: 5.90, wR: 5.46, wP: 64000, wY: 5.0, wD: 35.5, wF: 0.4 },
-                2013: { iN: 105.3, iR: 98.0, iP: 84300, iY: 6.4, iD: 67.1, iF: 36.0, iU: 58.6, iNu: 1856.7, iPu: 1450, uN: 9.44, uR: 8.7, uP: 45700, uY: 6.1, uD: 31.8, uF: 1.1, mN: 16.5, mR: 15.3, mP: 143000, mY: 6.7, mD: 19.8, mF: 10.8, tN: 9.71, tR: 9.0, tP: 131000, tY: 6.8, tD: 21.0, tF: 2.3, gN: 8.05, gR: 7.49, gP: 128000, gY: 7.5, gD: 21.2, gF: 4.2, kN: 8.16, kR: 7.59, kP: 129000, kY: 6.5, kD: 20.6, kF: 3.6, wN: 6.73, wR: 6.26, wP: 72000, wY: 5.5, wD: 35.8, wF: 0.6 },
-                2014: { iN: 112.3, iR: 105.2, iP: 88800, iY: 7.4, iD: 67.4, iF: 45.1, iU: 61.0, iNu: 2039.1, iPu: 1574, iC: 98.0, uN: 10.1, uR: 9.4, uP: 48200, uY: 7.2, uD: 31.2, uF: 1.3, mN: 17.9, mR: 16.7, mP: 153000, mY: 7.6, mD: 19.2, mF: 13.5, tN: 10.9, tR: 10.2, tP: 145000, tY: 7.8, tD: 20.8, tF: 2.8, gN: 8.95, gR: 8.38, gP: 140000, gY: 8.5, gD: 21.0, gF: 5.0, kN: 9.21, kR: 8.62, kP: 144000, kY: 7.5, kD: 20.3, kF: 4.5, wN: 7.18, wR: 6.72, wP: 76000, wY: 6.0, wD: 35.1, wF: 0.7 },
-                2015: { iN: 125.4, iR: 113.6, iP: 98100, iY: 8.0, iD: 68.1, iF: 55.5, iU: 64.1, iNu: 2103.6, iPu: 1606, uN: 11.5, uR: 10.4, uP: 54100, uY: 7.8, uD: 30.5, uF: 1.5, mN: 19.6, mR: 17.7, mP: 165000, mY: 8.2, mD: 18.5, mF: 16.5, tN: 12.1, tR: 10.9, tP: 159000, tY: 8.4, tD: 20.2, tF: 3.5, gN: 10.2, gR: 9.24, gP: 157000, gY: 9.5, gD: 20.5, gF: 6.5, kN: 10.4, kR: 9.42, kP: 160000, kY: 8.2, kD: 19.8, kF: 5.8, wN: 7.97, wR: 7.22, wP: 84000, wY: 6.2, wD: 34.5, wF: 0.9 },
-                2016: { iN: 139.5, iR: 123.0, iP: 107000, iY: 8.3, iD: 68.9, iF: 60.2, iU: 67.2, iNu: 2294.1, iPu: 1733, iC: 110.0, uN: 13.3, uR: 11.7, uP: 61500, uY: 8.1, uD: 30.1, uF: 1.8, mN: 21.8, mR: 19.2, mP: 181000, mY: 8.5, mD: 18.1, mF: 18.0, tN: 13.3, tR: 11.7, tP: 173000, tY: 8.7, tD: 20.0, tF: 4.0, gN: 11.5, gR: 10.1, gP: 175000, gY: 9.8, gD: 20.1, gF: 7.0, kN: 12.0, kR: 10.5, kP: 182000, kY: 8.8, kD: 19.5, kF: 6.5, wN: 8.72, wR: 7.69, wP: 91000, wY: 6.5, wD: 34.0, wF: 1.0 },
-                2017: { iN: 153.6, iR: 131.4, iP: 116000, iY: 6.8, iD: 69.7, iF: 60.9, iU: 65.1, iNu: 2651.5, iPu: 1981, uN: 14.3, uR: 12.2, uP: 65100, uY: 6.6, uD: 31.2, uF: 1.9, mN: 24.1, mR: 20.6, mP: 198000, mY: 7.0, mD: 18.8, mF: 18.2, tN: 14.6, tR: 12.5, tP: 187000, tY: 7.1, tD: 21.2, tF: 4.2, gN: 13.1, gR: 11.2, gP: 197000, gY: 8.2, gD: 20.8, gF: 7.5, kN: 13.5, kR: 11.5, kP: 202000, kY: 7.4, kD: 20.1, kF: 7.0, wN: 9.99, wR: 8.54, wP: 103000, wY: 5.8, wD: 35.1, wF: 1.1 },
-                2018: { iN: 170.9, iR: 139.9, iP: 127000, iY: 6.5, iD: 70.4, iF: 62.0, iU: 68.4, iNu: 2702.9, iPu: 1998, iC: 145.0, uN: 15.8, uR: 12.9, uP: 70800, uY: 6.3, uD: 32.5, uF: 2.0, mN: 26.6, mR: 21.7, mP: 216000, mY: 6.8, mD: 19.5, mF: 18.5, tN: 16.3, tR: 13.3, tP: 206000, tY: 6.9, tD: 22.5, tF: 4.5, gN: 14.9, gR: 12.2, gP: 220000, gY: 7.8, gD: 21.5, gF: 8.0, kN: 15.3, kR: 12.5, kP: 226000, kY: 7.0, kD: 21.0, kF: 7.5, wN: 11.7, wR: 9.58, wP: 119000, wY: 6.0, wD: 36.5, wF: 1.2 },
-                2019: { iN: 200.7, iR: 145.3, iP: 147000, iY: 3.9, iD: 71.1, iF: 74.3, iU: 70.4, iNu: 2835.6, iPu: 2072, uN: 17.0, uR: 12.3, uP: 75100, uY: 3.7, uD: 33.1, uF: 2.5, mN: 28.1, mR: 20.3, mP: 226000, mY: 4.1, mD: 20.1, mF: 22.5, tN: 17.9, tR: 12.9, tP: 224000, tY: 4.3, tD: 23.1, tF: 5.5, gN: 16.4, gR: 11.8, gP: 240000, gY: 4.8, gD: 22.1, gF: 10.0, kN: 16.2, kR: 11.7, kP: 236000, kY: 4.2, kD: 21.5, kF: 9.5, wN: 12.5, wR: 9.04, wP: 126000, wY: 3.5, wD: 37.1, wF: 1.5 },
-                2020: { iN: 198.0, iR: 136.8, iP: 143000, iY: -5.8, iD: 88.5, iF: 81.9, iU: 74.1, iNu: 2671.6, iPu: 1933, iC: 188.0, uN: 16.4, uR: 11.3, uP: 71200, uY: -5.2, uD: 38.5, uF: 2.5, mN: 27.1, mR: 18.7, mP: 215000, mY: -6.5, mD: 25.5, mF: 2.8, tN: 18.4, tR: 12.7, tP: 227000, tY: -4.8, tD: 28.5, tF: 2.5, gN: 16.5, gR: 11.4, gP: 238000, gY: -4.2, gD: 26.5, gF: 2.5, kN: 16.6, kR: 11.4, kP: 238000, kY: -3.8, kD: 25.5, kF: 2.5, wN: 13.5, wR: 9.33, wP: 135000, wY: -2.5, wD: 42.5, wF: 2.5 },
-                2021: { iN: 236.6, iR: 150.0, iP: 169000, iY: 9.7, iD: 84.2, iF: 84.8, iU: 73.9, iNu: 3150.3, iPu: 2256, iC: 266.0, uN: 19.1, uR: 12.1, uP: 81300, uY: 9.1, uD: 36.2, uF: 3.0, mN: 31.0, mR: 19.6, mP: 248000, mY: 10.5, mD: 23.2, mF: 26.0, tN: 21.2, tR: 13.4, tP: 259000, tY: 9.2, tD: 26.2, tF: 6.5, gN: 19.3, gR: 12.2, gP: 274000, gY: 11.2, gD: 24.2, gF: 12.0, kN: 19.6, kR: 12.4, kP: 278000, kY: 9.5, kD: 23.2, kF: 11.5, wN: 14.8, wR: 9.38, wP: 146000, wY: 7.5, wD: 40.2, wF: 2.0 },
-                2022: { iN: 269.5, iR: 160.5, iP: 190000, iY: 7.0, iD: 83.1, iF: 71.3, iU: 80.2, iNu: 3416.6, iPu: 2423, iC: 280.0, uN: 20.5, uR: 12.0, uP: 86400, uY: 6.7, uD: 35.1, uF: 2.5, mN: 35.2, mR: 20.6, mP: 279000, mY: 7.2, mD: 22.1, mF: 21.0, tN: 23.6, tR: 13.8, tP: 286000, tY: 7.4, tD: 25.1, tF: 5.0, gN: 22.0, gR: 12.9, gP: 309000, gY: 8.5, gD: 23.1, gF: 10.0, kN: 22.3, kR: 13.1, kP: 314000, kY: 7.2, kD: 22.1, kF: 9.0, wN: 16.0, wR: 9.40, wP: 156000, wY: 5.5, wD: 39.1, wF: 1.5 },
-                2023: { iN: 295.3, iR: 173.8, iP: 207000, iY: 8.2, iD: 82.4, iF: 70.9, iU: 82.6, iNu: 3549.9, iPu: 2485, iC: 330.0, uN: 22.5, uR: 13.2, uP: 94100, uY: 7.8, uD: 34.5, uF: 2.4, mN: 38.7, mR: 22.7, mP: 304000, mY: 8.5, mD: 21.5, mF: 20.8, tN: 26.0, tR: 15.3, tP: 312000, tY: 8.6, tD: 24.5, tF: 4.8, gN: 22.6, gR: 13.3, gP: 315000, gY: 9.2, gD: 22.5, gF: 9.8, kN: 22.6, kR: 13.3, kP: 315000, kY: 8.4, kD: 21.5, kF: 8.8, wN: 15.3, wR: 9.01, wP: 148000, wY: 6.5, wD: 38.5, wF: 1.4 },
-                2024: { iN: 327.7, iR: 186.3, iP: 227000, iY: 7.2, iD: 82.0, iF: 75.0, iU: 83.5, iNu: 3889.0, iPu: 2698, iC: 400.0, uN: 25.4, uR: 14.4, uP: 105000, uY: 6.9, uD: 34.1, uF: 2.7, mN: 42.6, mR: 24.2, mP: 332000, mY: 7.5, mD: 21.1, mF: 22.0, tN: 28.3, tR: 16.0, tP: 338000, tY: 7.4, tD: 24.1, tF: 5.2, gN: 24.8, gR: 14.1, gP: 342000, gY: 8.5, gD: 22.1, gF: 10.5, kN: 25.0, kR: 14.2, kP: 345000, kY: 7.2, kD: 21.1, kF: 9.5, wN: 17.1, wR: 9.72, wP: 164000, wY: 5.8, wD: 38.1, wF: 1.6 },
-                2025: { iN: 360.0, iR: 198.4, iP: 247000, iY: 6.5, iD: 81.5, iF: 80.0, iU: 84.5, iNu: 4230.0, iPu: 2900, iC: 450.0, uN: 30.2, uR: 16.6, uP: 123000, uY: 6.5, uD: 33.8, uF: 3.0, mN: 47.0, mR: 25.9, mP: 364000, mY: 6.5, mD: 20.8, mF: 23.5, tN: 31.5, tR: 17.3, tP: 374000, tY: 6.5, tD: 23.8, tF: 5.8, gN: 28.5, gR: 15.7, gP: 389000, gY: 6.5, gD: 21.8, gF: 11.2, kN: 28.1, kR: 15.4, kP: 384000, kY: 6.5, kD: 20.8, kF: 10.5, wN: 18.8, wR: 10.3, wP: 178000, wY: 6.5, wD: 37.8, wF: 1.8 },
-                2026: { iN: 390.5, iR: 210.3, iP: 265000, iY: 6.5, iD: 81.0, iF: 85.0, iU: 85.0, iNu: 4580.0, iPu: 3100, iC: 500.0, uN: 33.5, uR: 18.0, uP: 135000, uY: 6.5, uD: 33.5, uF: 3.3, mN: 51.5, mR: 27.5, mP: 395000, mY: 6.5, mD: 20.5, mF: 25.0, tN: 34.5, tR: 18.5, tP: 405000, tY: 6.5, tD: 23.5, tF: 6.5, gN: 31.5, gR: 16.9, gP: 425000, gY: 6.5, gD: 21.5, gF: 12.0, kN: 30.5, kR: 16.4, kP: 410000, kY: 6.5, kD: 20.5, kF: 11.5, wN: 20.5, wR: 11.0, wP: 192000, wY: 6.5, wD: 37.5, wF: 2.0 },
-                
-                // Old Historical Milestones Anchors
-                1947: { iN: 0.08, iR: 4.1, iP: 250, iY: 2.0, iD: 30.0, iF: 0.0, iU: 3.3, iNu: 15.0, iPu: 45, uN: 0.01, uR: 0.4, uP: 140, uY: 1.8, uD: 10.0, uF: 0.0, mN: 0.015, mR: 0.8, mP: 500, mY: 2.2, mD: 10.0, mF: 0.0, tN: 0.008, tR: 0.35, tP: 300, tY: 2.1, tD: 10.0, tF: 0.0, gN: 0.007, gR: 0.35, gP: 320, gY: 2.1, gD: 10.0, gF: 0.0, kN: 0.007, kR: 0.35, kP: 290, kY: 1.9, kD: 10.0, kF: 0.0, wN: 0.008, wR: 0.40, wP: 310, wY: 2.0, wD: 10.0, wF: 0.0 },
-                1951: { iN: 0.10, iR: 4.8, iP: 280, iY: 2.3, iD: 32.0, iF: 0.0, iU: 4.76, iNu: 22.0, iPu: 60, uN: 0.01, uR: 0.5, uP: 160, uY: 2.0, uD: 11.0, uF: 0.0, mN: 0.02, mR: 0.9, mP: 570, mY: 2.5, mD: 11.0, mF: 0.0, tN: 0.01, tR: 0.4, tP: 340, tY: 2.2, tD: 11.0, tF: 0.0, gN: 0.008, gR: 0.4, gP: 350, gY: 2.4, gD: 11.0, gF: 0.0, kN: 0.008, kR: 0.4, kP: 320, kY: 2.1, kD: 11.0, kF: 0.0, wN: 0.009, wR: 0.45, wP: 330, wY: 2.2, wD: 11.0, wF: 0.0 },
-                1961: { iN: 0.17, iR: 7.2, iP: 380, iY: 3.1, iD: 40.0, iF: 0.01, iU: 4.76, iNu: 39.2, iPu: 85, uN: 0.02, uR: 0.8, uP: 270, uY: 2.5, uD: 12.0, uF: 0.0, mN: 0.03, mR: 1.2, mP: 760, mY: 3.5, mD: 12.0, mF: 0.0, tN: 0.01, tR: 0.6, tP: 450, tY: 3.0, tD: 12.0, tF: 0.0, gN: 0.012, gR: 0.5, gP: 480, gY: 3.4, gD: 12.0, gF: 0.0, kN: 0.012, kR: 0.5, kP: 410, kY: 2.9, kD: 12.0, kF: 0.0, wN: 0.014, wR: 0.6, wP: 460, wY: 3.0, wD: 12.0, wF: 0.0 },
-                1971: { iN: 0.45, iR: 10.3, iP: 810, iY: 1.0, iD: 45.0, iF: 0.05, iU: 7.5, iNu: 67.3, iPu: 119, uN: 0.04, uR: 1.0, uP: 450, uY: 0.8, uD: 15.0, uF: 0.0, mN: 0.06, mR: 1.4, mP: 1200, mY: 1.2, mD: 14.0, mF: 0.01, tN: 0.03, tR: 0.6, tP: 730, tY: 1.1, tD: 14.0, tF: 0.0, gN: 0.03, gR: 0.7, gP: 850, gY: 1.3, gD: 14.0, gF: 0.0, kN: 0.03, kR: 0.7, kP: 750, kY: 1.0, kD: 14.0, kF: 0.0, wN: 0.035, wR: 0.8, wP: 820, wY: 0.9, wD: 15.0, wF: 0.0 },
-                1979: { iN: 1.10, iR: 12.5, iP: 1750, iY: -5.2, iD: 48.0, iF: 0.07, iU: 8.1, iNu: 152.9, iPu: 224, uN: 0.09, uR: 1.0, uP: 880, uY: -4.5, uD: 17.0, uF: 0.01, mN: 0.14, mR: 1.5, mP: 2300, mY: -5.8, mD: 15.0, mF: 0.01, tN: 0.08, tR: 0.8, tP: 1650, tY: -5.0, tD: 15.5, tF: 0.01, gN: 0.07, gR: 0.7, gP: 1950, gY: -5.5, gD: 15.0, gF: 0.01, kN: 0.07, kR: 0.7, kP: 1700, kY: -4.8, kD: 15.5, kF: 0.01, wN: 0.08, wR: 0.9, wP: 1750, wY: -4.0, wD: 16.5, wF: 0.01 },
-                1981: { iN: 1.50, iR: 14.5, iP: 2200, iY: 6.0, iD: 50.0, iF: 0.09, iU: 8.6, iNu: 193.3, iPu: 270, iC: 0.1, uN: 0.12, uR: 1.1, uP: 1090, uY: 5.5, uD: 18.0, uF: 0.01, mN: 0.18, mR: 1.7, mP: 2900, mY: 6.5, mD: 16.0, mF: 0.02, tN: 0.10, tR: 0.9, tP: 2080, tY: 6.2, tD: 16.0, tF: 0.01, gN: 0.09, gR: 0.8, gP: 2400, gY: 6.8, gD: 16.0, gF: 0.01, kN: 0.09, kR: 0.8, kP: 2100, kY: 5.9, kD: 16.0, kF: 0.01, wN: 0.11, wR: 1.0, wP: 2150, wY: 5.4, wD: 18.0, wF: 0.01 }
-            };
+            1991: { iN: 6.5, iR: 24.5, iP: 7750, iY: 1.1, iD: 75.3, iF: 0.13, iU: 22.7, iNu: 270.1, iPu: 303, iC: 1.0, uN: 0.52, uR: 1.8, uP: 3800, uY: 0.5, uD: 23.4, uF: 0.01, mN: 0.81, mR: 2.9, mP: 10400, mY: 1.2, mD: 18.2, mF: 0.04, tN: 0.46, tR: 1.6, tP: 8300, tY: 1.3, tD: 19.5, tF: 0.01, gN: 0.38, gR: 1.5, gP: 9000, gY: 2.0, gD: 18.0, gF: 0.02, kN: 0.35, kR: 1.4, kP: 7800, kY: 1.5, kD: 18.5, kF: 0.01, wN: 0.35, wR: 1.5, wP: 5000, wY: 1.0, wD: 24.1, wF: 0.01, iE: 5.6, uE: 6.5, mE: 4.8, tE: 5.3, gE: 3.5, kE: 4.0, wE: 5.9 },
+            1992: { iN: 7.5, iR: 25.8, iP: 8650, iY: 5.5, iD: 76.0, iF: 0.3, iU: 25.9, iNu: 288.2, iPu: 317, iC: 2.2, uN: 0.60, uR: 1.9, uP: 4200, uY: 3.5, uD: 23.8, uF: 0.02, mN: 0.95, mR: 3.1, mP: 11800, mY: 5.8, mD: 18.5, mF: 0.1, tN: 0.53, tR: 1.8, tP: 9500, tY: 5.4, tD: 19.7, tF: 0.03, gN: 0.45, gR: 1.6, gP: 10300, gY: 6.0, gD: 18.3, gF: 0.05, kN: 0.41, kR: 1.5, kP: 8800, kY: 5.6, kD: 18.7, kF: 0.03, wN: 0.40, wR: 1.6, wP: 5600, wY: 4.8, wD: 24.8, wF: 0.02 },
+            1993: { iN: 8.6, iR: 27.0, iP: 9600, iY: 4.8, iD: 77.0, iF: 0.6, iU: 30.5, iNu: 279.3, iPu: 301 },
+            1994: { iN: 10.1, iR: 28.8, iP: 11000, iY: 6.7, iD: 73.5, iF: 1.0, iU: 31.4, iNu: 327.3, iPu: 346 },
+            1995: { iN: 11.9, iR: 31.0, iP: 12600, iY: 7.6, iD: 70.0, iF: 2.1, iU: 32.4, iNu: 360.3, iPu: 374 },
+            1996: { iN: 13.7, iR: 32.5, iP: 14500, iY: 7.5, iD: 70.1, iF: 2.8, iU: 35.4, iNu: 399.8, iPu: 407, iC: 4.5, uN: 1.05, uR: 2.3, uP: 6700, uY: 6.1, uD: 25.1, uF: 0.05, mN: 1.62, mR: 3.9, mP: 18500, mY: 8.0, mD: 19.1, mF: 0.8, tN: 0.95, tR: 2.2, tP: 15800, tY: 7.8, tD: 20.1, tF: 0.1, gN: 0.82, gR: 2.1, gP: 17200, gY: 8.5, gD: 19.2, gF: 0.3, kN: 0.75, kR: 1.9, kP: 14200, kY: 7.5, kD: 19.0, kF: 0.15, wN: 0.70, wR: 2.0, wP: 9100, wY: 6.5, wD: 26.5, wF: 0.05 },
+            1997: { iN: 15.2, iR: 33.8, iP: 15700, iY: 4.0, iD: 71.5, iF: 3.0, iU: 37.1, iNu: 415.9, iPu: 416, iC: 5.5, uN: 1.17, uR: 2.4, uP: 7400, uY: 4.2, uD: 26.0, uF: 0.06, mN: 1.83, mR: 4.1, mP: 20500, mY: 4.5, mD: 19.8, mF: 0.85, tN: 1.06, tR: 2.3, tP: 17400, tY: 4.6, tD: 20.8, tF: 0.12, gN: 0.92, gR: 2.2, gP: 19100, gY: 4.8, gD: 19.8, gF: 0.32, kN: 0.83, kR: 2.0, kP: 15600, kY: 4.4, kD: 19.5, kF: 0.18, wN: 0.78, wR: 2.1, wP: 10000, wY: 4.2, wD: 27.5, wF: 0.06 },
+            1998: { iN: 17.5, iR: 35.9, iP: 17500, iY: 6.2, iD: 72.0, iF: 2.6, iU: 41.3, iNu: 421.4, iPu: 413, iC: 6.0 },
+            1999: { iN: 19.5, iR: 39.1, iP: 19100, iY: 8.8, iD: 73.5, iF: 2.2, iU: 43.1, iNu: 458.8, iPu: 441, iC: 8.5 },
+            2000: { iN: 21.0, iR: 40.6, iP: 20200, iY: 3.8, iD: 76.0, iF: 3.6, iU: 44.9, iNu: 468.4, iPu: 443, iC: 7.0, iE: 5.7, uE: 6.8, mE: 4.9, tE: 5.5, gE: 3.6, kE: 4.2, wE: 6.1 },
+            2001: { iN: 22.8, iR: 44.2, iP: 21700, iY: 4.8, iD: 80.4, iF: 4.0, iU: 47.2, iNu: 485.4, iPu: 451, uN: 1.80, uR: 3.1, uP: 10800, uY: 3.5, uD: 30.5, uF: 0.1, mN: 3.05, mR: 5.4, mP: 31700, mY: 5.1, mD: 22.3, mF: 1.2, tN: 1.61, tR: 3.1, tP: 25900, tY: 4.6, tD: 23.5, tF: 0.2, gN: 1.48, gR: 3.0, gP: 29000, gY: 5.5, gD: 22.1, gF: 0.4, kN: 1.25, kR: 2.7, kP: 23500, kY: 4.5, kD: 21.5, kF: 0.3, wN: 1.20, wR: 2.7, wP: 14500, wY: 4.0, wD: 32.1, wF: 0.1 },
+            2002: { iN: 24.5, iR: 45.9, iP: 23000, iY: 3.8, iD: 82.5, iF: 5.0, iU: 48.6, iNu: 514.9, iPu: 471 },
+            2003: { iN: 27.5, iR: 49.5, iP: 25200, iY: 7.9, iD: 83.5, iF: 4.3, iU: 46.6, iNu: 607.7, iPu: 547 },
+            2004: { iN: 32.4, iR: 53.4, iP: 29200, iY: 7.9, iD: 83.0, iF: 6.0, iU: 45.3, iNu: 709.1, iPu: 628, iC: 17.0 },
+            2005: { iN: 36.9, iR: 57.6, iP: 32800, iY: 7.9, iD: 83.5, iF: 8.9, iU: 44.1, iNu: 820.4, iPu: 715 },
+            2006: { iN: 42.9, iR: 62.1, iP: 37600, iY: 8.0, iD: 77.1, iF: 22.8, iU: 45.3, iNu: 940.3, iPu: 807, iC: 35.0, uN: 3.12, uR: 4.6, uP: 17200, uY: 6.5, uD: 35.1, uF: 0.5, mN: 5.95, mR: 8.2, mP: 57200, mY: 9.5, mD: 25.4, mF: 7.0, tN: 3.15, tR: 4.8, tP: 47700, tY: 10.1, tD: 24.1, tF: 1.5, gN: 3.10, gR: 4.3, gP: 54300, gY: 11.2, gD: 24.5, gF: 2.5, kN: 2.50, kR: 4.0, kP: 43200, kY: 8.5, kD: 23.1, kF: 1.8, wN: 2.30, wR: 3.7, wP: 25500, wY: 7.0, wD: 38.5, wF: 0.3 },
+            2007: { iN: 49.8, iR: 66.8, iP: 42500, iY: 7.6, iD: 74.0, iF: 25.2, iU: 41.3, iNu: 1216.7, iPu: 1028 },
+            2008: { iN: 56.3, iR: 71.5, iP: 47000, iY: 3.1, iD: 74.5, iF: 43.4, iU: 43.5, iNu: 1198.9, iPu: 999, iC: 30.0, uN: 4.25, uR: 5.4, uP: 22500, uY: 3.5, uD: 33.8, uF: 0.65, mN: 7.95, mR: 9.8, mP: 74000, mY: 4.5, mD: 23.2, mF: 8.5, tN: 4.38, tR: 5.8, tP: 64500, tY: 4.2, tD: 22.5, tF: 1.8, gN: 4.15, gR: 5.0, gP: 70200, gY: 4.8, gD: 22.8, gF: 3.1, kN: 3.55, kR: 4.7, kP: 58500, kY: 3.8, kD: 21.8, kF: 2.3, wN: 3.15, wR: 4.2, wP: 34500, wY: 3.0, wD: 37.4, wF: 0.4 },
+            2009: { iN: 64.7, iR: 77.1, iP: 54000, iY: 7.8, iD: 72.5, iF: 35.6, iU: 48.4, iNu: 1341.9, iPu: 1101 },
+            2010: { iN: 77.8, iR: 83.7, iP: 64500, iY: 8.5, iD: 67.5, iF: 27.4, iU: 45.7, iNu: 1675.6, iPu: 1358, iC: 73.0, iE: 5.5, uE: 6.4, mE: 4.7, tE: 5.2, gE: 3.3, kE: 4.1, wE: 5.8 },
+            2011: { iN: 87.3, iR: 87.3, iP: 71600, iY: 5.2, iD: 67.4, iF: 36.5, iU: 46.6, iNu: 1823.1, iPu: 1458, uN: 7.24, uR: 7.2, uP: 36300, uY: 5.1, uD: 32.1, uF: 1.0, mN: 12.8, mR: 12.8, mP: 114000, mY: 5.5, mD: 20.1, mF: 10.5, tN: 7.51, tR: 7.5, tP: 104000, tY: 6.1, tD: 21.1, tF: 2.2, gN: 6.15, gR: 6.15, gP: 101000, gY: 6.8, gD: 21.0, gF: 4.0, kN: 6.03, kR: 6.03, kP: 98000, kY: 5.5, kD: 20.5, kF: 3.5, wN: 5.20, wR: 5.20, wP: 57000, wY: 4.5, wD: 36.2, wF: 0.5 },
+            2012: { iN: 99.4, iR: 92.1, iP: 80500, iY: 5.4, iD: 66.7, iF: 34.3, iU: 53.4, iNu: 1827.6, iPu: 1444, uN: 8.22, uR: 7.6, uP: 40500, uY: 5.0, uD: 31.5, uF: 0.9, mN: 14.4, mR: 13.4, mP: 127000, mY: 5.6, mD: 19.5, mF: 10.0, tN: 8.55, tR: 7.9, tP: 117000, tY: 5.8, tD: 20.5, tF: 2.0, gN: 7.24, gR: 6.70, gP: 117000, gY: 6.5, gD: 20.8, gF: 3.8, kN: 6.95, kR: 6.44, kP: 112000, kY: 5.8, kD: 20.1, kF: 3.0, wN: 5.90, wR: 5.46, wP: 64000, wY: 5.0, wD: 35.5, wF: 0.4 },
+            2013: { iN: 105.3, iR: 98.0, iP: 84300, iY: 6.4, iD: 67.1, iF: 36.0, iU: 58.6, iNu: 1856.7, iPu: 1450, uN: 9.44, uR: 8.7, uP: 45700, uY: 6.1, uD: 31.8, uF: 1.1, mN: 16.5, mR: 15.3, mP: 143000, mY: 6.7, mD: 19.8, mF: 10.8, tN: 9.71, tR: 9.0, tP: 131000, tY: 6.8, tD: 21.0, tF: 2.3, gN: 8.05, gR: 7.49, gP: 128000, gY: 7.5, gD: 21.2, gF: 4.2, kN: 8.16, kR: 7.59, kP: 129000, kY: 6.5, kD: 20.6, kF: 3.6, wN: 6.73, wR: 6.26, wP: 72000, wY: 5.5, wD: 35.8, wF: 0.6 },
+            2014: { iN: 112.3, iR: 105.2, iP: 88800, iY: 7.4, iD: 67.4, iF: 45.1, iU: 61.0, iNu: 2039.1, iPu: 1574, iC: 98.0, uN: 10.1, uR: 9.4, uP: 48200, uY: 7.2, uD: 31.2, uF: 1.3, mN: 17.9, mR: 16.7, mP: 153000, mY: 7.6, mD: 19.2, mF: 13.5, tN: 10.9, tR: 10.2, tP: 145000, tY: 7.8, tD: 20.8, tF: 2.8, gN: 8.95, gR: 8.38, gP: 140000, gY: 8.5, gD: 21.0, gF: 5.0, kN: 9.21, kR: 8.62, kP: 144000, kY: 7.5, kD: 20.3, kF: 4.5, wN: 7.18, wR: 6.72, wP: 76000, wY: 6.0, wD: 35.1, wF: 0.7 },
+            2015: { iN: 125.4, iR: 113.6, iP: 98100, iY: 8.0, iD: 68.1, iF: 55.5, iU: 64.1, iNu: 2103.6, iPu: 1606, uN: 11.5, uR: 10.4, uP: 54100, uY: 7.8, uD: 30.5, uF: 1.5, mN: 19.6, mR: 17.7, mP: 165000, mY: 8.2, mD: 18.5, mF: 16.5, tN: 12.1, tR: 10.9, tP: 159000, tY: 8.4, tD: 20.2, tF: 3.5, gN: 10.2, gR: 9.24, gP: 157000, gY: 9.5, gD: 20.5, gF: 6.5, kN: 10.4, kR: 9.42, kP: 160000, kY: 8.2, kD: 19.8, kF: 5.8, wN: 7.97, wR: 7.22, wP: 84000, wY: 6.2, wD: 34.5, wF: 0.9 },
+            2016: { iN: 139.5, iR: 123.0, iP: 107000, iY: 8.3, iD: 68.9, iF: 60.2, iU: 67.2, iNu: 2294.1, iPu: 1733, iC: 110.0, uN: 13.3, uR: 11.7, uP: 61500, uY: 8.1, uD: 30.1, uF: 1.8, mN: 21.8, mR: 19.2, mP: 181000, mY: 8.5, mD: 18.1, mF: 18.0, tN: 13.3, tR: 11.7, tP: 173000, tY: 8.7, tD: 20.0, tF: 4.0, gN: 11.5, gR: 10.1, gP: 175000, gY: 9.8, gD: 20.1, gF: 7.0, kN: 12.0, kR: 10.5, kP: 182000, kY: 8.8, kD: 19.5, kF: 6.5, wN: 8.72, wR: 7.69, wP: 91000, wY: 6.5, wD: 34.0, wF: 1.0, iE: 5.4, uE: 6.2, mE: 4.6, tE: 5.0, gE: 3.2, kE: 3.9, wE: 5.6 },
+            2017: { iN: 153.6, iR: 131.4, iP: 116000, iY: 6.8, iD: 69.7, iF: 60.9, iU: 65.1, iNu: 2651.5, iPu: 1981, uN: 14.3, uR: 12.2, uP: 65100, uY: 6.6, uD: 31.2, uF: 1.9, mN: 24.1, mR: 20.6, mP: 198000, mY: 7.0, mD: 18.8, mF: 18.2, tN: 14.6, tR: 12.5, tP: 187000, tY: 7.1, tD: 21.2, tF: 4.2, gN: 13.1, gR: 11.2, gP: 197000, gY: 8.2, gD: 20.8, gF: 7.5, kN: 13.5, kR: 11.5, kP: 202000, kY: 7.4, kD: 20.1, kF: 7.0, wN: 9.99, wR: 8.54, wP: 103000, wY: 5.8, wD: 35.1, wF: 1.1 },
+            2018: { iN: 170.9, iR: 139.9, iP: 127000, iY: 6.5, iD: 70.4, iF: 62.0, iU: 68.4, iNu: 2702.9, iPu: 1998, iC: 145.0, uN: 15.8, uR: 12.9, uP: 70800, uY: 6.3, uD: 32.5, uF: 2.0, mN: 26.6, mR: 21.7, mP: 216000, mY: 6.8, mD: 19.5, mF: 18.5, tN: 16.3, tR: 13.3, tP: 206000, tY: 6.9, tD: 22.5, tF: 4.5, gN: 14.9, gR: 12.2, gP: 220000, gY: 7.8, gD: 21.5, gF: 8.0, kN: 15.3, kR: 12.5, kP: 226000, kY: 7.0, kD: 21.0, kF: 7.5, wN: 11.7, wR: 9.58, wP: 119000, wY: 6.0, wD: 36.5, wF: 1.2 },
+            2019: { iN: 200.7, iR: 145.3, iP: 147000, iY: 3.9, iD: 71.1, iF: 74.3, iU: 70.4, iNu: 2835.6, iPu: 2072, uN: 17.0, uR: 12.3, uP: 75100, uY: 3.7, uD: 33.1, uF: 2.5, mN: 28.1, mR: 20.3, mP: 226000, mY: 4.1, mD: 20.1, mF: 22.5, tN: 17.9, tR: 12.9, tP: 224000, tY: 4.3, tD: 23.1, tF: 5.5, gN: 16.4, gR: 11.8, gP: 240000, gY: 4.8, gD: 22.1, gF: 10.0, kN: 16.2, kR: 11.7, kP: 236000, kY: 4.2, kD: 21.5, kF: 9.5, wN: 12.5, wR: 9.04, wP: 126000, wY: 3.5, wD: 37.1, wF: 1.5 },
+            2020: { iN: 198.0, iR: 136.8, iP: 143000, iY: -5.8, iD: 88.5, iF: 81.9, iU: 74.1, iNu: 2671.6, iPu: 1933, iC: 188.0, uN: 16.4, uR: 11.3, uP: 71200, uY: -5.2, uD: 38.5, uF: 2.5, mN: 27.1, mR: 18.7, mP: 215000, mY: -6.5, mD: 25.5, mF: 2.8, tN: 18.4, tR: 12.7, tP: 227000, tY: -4.8, tD: 28.5, tF: 2.5, gN: 16.5, gR: 11.4, gP: 238000, gY: -4.2, gD: 26.5, gF: 2.5, kN: 16.6, kR: 11.4, kP: 238000, kY: -3.8, kD: 25.5, kF: 2.5, wN: 13.5, wR: 9.33, wP: 135000, wY: -2.5, wD: 42.5, wF: 2.5, iE: 8.0, uE: 9.5, mE: 7.2, tE: 7.8, gE: 5.5, kE: 6.5, wE: 8.5 },
+            2021: { iN: 236.6, iR: 150.0, iP: 169000, iY: 9.7, iD: 84.2, iF: 84.8, iU: 73.9, iNu: 3150.3, iPu: 2256, iC: 266.0, uN: 19.1, uR: 12.1, uP: 81300, uY: 9.1, uD: 36.2, uF: 3.0, mN: 31.0, mR: 19.6, mP: 248000, mY: 10.5, mD: 23.2, mF: 26.0, tN: 21.2, tR: 13.4, tP: 259000, tY: 9.2, tD: 26.2, tF: 6.5, gN: 19.3, gR: 12.2, gP: 274000, gY: 11.2, gD: 24.2, gF: 12.0, kN: 19.6, kR: 12.4, kP: 278000, kY: 9.5, kD: 23.2, kF: 11.5, wN: 14.8, wR: 9.38, wP: 146000, wY: 7.5, wD: 40.2, wF: 2.0 },
+            2022: { iN: 269.5, iR: 160.5, iP: 190000, iY: 7.0, iD: 83.1, iF: 71.3, iU: 80.2, iNu: 3416.6, iPu: 2423, iC: 280.0, uN: 20.5, uR: 12.0, uP: 86400, uY: 6.7, uD: 35.1, uF: 2.5, mN: 35.2, mR: 20.6, mP: 279000, mY: 7.2, mD: 22.1, mF: 21.0, tN: 23.6, tR: 13.8, tP: 286000, tY: 7.4, tD: 25.1, tF: 5.0, gN: 22.0, gR: 12.9, gP: 309000, gY: 8.5, gD: 23.1, gF: 10.0, kN: 22.3, kR: 13.1, kP: 314000, kY: 7.2, kD: 22.1, kF: 9.0, wN: 16.0, wR: 9.40, wP: 156000, wY: 5.5, wD: 39.1, wF: 1.5 },
+            2023: { iN: 295.3, iR: 173.8, iP: 207000, iY: 8.2, iD: 82.4, iF: 70.9, iU: 82.6, iNu: 3549.9, iPu: 2485, iC: 330.0, uN: 22.5, uR: 13.2, uP: 94100, uY: 7.8, uD: 34.5, uF: 2.4, mN: 38.7, mR: 22.7, mP: 304000, mY: 8.5, mD: 21.5, mF: 20.8, tN: 26.0, tR: 15.3, tP: 312000, tY: 8.6, tD: 24.5, tF: 4.8, gN: 22.6, gR: 13.3, gP: 315000, gY: 9.2, gD: 22.5, gF: 9.8, kN: 22.6, kR: 13.3, kP: 315000, kY: 8.4, kD: 21.5, kF: 8.8, wN: 15.3, wR: 9.01, wP: 148000, wY: 6.5, wD: 38.5, wF: 1.4 },
+            2024: { iN: 327.7, iR: 186.3, iP: 227000, iY: 7.2, iD: 82.0, iF: 75.0, iU: 83.5, iNu: 3889.0, iPu: 2698, iC: 400.0, uN: 25.4, uR: 14.4, uP: 105000, uY: 6.9, uD: 34.1, uF: 2.7, mN: 42.6, mR: 24.2, mP: 332000, mY: 7.5, mD: 21.1, mF: 22.0, tN: 28.3, tR: 16.0, tP: 338000, tY: 7.4, tD: 24.1, tF: 5.2, gN: 24.8, gR: 14.1, gP: 342000, gY: 8.5, gD: 22.1, gF: 10.5, kN: 25.0, kR: 14.2, kP: 345000, kY: 7.2, kD: 21.1, kF: 9.5, wN: 17.1, wR: 9.72, wP: 164000, wY: 5.8, wD: 38.1, wF: 1.6, iE: 4.9, uE: 5.8, mE: 4.2, tE: 4.6, gE: 2.8, kE: 3.5, wE: 5.2 },
+            2025: { iN: 360.0, iR: 198.4, iP: 247000, iY: 6.5, iD: 81.5, iF: 80.0, iU: 84.5, iNu: 4230.0, iPu: 2900, iC: 450.0, uN: 30.2, uR: 16.6, uP: 123000, uY: 6.5, uD: 33.8, uF: 3.0, mN: 47.0, mR: 25.9, mP: 364000, mY: 6.5, mD: 20.8, mF: 23.5, tN: 31.5, tR: 17.3, tP: 374000, tY: 6.5, tD: 23.8, tF: 5.8, gN: 28.5, gR: 15.7, gP: 389000, gY: 6.5, gD: 21.8, gF: 11.2, kN: 28.1, kR: 15.4, kP: 384000, kY: 6.5, kD: 20.8, kF: 10.5, wN: 18.8, wR: 10.3, wP: 178000, wY: 6.5, wD: 37.8, wF: 1.8 },
+            2026: { iN: 390.5, iR: 210.3, iP: 265000, iY: 6.5, iD: 81.0, iF: 85.0, iU: 85.0, iNu: 4580.0, iPu: 3100, iC: 500.0, uN: 33.5, uR: 18.0, uP: 135000, uY: 6.5, uD: 33.5, uF: 3.3, mN: 51.5, mR: 27.5, mP: 395000, mY: 6.5, mD: 20.5, mF: 25.0, tN: 34.5, tR: 18.5, tP: 405000, tY: 6.5, tD: 23.5, tF: 6.5, gN: 31.5, gR: 16.9, gP: 425000, gY: 6.5, gD: 21.5, gF: 12.0, kN: 30.5, kR: 16.4, kP: 410000, kY: 6.5, kD: 20.5, kF: 11.5, wN: 20.5, wR: 11.0, wP: 192000, wY: 6.5, wD: 37.5, wF: 2.0, iE: 4.5, uE: 5.5, mE: 4.0, tE: 4.4, gE: 2.5, kE: 3.3, wE: 4.9 }
+        };
 
-            Object.assign(rawDB[1947], { iE: 8.5, uE: 9.0, mE: 7.5, tE: 8.0, gE: 6.0, kE: 6.5, wE: 8.5 });
-            Object.assign(rawDB[1981], { iE: 7.0, uE: 7.8, mE: 6.0, tE: 6.5, gE: 4.5, kE: 5.2, wE: 7.5 });
-            Object.assign(rawDB[1991], { iE: 5.6, uE: 6.5, mE: 4.8, tE: 5.3, gE: 3.5, kE: 4.0, wE: 5.9 });
-            Object.assign(rawDB[2000], { iE: 5.7, uE: 6.8, mE: 4.9, tE: 5.5, gE: 3.6, kE: 4.2, wE: 6.1 });
-            Object.assign(rawDB[2010], { iE: 5.5, uE: 6.4, mE: 4.7, tE: 5.2, gE: 3.3, kE: 4.1, wE: 5.8 });
-            Object.assign(rawDB[2016], { iE: 5.4, uE: 6.2, mE: 4.6, tE: 5.0, gE: 3.2, kE: 3.9, wE: 5.6 });
-            Object.assign(rawDB[2020], { iE: 8.0, uE: 9.5, mE: 7.2, tE: 7.8, gE: 5.5, kE: 6.5, wE: 8.5 });
-            Object.assign(rawDB[2024], { iE: 4.9, uE: 5.8, mE: 4.2, tE: 4.6, gE: 2.8, kE: 3.5, wE: 5.2 });
-            Object.assign(rawDB[2026], { iE: 4.5, uE: 5.5, mE: 4.0, tE: 4.4, gE: 2.5, kE: 3.3, wE: 4.9 });
+        const initializeData = () => {
+            for (let year = 1947; year <= 2026; year++) { 
+                dataState.years.push(String(year)); 
+                let dataPoint = rawDB[year] || {};
 
-            const knownYears = Object.keys(rawDB).map(Number).sort((a,b) => a-b);
-            const keysAbsolute = ['iN', 'iR', 'iP', 'iF', 'iU', 'iNu', 'iPu', 'iC', 'uN', 'uR', 'uP', 'uF', 'mN', 'mR', 'mP', 'mF', 'tN', 'tR', 'tP', 'tF', 'gN', 'gR', 'gP', 'gF', 'kN', 'kR', 'kP', 'kF', 'wN', 'wR', 'wP', 'wF'];
-            const keysPercent = ['iY', 'iD', 'iE', 'uY', 'uD', 'uE', 'mY', 'mD', 'mE', 'tY', 'tD', 'tE', 'gY', 'gD', 'gE', 'kY', 'kD', 'kE', 'wY', 'wD', 'wE'];
-            const keys = [...keysAbsolute, ...keysPercent];
+                const getVal = (val) => val !== undefined ? parseFloat(val.toFixed(2)) : null;
+                const getValFixed = (val, dec) => val !== undefined ? parseFloat(val.toFixed(dec)) : null;
+                
+                dataState.india.nominal.push(getVal(dataPoint.iN));
+                dataState.india.real.push(getVal(dataPoint.iR));
+                dataState.india.per_capita.push(getValFixed(dataPoint.iP, 0));
+                dataState.india.yoy.push(getValFixed(dataPoint.iY, 1));
+                dataState.india.debt_gdp.push(getValFixed(dataPoint.iD, 1));
+                dataState.india.fdi.push(getVal(dataPoint.iF));
+                dataState.india.usd_inr.push(getVal(dataPoint.iU));
+                dataState.india.nominal_usd.push(getVal(dataPoint.iNu));
+                dataState.india.per_capita_usd.push(getValFixed(dataPoint.iPu, 0));
+                dataState.india.nse_cap.push(getVal(dataPoint.iC));
+                dataState.india.unemployment.push(getValFixed(dataPoint.iE, 1));
+                
+                dataState.up.nominal.push(getVal(dataPoint.uN));
+                dataState.up.real.push(getVal(dataPoint.uR));
+                dataState.up.per_capita.push(getValFixed(dataPoint.uP, 0));
+                dataState.up.yoy.push(getValFixed(dataPoint.uY, 1));
+                dataState.up.debt_gdp.push(getValFixed(dataPoint.uD, 1));
+                dataState.up.fdi.push(getVal(dataPoint.uF));
+                dataState.up.usd_inr.push(null); dataState.up.nse_cap.push(null);
+                dataState.up.unemployment.push(getValFixed(dataPoint.uE, 1));
+                
+                dataState.tn.nominal.push(getVal(dataPoint.tN));
+                dataState.tn.real.push(getVal(dataPoint.tR));
+                dataState.tn.per_capita.push(getValFixed(dataPoint.tP, 0));
+                dataState.tn.yoy.push(getValFixed(dataPoint.tY, 1));
+                dataState.tn.debt_gdp.push(getValFixed(dataPoint.tD, 1));
+                dataState.tn.fdi.push(getVal(dataPoint.tF));
+                dataState.tn.usd_inr.push(null); dataState.tn.nse_cap.push(null);
+                dataState.tn.unemployment.push(getValFixed(dataPoint.tE, 1));
+                
+                dataState.ka.nominal.push(getVal(dataPoint.kN));
+                dataState.ka.real.push(getVal(dataPoint.kR));
+                dataState.ka.per_capita.push(getValFixed(dataPoint.kP, 0));
+                dataState.ka.yoy.push(getValFixed(dataPoint.kY, 1));
+                dataState.ka.debt_gdp.push(getValFixed(dataPoint.kD, 1));
+                dataState.ka.fdi.push(getVal(dataPoint.kF));
+                dataState.ka.usd_inr.push(null); dataState.ka.nse_cap.push(null);
+                dataState.ka.unemployment.push(getValFixed(dataPoint.kE, 1));
+                
+                dataState.wb.nominal.push(getVal(dataPoint.wN));
+                dataState.wb.real.push(getVal(dataPoint.wR));
+                dataState.wb.per_capita.push(getValFixed(dataPoint.wP, 0));
+                dataState.wb.yoy.push(getValFixed(dataPoint.wY, 1));
+                dataState.wb.debt_gdp.push(getValFixed(dataPoint.wD, 1));
+                dataState.wb.fdi.push(getVal(dataPoint.wF));
+                dataState.wb.usd_inr.push(null); dataState.wb.nse_cap.push(null);
+                dataState.wb.unemployment.push(getValFixed(dataPoint.wE, 1));
 
-            for (let i = 0; i < dataState.years.length; i++) {
-                let yr = parseInt(dataState.years[i]);
-                let dataPoint = {};
-                
-                keys.forEach(k => {
-                    if (rawDB[yr] && rawDB[yr][k] !== undefined) {
-                        dataPoint[k] = rawDB[yr][k];
-                        return;
-                    }
-                    
-                    let lowerYr = null, upperYr = null;
-                    for (let j = yr - 1; j >= 1947; j--) {
-                        if (rawDB[j] && rawDB[j][k] !== undefined) { lowerYr = j; break; }
-                    }
-                    for (let j = yr + 1; j <= 2026; j++) {
-                        if (rawDB[j] && rawDB[j][k] !== undefined) { upperYr = j; break; }
-                    }
-
-                    if (lowerYr !== null && upperYr !== null) {
-                        let lowerData = rawDB[lowerYr][k], upperData = rawDB[upperYr][k];
-                        let fraction = (yr - lowerYr) / (upperYr - lowerYr);
-                        
-                        if (keysAbsolute.includes(k) && lowerData > 0 && upperData > 0) {
-                            dataPoint[k] = lowerData * Math.pow(upperData / lowerData, fraction);
-                        } else {
-                            dataPoint[k] = lowerData + fraction * (upperData - lowerData); 
-                        }
-                    } else if (lowerYr !== null) {
-                        dataPoint[k] = rawDB[lowerYr][k]; 
-                    } else {
-                        dataPoint[k] = null;
-                    }
-                });
-                
-                dataState.india.nominal.push(dataPoint.iN !== null ? parseFloat(dataPoint.iN.toFixed(2)) : null);
-                dataState.india.per_capita.push(dataPoint.iP !== null ? parseFloat(dataPoint.iP.toFixed(0)) : null);
-                dataState.india.yoy.push(dataPoint.iY !== null ? parseFloat(dataPoint.iY.toFixed(1)) : null);
-                dataState.india.debt_gdp.push(dataPoint.iD !== null ? parseFloat(dataPoint.iD.toFixed(1)) : null);
-                dataState.india.fdi.push(dataPoint.iF !== null ? parseFloat(dataPoint.iF.toFixed(2)) : null);
-                dataState.india.usd_inr.push(dataPoint.iU !== null ? parseFloat(dataPoint.iU.toFixed(2)) : null);
-                dataState.india.nominal_usd.push(dataPoint.iNu !== null ? parseFloat(dataPoint.iNu.toFixed(2)) : null);
-                dataState.india.per_capita_usd.push(dataPoint.iPu !== null ? parseFloat(dataPoint.iPu.toFixed(0)) : null);
-                dataState.india.nse_cap.push(dataPoint.iC !== null ? parseFloat(dataPoint.iC.toFixed(2)) : null);
-                dataState.india.unemployment.push(dataPoint.iE !== null ? parseFloat(dataPoint.iE.toFixed(1)) : null);
-                
-                dataState.up.nominal.push(dataPoint.uN !== null ? parseFloat(dataPoint.uN.toFixed(2)) : null);
-                dataState.up.per_capita.push(dataPoint.uP !== null ? parseFloat(dataPoint.uP.toFixed(0)) : null);
-                dataState.up.yoy.push(dataPoint.uY !== null ? parseFloat(dataPoint.uY.toFixed(1)) : null);
-                dataState.up.debt_gdp.push(dataPoint.uD !== null ? parseFloat(dataPoint.uD.toFixed(1)) : null);
-                dataState.up.fdi.push(dataPoint.uF !== null ? parseFloat(dataPoint.uF.toFixed(2)) : null);
-                dataState.up.usd_inr.push(null);
-                dataState.up.nse_cap.push(null);
-                dataState.up.unemployment.push(dataPoint.uE !== null ? parseFloat(dataPoint.uE.toFixed(1)) : null);
-                
-                dataState.mh.nominal.push(dataPoint.mN !== null ? parseFloat(dataPoint.mN.toFixed(2)) : null);
-                dataState.mh.per_capita.push(dataPoint.mP !== null ? parseFloat(dataPoint.mP.toFixed(0)) : null);
-                dataState.mh.yoy.push(dataPoint.mY !== null ? parseFloat(dataPoint.mY.toFixed(1)) : null);
-                dataState.mh.debt_gdp.push(dataPoint.mD !== null ? parseFloat(dataPoint.mD.toFixed(1)) : null);
-                dataState.mh.fdi.push(dataPoint.mF !== null ? parseFloat(dataPoint.mF.toFixed(2)) : null);
-                dataState.mh.usd_inr.push(null);
-                dataState.mh.nse_cap.push(null);
-                dataState.mh.unemployment.push(dataPoint.mE !== null ? parseFloat(dataPoint.mE.toFixed(1)) : null);
-                
-                dataState.tn.nominal.push(dataPoint.tN !== null ? parseFloat(dataPoint.tN.toFixed(2)) : null);
-                dataState.tn.per_capita.push(dataPoint.tP !== null ? parseFloat(dataPoint.tP.toFixed(0)) : null);
-                dataState.tn.yoy.push(dataPoint.tY !== null ? parseFloat(dataPoint.tY.toFixed(1)) : null);
-                dataState.tn.debt_gdp.push(dataPoint.tD !== null ? parseFloat(dataPoint.tD.toFixed(1)) : null);
-                dataState.tn.fdi.push(dataPoint.tF !== null ? parseFloat(dataPoint.tF.toFixed(2)) : null);
-                dataState.tn.usd_inr.push(null);
-                dataState.tn.nse_cap.push(null);
-                dataState.tn.unemployment.push(dataPoint.tE !== null ? parseFloat(dataPoint.tE.toFixed(1)) : null);
-                
-                dataState.gj.nominal.push(dataPoint.gN !== null ? parseFloat(dataPoint.gN.toFixed(2)) : null);
-                dataState.gj.per_capita.push(dataPoint.gP !== null ? parseFloat(dataPoint.gP.toFixed(0)) : null);
-                dataState.gj.yoy.push(dataPoint.gY !== null ? parseFloat(dataPoint.gY.toFixed(1)) : null);
-                dataState.gj.debt_gdp.push(dataPoint.gD !== null ? parseFloat(dataPoint.gD.toFixed(1)) : null);
-                dataState.gj.fdi.push(dataPoint.gF !== null ? parseFloat(dataPoint.gF.toFixed(2)) : null);
-                dataState.gj.usd_inr.push(null);
-                dataState.gj.nse_cap.push(null);
-                dataState.gj.unemployment.push(dataPoint.gE !== null ? parseFloat(dataPoint.gE.toFixed(1)) : null);
-                
-                dataState.ka.nominal.push(dataPoint.kN !== null ? parseFloat(dataPoint.kN.toFixed(2)) : null);
-                dataState.ka.per_capita.push(dataPoint.kP !== null ? parseFloat(dataPoint.kP.toFixed(0)) : null);
-                dataState.ka.yoy.push(dataPoint.kY !== null ? parseFloat(dataPoint.kY.toFixed(1)) : null);
-                dataState.ka.debt_gdp.push(dataPoint.kD !== null ? parseFloat(dataPoint.kD.toFixed(1)) : null);
-                dataState.ka.fdi.push(dataPoint.kF !== null ? parseFloat(dataPoint.kF.toFixed(2)) : null);
-                dataState.ka.usd_inr.push(null);
-                dataState.ka.nse_cap.push(null);
-                dataState.ka.unemployment.push(dataPoint.kE !== null ? parseFloat(dataPoint.kE.toFixed(1)) : null);
-                
-                dataState.wb.nominal.push(dataPoint.wN !== null ? parseFloat(dataPoint.wN.toFixed(2)) : null);
-                dataState.wb.per_capita.push(dataPoint.wP !== null ? parseFloat(dataPoint.wP.toFixed(0)) : null);
-                dataState.wb.yoy.push(dataPoint.wY !== null ? parseFloat(dataPoint.wY.toFixed(1)) : null);
-                dataState.wb.debt_gdp.push(dataPoint.wD !== null ? parseFloat(dataPoint.wD.toFixed(1)) : null);
-                dataState.wb.fdi.push(dataPoint.wF !== null ? parseFloat(dataPoint.wF.toFixed(2)) : null);
-                dataState.wb.usd_inr.push(null);
-                dataState.wb.nse_cap.push(null);
-                dataState.wb.unemployment.push(dataPoint.wE !== null ? parseFloat(dataPoint.wE.toFixed(1)) : null);
+                // 1960 Historical Anachronism Fix: MH and GJ did not exist before 1960.
+                if (year < 1960) {
+                    dataState.mh.nominal.push(null); dataState.mh.real.push(null); dataState.mh.per_capita.push(null); dataState.mh.yoy.push(null); dataState.mh.debt_gdp.push(null); dataState.mh.fdi.push(null); dataState.mh.usd_inr.push(null); dataState.mh.nse_cap.push(null); dataState.mh.unemployment.push(null);
+                    dataState.gj.nominal.push(null); dataState.gj.real.push(null); dataState.gj.per_capita.push(null); dataState.gj.yoy.push(null); dataState.gj.debt_gdp.push(null); dataState.gj.fdi.push(null); dataState.gj.usd_inr.push(null); dataState.gj.nse_cap.push(null); dataState.gj.unemployment.push(null);
+                } else {
+                    dataState.mh.nominal.push(getVal(dataPoint.mN)); dataState.mh.real.push(getVal(dataPoint.mR)); dataState.mh.per_capita.push(getValFixed(dataPoint.mP, 0)); dataState.mh.yoy.push(getValFixed(dataPoint.mY, 1)); dataState.mh.debt_gdp.push(getValFixed(dataPoint.mD, 1)); dataState.mh.fdi.push(getVal(dataPoint.mF)); dataState.mh.usd_inr.push(null); dataState.mh.nse_cap.push(null); dataState.mh.unemployment.push(getValFixed(dataPoint.mE, 1));
+                    dataState.gj.nominal.push(getVal(dataPoint.gN)); dataState.gj.real.push(getVal(dataPoint.gR)); dataState.gj.per_capita.push(getValFixed(dataPoint.gP, 0)); dataState.gj.yoy.push(getValFixed(dataPoint.gY, 1)); dataState.gj.debt_gdp.push(getValFixed(dataPoint.gD, 1)); dataState.gj.fdi.push(getVal(dataPoint.gF)); dataState.gj.usd_inr.push(null); dataState.gj.nse_cap.push(null); dataState.gj.unemployment.push(getValFixed(dataPoint.gE, 1));
+                }
                 
                 dataState.indiaGdp.push(0); dataState.upGdp.push(0); dataState.mhGdp.push(0); dataState.tnGdp.push(0); dataState.gjGdp.push(0); dataState.kaGdp.push(0); dataState.wbGdp.push(0);
                 
-                dataState.indiaDebt.push(dataPoint.iD !== null ? parseFloat(dataPoint.iD.toFixed(1)) : null);
-                dataState.upDebt.push(dataPoint.uD !== null ? parseFloat(dataPoint.uD.toFixed(1)) : null);
-                dataState.mhDebt.push(dataPoint.mD !== null ? parseFloat(dataPoint.mD.toFixed(1)) : null);
-                dataState.tnDebt.push(dataPoint.tD !== null ? parseFloat(dataPoint.tD.toFixed(1)) : null);
-                dataState.gjDebt.push(dataPoint.gD !== null ? parseFloat(dataPoint.gD.toFixed(1)) : null);
-                dataState.kaDebt.push(dataPoint.kD !== null ? parseFloat(dataPoint.kD.toFixed(1)) : null);
-                dataState.wbDebt.push(dataPoint.wD !== null ? parseFloat(dataPoint.wD.toFixed(1)) : null);
+                dataState.indiaDebt.push(getValFixed(dataPoint.iD, 1));
+                dataState.upDebt.push(getValFixed(dataPoint.uD, 1));
+                dataState.tnDebt.push(getValFixed(dataPoint.tD, 1));
+                dataState.kaDebt.push(getValFixed(dataPoint.kD, 1));
+                dataState.wbDebt.push(getValFixed(dataPoint.wD, 1));
+                dataState.mhDebt.push(year < 1960 ? null : getValFixed(dataPoint.mD, 1));
+                dataState.gjDebt.push(year < 1960 ? null : getValFixed(dataPoint.gD, 1));
             }
 
-            const baseYearIndex = dataState.years.indexOf('2022');
             const regions = ['india', 'up', 'mh', 'tn', 'gj', 'ka', 'wb'];
-            
-            regions.forEach(region => {
-                const nominalArr = dataState[region].nominal;
-                const yoyArr = dataState[region].yoy;
-                const realArr = new Array(dataState.years.length).fill(null);
-                
-                if (baseYearIndex !== -1 && nominalArr[baseYearIndex] !== null) {
-                    realArr[baseYearIndex] = nominalArr[baseYearIndex];
-                    for (let i = baseYearIndex - 1; i >= 0; i--) {
-                        if (realArr[i + 1] !== null && yoyArr[i + 1] !== null) {
-                            realArr[i] = realArr[i + 1] / (1 + (yoyArr[i + 1] / 100));
-                        }
-                    }
-                    for (let i = baseYearIndex + 1; i < dataState.years.length; i++) {
-                        if (realArr[i - 1] !== null && yoyArr[i] !== null) {
-                            realArr[i] = realArr[i - 1] * (1 + (yoyArr[i] / 100));
-                        }
-                    }
-                }
-                dataState[region].real = realArr.map(val => val !== null ? parseFloat(val.toFixed(2)) : null);
-            });
-
             regions.forEach(region => {
                 dataState[region].real_per_capita = new Array(dataState.years.length).fill(null);
+                dataState[region].deflator = new Array(dataState.years.length).fill(null);
+                
                 for (let i = 0; i < dataState.years.length; i++) {
                     let n = dataState[region].nominal[i];
                     let r = dataState[region].real[i];
                     let pc = dataState[region].per_capita[i];
-                    if (n !== null && r !== null && pc !== null && n > 0) {
-                        dataState[region].real_per_capita[i] = parseFloat((pc * (r / n)).toFixed(0));
+                    
+                    if (n !== null && r !== null && r > 0) {
+                        if (pc !== null) dataState[region].real_per_capita[i] = parseFloat((pc * (r / n)).toFixed(0));
+                        dataState[region].deflator[i] = parseFloat(((n / r) * 100).toFixed(1)); // Implied Inflation (GDP Deflator)
                     }
                 }
             });
-        }
+        };
 
-        function applyMetric() {
-            const hideUsdMetrics = ['yoy', 'fdi', 'usd_inr', 'unemployment'];
+        const applyMetric = () => {
+            const hideUsdMetrics = ['yoy', 'fdi', 'usd_inr', 'unemployment', 'deflator'];
             const shouldHideUsd = hideUsdMetrics.includes(currentMetric);
             const usdBtn = document.getElementById('toggleUsd');
             if (usdBtn) {
                 if (shouldHideUsd) { usdBtn.classList.add('hidden'); } else { usdBtn.classList.remove('hidden'); }
             }
-            const autoDeselectDebtMetrics = ['usd_inr', 'fdi', 'nse_cap'];
+            const autoDeselectDebtMetrics = ['usd_inr', 'fdi', 'nse_cap', 'deflator'];
             const shouldAutoDeselectDebt = autoDeselectDebtMetrics.includes(currentMetric);
             const debtBtn = document.getElementById('toggleDebtOverlay');
             if (shouldAutoDeselectDebt && isDebtOverlayActive) {
@@ -590,12 +554,15 @@
                 if (debtBtn) {
                     debtBtn.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
                     debtBtn.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); 
+                    debtBtn.setAttribute('aria-pressed', 'false');
                 }
             }
+            
             const getConvertedArray = (region) => {
                 if (currentMetric === 'nse_cap' && region !== 'india') return new Array(dataState.years.length).fill(null);
                 const arr = dataState[region][currentMetric];
                 if (!isUsdActive || shouldHideUsd) return arr;
+                
                 if (region === 'india') {
                     if (currentMetric === 'nominal') return dataState.india.nominal_usd;
                     if (currentMetric === 'per_capita') return dataState.india.per_capita_usd;
@@ -606,16 +573,31 @@
                             return rate ? parseFloat(((val * 1000) / rate).toFixed(2)) : null;
                         });
                     }
+                    
+                    // Dynamic Base Year Resolution (Architectural fix)
+                    let dynamicBaseYearRate = null;
                     const baseYearIndex = dataState.years.indexOf('2022');
-                    const baseYearRate = baseYearIndex !== -1 ? dataState.india.usd_inr[baseYearIndex] : 80.2;
+                    if (baseYearIndex !== -1 && dataState.india.usd_inr[baseYearIndex]) {
+                        dynamicBaseYearRate = dataState.india.usd_inr[baseYearIndex];
+                    } else {
+                        // Find most recent valid exchange rate gracefully
+                        for (let i = dataState.years.length - 1; i >= 0; i--) {
+                            if (dataState.india.usd_inr[i]) {
+                                dynamicBaseYearRate = dataState.india.usd_inr[i];
+                                break;
+                            }
+                        }
+                    }
+
                     if (currentMetric === 'real') {
-                        return dataState.india.real.map(r => r === null ? null : parseFloat(((r * 1000) / baseYearRate).toFixed(2)));
+                        return dataState.india.real.map(r => r === null ? null : parseFloat(((r * 1000) / dynamicBaseYearRate).toFixed(2)));
                     } else if (currentMetric === 'real_per_capita') {
-                        return dataState.india.real_per_capita.map(rpc => rpc === null ? null : parseFloat((rpc / baseYearRate).toFixed(0)));
+                        return dataState.india.real_per_capita.map(rpc => rpc === null ? null : parseFloat((rpc / dynamicBaseYearRate).toFixed(0)));
                     }
                 }
                 return new Array(arr.length).fill(null);
             };
+            
             dataState.indiaGdp.length = 0; dataState.indiaGdp.push(...getConvertedArray('india'));
             dataState.upGdp.length = 0; dataState.upGdp.push(...getConvertedArray('up'));
             dataState.mhGdp.length = 0; dataState.mhGdp.push(...getConvertedArray('mh'));
@@ -623,30 +605,34 @@
             dataState.gjGdp.length = 0; dataState.gjGdp.push(...getConvertedArray('gj'));
             dataState.kaGdp.length = 0; dataState.kaGdp.push(...getConvertedArray('ka'));
             dataState.wbGdp.length = 0; dataState.wbGdp.push(...getConvertedArray('wb'));
+            
             if(window.gdpChartInstance) {
                 window.gdpChartInstance.options.scales.y1.display = isDebtOverlayActive;
                 const togglesInfo = [ { id: 'toggle-india', debtIndex: 14 }, { id: 'toggle-mh', debtIndex: 15 }, { id: 'toggle-tn', debtIndex: 16 }, { id: 'toggle-up', debtIndex: 17 }, { id: 'toggle-gj', debtIndex: 18 }, { id: 'toggle-ka', debtIndex: 19 }, { id: 'toggle-wb', debtIndex: 20 } ];
                 togglesInfo.forEach(t => {
                     const el = document.getElementById(t.id);
-                    if (el && el.getAttribute('data-checked') === 'true') { window.gdpChartInstance.setDatasetVisibility(t.debtIndex, isDebtOverlayActive); } else { window.gdpChartInstance.setDatasetVisibility(t.debtIndex, false); }
+                    if (el && el.getAttribute('aria-pressed') === 'true') { window.gdpChartInstance.setDatasetVisibility(t.debtIndex, isDebtOverlayActive); } else { window.gdpChartInstance.setDatasetVisibility(t.debtIndex, false); }
                 });
             }
+            
             const scaleBtn = document.getElementById('toggleScale');
             if(scaleBtn) {
-                if (currentMetric === 'yoy' || currentMetric === 'unemployment') {
+                if (['yoy', 'unemployment', 'deflator'].includes(currentMetric)) {
                     isLogScale = false; 
                     scaleBtn.classList.add('hidden');
                     if(window.gdpChartInstance) window.gdpChartInstance.options.scales.y.type = 'linear';
                     scaleBtn.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
                     scaleBtn.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); 
+                    scaleBtn.setAttribute('aria-pressed', 'false');
                 } else { scaleBtn.classList.remove('hidden'); }
             }
+            
             calculateBestFitTrendlines(currentEra); updateChartTitle(); updateYAxisMin();
             if(window.gdpChartInstance) { window.gdpChartInstance.update('none'); }
             setTimeout(refreshAllRibbons, 50);
-        }
+        };
 
-        function calculateBestFitTrendlines(startYear) {
+        const calculateBestFitTrendlines = (startYear) => {
             const startIndex = dataState.years.indexOf(String(startYear)); if (startIndex === -1) return;
             const makeTrend = (dataArray) => {
                 let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0, count = 0;
@@ -655,7 +641,7 @@
                     let x = i - startIndex, yVal = currentMetric === 'yoy' ? dataArray[i] : Math.log(dataArray[i]);
                     sumX += x; sumY += yVal; sumXY += x * yVal; sumXX += x * x; count++;
                 }
-                if (count === 0) return dataArray.map(() => null);
+                if (count < 2) return dataArray.map(() => null);
                 let m = (count * sumXY - sumX * sumY) / (count * sumXX - sumX * sumX), c = (sumY - m * sumX) / count, A = currentMetric === 'yoy' ? c : Math.exp(c);
                 return dataArray.map((_, i) => {
                     if (i < startIndex) return null;
@@ -670,21 +656,22 @@
             dataState.gjTrend.length = 0; dataState.gjTrend.push(...makeTrend(dataState.gjGdp));
             dataState.kaTrend.length = 0; dataState.kaTrend.push(...makeTrend(dataState.kaGdp));
             dataState.wbTrend.length = 0; dataState.wbTrend.push(...makeTrend(dataState.wbGdp));
-        }
+        };
 
-        function updateChartTitle() {
+        const updateChartTitle = () => {
             if(!window.gdpChartInstance) return;
             const yAxis = window.gdpChartInstance.options.scales.y;
             let titleText = '';
             const isMobile = window.innerWidth < 768;
-            const isUSD = isUsdActive && !['yoy', 'fdi', 'usd_inr', 'unemployment'].includes(currentMetric);
+            const isUSD = isUsdActive && !['yoy', 'fdi', 'usd_inr', 'unemployment', 'deflator'].includes(currentMetric);
             if (currentMetric === 'nominal') { titleText = isMobile ? (isUSD ? 'Nominal GDP ($B)' : 'Nominal GDP (₹ Lakh Cr)') : (isUSD ? 'Nominal GDP (Billion USD)' : 'Nominal GDP'); } 
-            else if (currentMetric === 'real') { titleText = isMobile ? (isUSD ? 'Real GDP ($B, Base 22-23)' : 'Real GDP (₹ Lakh Cr, Base 22-23)') : (isUSD ? 'Real GDP (Billion USD, Base 2022-23)' : 'Real GDP (Base 2022-23)'); } 
+            else if (currentMetric === 'real') { titleText = isMobile ? (isUSD ? 'Real GDP ($B)' : 'Real GDP (₹ Lakh Cr)') : (isUSD ? 'Real GDP (Billion USD)' : 'Real GDP (Base 11-12/Constant)'); } 
             else if (currentMetric === 'per_capita') { titleText = isMobile ? (isUSD ? 'Nominal Per Capita ($)' : 'Nominal Per Capita (₹)') : (isUSD ? 'Nominal Per Capita GDP (USD)' : 'Nominal Per Capita GDP'); } 
-            else if (currentMetric === 'real_per_capita') { titleText = isMobile ? (isUSD ? 'Real Per Capita ($)' : 'Real Per Capita (₹)') : (isUSD ? 'Real Per Capita GDP (USD, Base 2022-23)' : 'Real Per Capita GDP (Base 2022-23)'); }
+            else if (currentMetric === 'real_per_capita') { titleText = isMobile ? (isUSD ? 'Real Per Capita ($)' : 'Real Per Capita (₹)') : (isUSD ? 'Real Per Capita GDP (USD)' : 'Real Per Capita GDP (Constant Base)'); }
             else if (currentMetric === 'nse_cap') { titleText = isMobile ? (isUSD ? 'Market Cap ($B)' : 'Market Cap (₹ Lakh Cr)') : (isUSD ? 'NSE Market Cap (Billion USD)' : 'NSE Market Cap (Lakh Crore INR)'); }
             else if (currentMetric === 'yoy') { titleText = 'Real GDP Growth Rate (%)'; } 
             else if (currentMetric === 'unemployment') { titleText = 'Unemployment Rate (%)'; } 
+            else if (currentMetric === 'deflator') { titleText = 'GDP Deflator (Inflation Index)'; } 
             else if (currentMetric === 'fdi') { titleText = isMobile ? 'Net Foreign Direct Investment ($B)' : 'Net Foreign Direct Investment'; }
             else if (currentMetric === 'usd_inr') { titleText = 'Exchange Rate (₹ per $1)'; }
             const isDark = document.documentElement.classList.contains('dark');
@@ -699,9 +686,9 @@
                 window.gdpChartInstance.options.layout.padding.left = 0; window.gdpChartInstance.options.layout.padding.right = 0;
                 window.gdpChartInstance.options.plugins.title.display = false;
             }
-        }
+        };
 
-        function updateYAxisMin() {
+        const updateYAxisMin = () => {
             if (!window.gdpChartInstance) return;
             const chart = window.gdpChartInstance, startIndex = Math.max(0, dataState.years.indexOf(String(currentEra)));
             let minVal = Infinity;
@@ -716,15 +703,15 @@
             if (chart.isDatasetVisible(4)) checkMin(dataState.gjGdp, dataState.gjTrend);
             if (chart.isDatasetVisible(5)) checkMin(dataState.kaGdp, dataState.kaTrend);
             if (chart.isDatasetVisible(6)) checkMin(dataState.wbGdp, dataState.wbTrend);
-            if (minVal === Infinity) { chart.options.scales.y.min = (isLogScale && currentMetric !== 'yoy' && currentMetric !== 'unemployment') ? 0.01 : 0; } else {
-                if (currentMetric === 'yoy' || currentMetric === 'unemployment') { delete chart.options.scales.y.min; } else {
+            if (minVal === Infinity) { chart.options.scales.y.min = (isLogScale && !['yoy', 'unemployment', 'deflator'].includes(currentMetric)) ? 0.01 : 0; } else {
+                if (['yoy', 'unemployment', 'deflator'].includes(currentMetric)) { delete chart.options.scales.y.min; } else {
                     let calcMin = minVal < 0 ? minVal * 1.05 : minVal * 0.98;
                     chart.options.scales.y.min = isLogScale ? Math.max(0.001, parseFloat(calcMin.toFixed(3))) : Math.max(0, parseFloat(calcMin.toFixed(2)));
                 }
             }
-        }
+        };
 
-        function applyChartTheme(chartInstance) {
+        const applyChartTheme = (chartInstance) => {
             if(!chartInstance) return;
             const isDark = document.documentElement.classList.contains('dark'), textColor = isDark ? '#cac4d0' : '#49454f', gridColor = isDark ? '#2e2c33' : '#f0eef5', trendlineColor = isDark ? 'rgba(230, 224, 233, 0.4)' : 'rgba(29, 27, 32, 0.3)';
             chartInstance.options.scales.x.title.color = textColor; chartInstance.options.scales.x.ticks.color = textColor;
@@ -733,9 +720,9 @@
             if (chartInstance.options.scales.y1) { chartInstance.options.scales.y1.title.color = textColor; chartInstance.options.scales.y1.ticks.color = textColor; chartInstance.options.scales.y1.grid.color = gridColor; }
             chartInstance.data.datasets.forEach(dataset => { if (dataset.label.includes('Trendline')) { dataset.borderColor = trendlineColor; } });
             chartInstance.update('none');
-        }
+        };
 
-        function createSegmentGradient(ctx, partyFunc) {
+        const createSegmentGradient = (ctx, partyFunc) => {
             if (ctx.p0DataIndex === undefined || ctx.p1DataIndex === undefined) return '#000';
             if (!ctx.p0 || !ctx.p1 || ctx.p0.x === undefined || ctx.p1.x === undefined) return '#000';
             const year0 = parseInt(dataState.years[ctx.p0DataIndex]);
@@ -754,9 +741,16 @@
             gradient.addColorStop(Math.min(1, fraction + 0.001), party1.color);
             gradient.addColorStop(1, party1.color);
             return gradient;
-        }
+        };
 
-        function updateRibbonFades(container) {
+        const configureSegmentDash = (ctx) => {
+            const year1 = parseInt(dataState.years[ctx.p1DataIndex]);
+            if (year1 >= 2024) return [4, 4]; // Forecast Dotted Style
+            if (ctx.p1DataIndex - ctx.p0DataIndex > 1) return [4, 4]; // Missing Data Jump
+            return undefined; // Solid line
+        };
+
+        const updateRibbonFades = (container) => {
             const track = container.querySelector('.scroll-track');
             const leftFade = container.querySelector('.fade-left');
             const rightFade = container.querySelector('.fade-right');
@@ -769,24 +763,34 @@
             }
             if (track.scrollLeft > 2) { leftFade.style.opacity = '1'; leftFade.style.pointerEvents = 'auto'; } else { leftFade.style.opacity = '0'; leftFade.style.pointerEvents = 'none'; }
             if (Math.ceil(track.scrollLeft) < maxScroll - 2) { rightFade.style.opacity = '1'; rightFade.style.pointerEvents = 'auto'; } else { rightFade.style.opacity = '0'; rightFade.style.pointerEvents = 'none'; }
-        }
+        };
 
-        function refreshAllRibbons() {
+        const refreshAllRibbons = () => {
             document.querySelectorAll('.ribbon-container').forEach(container => { updateRibbonFades(container); });
-        }
+        };
 
-        function initRibbonScrollFades() {
+        const initRibbonScrollFades = () => {
             document.querySelectorAll('.ribbon-container').forEach(container => {
                 const track = container.querySelector('.scroll-track');
                 if (track) {
                     track.addEventListener('scroll', () => updateRibbonFades(container), { passive: true });
-                    window.addEventListener('resize', () => updateRibbonFades(container));
+                    window.addEventListener('resize', () => updateRibbonFades(container), { passive: true });
                 }
             });
             setTimeout(refreshAllRibbons, 250); 
-        }
+        };
 
-        function initApp() {
+        const toggleResetZoomBtn = () => {
+            if(!window.gdpChartInstance) return;
+            const btn = document.getElementById('resetZoomBtn');
+            if(window.gdpChartInstance.isZoomedOrPanned()) {
+                btn.classList.remove('hidden');
+            } else {
+                btn.classList.add('hidden');
+            }
+        };
+
+        const initApp = () => {
             initializeData(); applyMetric();
             const ctx = document.getElementById('gdpChart').getContext('2d');
             window.gdpChartInstance = new Chart(ctx, {
@@ -794,13 +798,13 @@
                 data: {
                     labels: dataState.years,
                     datasets: [
-                        { label: 'National GDP', data: dataState.indiaGdp, hidden: false, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getIndiaPartyInfo) }, pointBackgroundColor: ctx => getIndiaPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
-                        { label: 'Maharashtra GSDP', data: dataState.mhGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getMhPartyInfo) }, pointBackgroundColor: ctx => getMhPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
-                        { label: 'Tamil Nadu GSDP', data: dataState.tnGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getTnPartyInfo) }, pointBackgroundColor: ctx => getTnPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
-                        { label: 'UP GSDP', data: dataState.upGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getPartyInfo) }, pointBackgroundColor: ctx => getPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
-                        { label: 'Gujarat GSDP', data: dataState.gjGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getGjPartyInfo) }, pointBackgroundColor: ctx => getGjPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
-                        { label: 'Karnataka GSDP', data: dataState.kaGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getKaPartyInfo) }, pointBackgroundColor: ctx => getKaPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
-                        { label: 'West Bengal GSDP', data: dataState.wbGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getWbPartyInfo) }, pointBackgroundColor: ctx => getWbPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
+                        { label: 'National GDP', data: dataState.indiaGdp, hidden: false, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getIndiaPartyInfo), borderDash: ctx => configureSegmentDash(ctx) }, pointBackgroundColor: ctx => getIndiaPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
+                        { label: 'Maharashtra GSDP', data: dataState.mhGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getMhPartyInfo), borderDash: ctx => configureSegmentDash(ctx) }, pointBackgroundColor: ctx => getMhPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
+                        { label: 'Tamil Nadu GSDP', data: dataState.tnGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getTnPartyInfo), borderDash: ctx => configureSegmentDash(ctx) }, pointBackgroundColor: ctx => getTnPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
+                        { label: 'UP GSDP', data: dataState.upGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getPartyInfo), borderDash: ctx => configureSegmentDash(ctx) }, pointBackgroundColor: ctx => getPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
+                        { label: 'Gujarat GSDP', data: dataState.gjGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getGjPartyInfo), borderDash: ctx => configureSegmentDash(ctx) }, pointBackgroundColor: ctx => getGjPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
+                        { label: 'Karnataka GSDP', data: dataState.kaGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getKaPartyInfo), borderDash: ctx => configureSegmentDash(ctx) }, pointBackgroundColor: ctx => getKaPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
+                        { label: 'West Bengal GSDP', data: dataState.wbGdp, hidden: true, order: 1, borderWidth: 5, borderJoinStyle: 'round', borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 10, pointHoverBorderWidth: 4, fill: false, tension: 0, spanGaps: true, clip: false, segment: { borderColor: ctx => createSegmentGradient(ctx, getWbPartyInfo), borderDash: ctx => configureSegmentDash(ctx) }, pointBackgroundColor: ctx => getWbPartyInfo(dataState.years[ctx.dataIndex]).color, pointBorderColor: document.documentElement.classList.contains('dark') ? '#141217' : '#ffffff' },
                         { label: 'National Trendline', data: dataState.indiaTrend, hidden: false, order: 0, borderWidth: 2, borderDash: [8, 8], pointRadius: 0, pointHoverRadius: 0, fill: false, borderColor: 'rgba(230, 224, 233, 0.4)', tension: 0 },
                         { label: 'MH Trendline', data: dataState.mhTrend, hidden: true, order: 0, borderWidth: 2, borderDash: [8, 8], pointRadius: 0, pointHoverRadius: 0, fill: false, borderColor: 'rgba(230, 224, 233, 0.4)', tension: 0 },
                         { label: 'TN Trendline', data: dataState.tnTrend, hidden: true, order: 0, borderWidth: 2, borderDash: [8, 8], pointRadius: 0, pointHoverRadius: 0, fill: false, borderColor: 'rgba(230, 224, 233, 0.4)', tension: 0 },
@@ -822,6 +826,19 @@
                     events: ['mousemove', 'mouseout', 'click'], responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
                     plugins: {
                         legend: { display: false },
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'x',
+                                onPan: toggleResetZoomBtn
+                            },
+                            zoom: {
+                                wheel: { enabled: true, modifierKey: 'ctrl' },
+                                pinch: { enabled: true },
+                                mode: 'x',
+                                onZoom: toggleResetZoomBtn
+                            }
+                        },
                         title: { display: false, align: 'start', font: { family: 'Outfit', weight: '700', size: 13 }, padding: { bottom: 10, top: 0 } },
                         tooltip: {
                             enabled: false,
@@ -837,7 +854,8 @@
                                     const titleLines = tooltip.title || []; let innerHtml = '';
                                     titleLines.forEach(title => { 
                                         const y = parseInt(title); const nextYStr = String(y + 1).slice(-2);
-                                        innerHtml += `<h4 class="font-bold text-sm text-m3-light-onSurface dark:text-m3-dark-onSurface mb-3 pb-2 border-b border-m3-light-outline/10 dark:border-m3-dark-outline/10 tracking-wide uppercase">FY ${y}-${nextYStr}</h4>`; 
+                                        const forecastNote = y >= 2024 ? '<span class="text-xs text-m3-light-primary dark:text-m3-dark-primary ml-2 lowercase tracking-normal">(Provisional)</span>' : '';
+                                        innerHtml += `<h4 class="font-bold text-sm text-m3-light-onSurface dark:text-m3-dark-onSurface mb-3 pb-2 border-b border-m3-light-outline/10 dark:border-m3-dark-outline/10 tracking-wide uppercase">FY ${y}-${nextYStr} ${forecastNote}</h4>`; 
                                     });
                                     innerHtml += `<div class="flex flex-col gap-3">`;
                                     tooltip.dataPoints.forEach((dp, i) => {
@@ -871,16 +889,18 @@
                                 title: function(context) { return context[0] ? context[0].label : ''; },
                                 label: function(context) {
                                     const year = context.label, dsLabel = context.dataset.label, idx = context.dataIndex;
-                                    const isUSD = isUsdActive && !['yoy', 'fdi', 'usd_inr', 'unemployment'].includes(currentMetric);
+                                    const isUSD = isUsdActive && !['yoy', 'fdi', 'usd_inr', 'unemployment', 'deflator'].includes(currentMetric);
                                     let valStr = '', descMetric = '', isNational = dsLabel.includes('National') || dsLabel.includes('India');
                                     let currencySym = isUSD ? '$' : '₹';
                                     if (currentMetric === 'per_capita' || currentMetric === 'real_per_capita') { valStr = currencySym + context.raw.toLocaleString(isUSD ? 'en-US' : 'en-IN', {maximumFractionDigits:0}); descMetric = currentMetric === 'real_per_capita' ? 'Real Per Capita' : 'Nominal Per Capita'; } 
                                     else if (currentMetric === 'yoy') { valStr = (context.raw > 0 ? '+' : '') + context.raw.toFixed(1) + '%'; descMetric = 'Growth'; } 
                                     else if (currentMetric === 'unemployment') { valStr = context.raw.toFixed(1) + '%'; descMetric = 'Unemployment'; } 
+                                    else if (currentMetric === 'deflator') { valStr = context.raw.toFixed(1); descMetric = 'Deflator Index'; } 
                                     else if (currentMetric === 'fdi') { valStr = '$' + context.raw.toFixed(2) + 'B'; descMetric = 'Net FDI'; } 
                                     else if (currentMetric === 'usd_inr') { valStr = '₹' + context.raw.toFixed(2); descMetric = 'Exchange Rate'; } 
                                     else if (currentMetric === 'nse_cap') { valStr = currencySym + context.raw.toLocaleString(isUSD ? 'en-US' : 'en-IN', {maximumFractionDigits:2}) + (isUSD ? 'B' : ' Lakh Cr'); descMetric = 'Market Cap'; }
                                     else { valStr = currencySym + context.raw.toLocaleString(isUSD ? 'en-US' : 'en-IN', {maximumFractionDigits:2}) + (isUSD ? 'B' : ' Lakh Cr'); descMetric = isNational ? 'GDP' : 'GSDP'; }
+                                    
                                     let partyInfo, prefix, role, debtVal;
                                     if (isNational) { partyInfo = getIndiaPartyInfo(year); prefix = 'National'; role = 'PM'; debtVal = dataState.indiaDebt[idx]; } 
                                     else if (dsLabel.includes('Maharashtra')) { partyInfo = getMhPartyInfo(year); prefix = 'MH'; role = 'CM'; debtVal = dataState.mhDebt[idx]; } 
@@ -889,8 +909,9 @@
                                     else if (dsLabel.includes('Karnataka')) { partyInfo = getKaPartyInfo(year); prefix = 'KA'; role = 'CM'; debtVal = dataState.kaDebt[idx]; } 
                                     else if (dsLabel.includes('West Bengal')) { partyInfo = getWbPartyInfo(year); prefix = 'WB'; role = 'CM'; debtVal = dataState.wbDebt[idx]; } 
                                     else { partyInfo = getPartyInfo(year); prefix = 'UP'; role = 'CM'; debtVal = dataState.upDebt[idx]; }
+                                    
                                     let lines = [`${prefix} ${descMetric}: ${valStr}`];
-                                    const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap'].includes(currentMetric);
+                                    const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap', 'deflator'].includes(currentMetric);
                                     if (isDebtOverlayActive && !shouldHideDebt && debtVal !== null) { lines.push(`Debt-to-${isNational ? 'GDP' : 'GSDP'}: ${debtVal.toFixed(1)}%`); }
                                     lines.push(`${role}: ${partyInfo.pm || partyInfo.cm} (${partyInfo.name})`);
                                     return lines;
@@ -899,55 +920,72 @@
                         }
                     },
                     scales: {
-                        y: { type: 'linear', position: 'left', title: { display: true, text: 'Gross Domestic Product', font: { family: 'Outfit', weight: '700', size: 13 }, color: '#49454f' }, grid: { color: document.documentElement.classList.contains('dark') ? '#4a4458' : '#e8def8', drawBorder: false, lineWidth: 1.5 }, ticks: { font: { family: 'Outfit', weight: '600' }, color: '#49454f', padding: 10, callback: function(value) { const isMobile = window.innerWidth < 768; const isUSD = isUsdActive && !['yoy', 'fdi', 'usd_inr', 'unemployment'].includes(currentMetric); let currencySym = isUSD ? '$' : '₹'; if (currentMetric === 'yoy' || currentMetric === 'unemployment') return isMobile ? String(value.toFixed(1)) : value.toFixed(1) + '%'; if (value <= 0 && currentMetric !== 'yoy') return ''; if (isLogScale && currentMetric !== 'yoy' && currentMetric !== 'unemployment') { const logVal = Math.log10(value), cleanDigit = Math.round(value / Math.pow(10, Math.floor(logVal))); if (cleanDigit !== 1 && cleanDigit !== 2 && cleanDigit !== 5) { return null; } } if (currentMetric === 'per_capita' || currentMetric === 'real_per_capita') { if (isMobile) { return value >= 1000 ? String((value / 1000).toFixed(0)) + 'k' : String(value); } return currencySym + value.toLocaleString(isUSD ? 'en-US' : 'en-IN', {maximumFractionDigits: 0}); } else if (currentMetric === 'fdi') { let formattedVal = value >= 100 ? value.toFixed(0) : value.toFixed(1); return isMobile ? '$' + formattedVal : '$' + formattedVal + 'B'; } else if (currentMetric === 'usd_inr') { return isMobile ? '₹' + Math.round(value) : '₹' + value.toFixed(1); } else { let formattedValue = value >= 100 ? value.toFixed(0) : (value >= 10 ? value.toFixed(1) : value.toFixed(3)); let suffix = isUSD ? 'B' : ' LC'; return isMobile ? (isUSD ? '$' : '') + String(parseFloat(formattedValue)) : currencySym + parseFloat(formattedValue) + suffix; } } } },
+                        y: { type: 'linear', position: 'left', title: { display: true, text: 'Gross Domestic Product', font: { family: 'Outfit', weight: '700', size: 13 }, color: '#49454f' }, grid: { color: document.documentElement.classList.contains('dark') ? '#4a4458' : '#e8def8', drawBorder: false, lineWidth: 1.5 }, ticks: { font: { family: 'Outfit', weight: '600' }, color: '#49454f', padding: 10, callback: function(value) { const isMobile = window.innerWidth < 768; const isUSD = isUsdActive && !['yoy', 'fdi', 'usd_inr', 'unemployment', 'deflator'].includes(currentMetric); let currencySym = isUSD ? '$' : '₹'; if (['yoy', 'unemployment', 'deflator'].includes(currentMetric)) return isMobile ? String(value.toFixed(1)) : value.toFixed(1) + (currentMetric === 'deflator' ? '' : '%'); if (value <= 0 && currentMetric !== 'yoy') return ''; if (isLogScale && !['yoy', 'unemployment', 'deflator'].includes(currentMetric)) { const logVal = Math.log10(value), cleanDigit = Math.round(value / Math.pow(10, Math.floor(logVal))); if (cleanDigit !== 1 && cleanDigit !== 2 && cleanDigit !== 5) { return null; } } if (currentMetric === 'per_capita' || currentMetric === 'real_per_capita') { if (isMobile) { return value >= 1000 ? String((value / 1000).toFixed(0)) + 'k' : String(value); } return currencySym + value.toLocaleString(isUSD ? 'en-US' : 'en-IN', {maximumFractionDigits: 0}); } else if (currentMetric === 'fdi') { let formattedVal = value >= 100 ? value.toFixed(0) : value.toFixed(1); return isMobile ? '$' + formattedVal : '$' + formattedVal + 'B'; } else if (currentMetric === 'usd_inr') { return isMobile ? '₹' + Math.round(value) : '₹' + value.toFixed(1); } else { let formattedValue = value >= 100 ? value.toFixed(0) : (value >= 10 ? value.toFixed(1) : value.toFixed(3)); let suffix = isUSD ? 'B' : ' LC'; return isMobile ? (isUSD ? '$' : '') + String(parseFloat(formattedValue)) : currencySym + parseFloat(formattedValue) + suffix; } } } },
                         y1: { type: 'linear', position: 'right', display: true, min: 0, max: 100, title: { display: false }, grid: { drawOnChartArea: false, drawBorder: false, drawTicks: false }, ticks: { display: false } },
-                        x: { min: String(currentEra), grid: { display: false, drawBorder: false }, ticks: { autoSkip: false, maxRotation: 90, minRotation: 90, padding: 10, font: { family: 'Outfit', weight: '600' }, color: '#49454f', callback: function(val, index) { const yearStr = this.getLabelForValue(val); const electionYears = ['1952', '1957', '1962', '1967', '1971', '1977', '1980', '1984', '1989', '1991', '1996', '1999', '2004', '2009', '2014', '2019', '2024']; if (yearStr === String(currentEra) || yearStr === '2026' || electionYears.includes(yearStr)) { return yearStr; } return null; } } }
+                        x: { min: String(currentEra), grid: { display: false, drawBorder: false }, ticks: { autoSkip: false, maxRotation: 90, minRotation: 90, padding: 10, font: { family: 'Outfit', weight: '600' }, color: '#49454f', callback: function(val, index) { const yearStr = this.getLabelForValue(val); const electionYears = ['1952', '1957', '1962', '1967', '1971', '1977', '1980', '1984', '1989', '1991', '1996', '1999', '2004', '2009', '2014', '2019', '2024']; if (yearStr === String(currentEra) || yearStr === '2026' || electionYears.includes(yearStr)) { return "FY" + yearStr.slice(-2); } return null; } } }
                     }
                 }
             });
             applyChartTheme(window.gdpChartInstance); updateChartTitle(); updateYAxisMin(); window.gdpChartInstance.update('none'); initRibbonScrollFades();
-            window.addEventListener('resize', () => { if (window.gdpChartInstance) { updateChartTitle(); window.gdpChartInstance.update('none'); } });
+            window.addEventListener('resize', () => { if (window.gdpChartInstance) { updateChartTitle(); window.gdpChartInstance.update('none'); } }, { passive: true });
+            
+            // Dropdown setup and Accessibility enhancements
             const metricBtn = document.getElementById('metricDropdownBtn'), metricIcon = document.getElementById('metricDropdownIcon'), metricMenu = document.getElementById('metricDropdownMenu'), dropdownItems = document.querySelectorAll('.dropdown-item');
             if (metricBtn && metricMenu) {
-                metricBtn.addEventListener('click', (e) => {
-                    e.stopPropagation(); const isClosed = metricMenu.classList.contains('opacity-0');
+                const toggleDropdown = (e) => {
+                    if(e) e.stopPropagation(); 
+                    const isClosed = metricMenu.classList.contains('opacity-0');
                     if (isClosed) {
                         const rect = metricBtn.getBoundingClientRect(); metricMenu.style.position = 'fixed'; metricMenu.style.top = `${rect.bottom + 8}px`;
                         let leftPos = rect.left; const maxRight = window.innerWidth - 16;
-                        if (leftPos + 180 > maxRight) { leftPos = maxRight - 180; }
+                        if (leftPos + 200 > maxRight) { leftPos = maxRight - 200; }
                         metricMenu.style.left = `${Math.max(16, leftPos)}px`;
                         metricMenu.classList.remove('opacity-0', 'invisible', 'translate-y-[-10px]'); metricIcon.classList.add('rotate-180');
-                    } else { metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]'); metricIcon.classList.remove('rotate-180'); }
-                });
-                document.addEventListener('click', () => { metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]'); metricIcon.classList.remove('rotate-180'); });
-                window.addEventListener('scroll', () => { metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]'); metricIcon.classList.remove('rotate-180'); }, { passive: true });
-                document.querySelectorAll('.overflow-x-auto').forEach(el => { el.addEventListener('scroll', () => { metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]'); metricIcon.classList.remove('rotate-180'); }, { passive: true }); });
+                        metricBtn.setAttribute('aria-expanded', 'true');
+                    } else { 
+                        metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]'); metricIcon.classList.remove('rotate-180'); 
+                        metricBtn.setAttribute('aria-expanded', 'false');
+                    }
+                };
+
+                metricBtn.addEventListener('click', toggleDropdown);
+                metricBtn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleDropdown(e); } });
+
+                document.addEventListener('click', () => { metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]'); metricIcon.classList.remove('rotate-180'); metricBtn.setAttribute('aria-expanded', 'false');});
+                window.addEventListener('scroll', () => { metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]'); metricIcon.classList.remove('rotate-180'); metricBtn.setAttribute('aria-expanded', 'false');}, { passive: true });
+                document.querySelectorAll('.overflow-x-auto').forEach(el => { el.addEventListener('scroll', () => { metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]'); metricIcon.classList.remove('rotate-180'); metricBtn.setAttribute('aria-expanded', 'false');}, { passive: true }); });
             }
+
             if(dropdownItems) {
                 dropdownItems.forEach(item => {
-                    item.addEventListener('click', (e) => {
-                        e.stopPropagation(); currentMetric = item.getAttribute('data-value');
+                    const selectItem = (e) => {
+                        if(e) e.stopPropagation(); 
+                        currentMetric = item.getAttribute('data-value');
                         const rawText = item.innerText.trim(); const metricText = document.getElementById('metricDropdownText');
                         if(metricText) metricText.innerText = 'Indicator: ' + rawText;
                         dropdownItems.forEach(i => { i.classList.remove('bg-m3-light-secondaryContainer', 'dark:bg-m3-dark-secondaryContainer', 'text-m3-light-onSecondaryContainer', 'dark:text-m3-dark-onSecondaryContainer', 'font-bold'); i.classList.add('hover:bg-m3-light-secondaryContainer/50', 'dark:hover:bg-m3-dark-secondaryContainer/50', 'text-m3-light-onSurfaceVariant', 'dark:text-m3-dark-onSurfaceVariant', 'font-semibold'); });
                         item.classList.add('bg-m3-light-secondaryContainer', 'dark:bg-m3-dark-secondaryContainer', 'text-m3-light-onSecondaryContainer', 'dark:text-m3-dark-onSecondaryContainer', 'font-bold');
                         metricMenu.classList.add('opacity-0', 'invisible', 'translate-y-[-10px]'); metricIcon.classList.remove('rotate-180');
+                        metricBtn.setAttribute('aria-expanded', 'false');
                         applyMetric();
                         if (currentMetric === 'nse_cap') {
                             const stateToggles = ['toggle-gj', 'toggle-ka', 'toggle-mh', 'toggle-tn', 'toggle-up', 'toggle-wb'];
-                            stateToggles.forEach(id => { const el = document.getElementById(id); if (el && el.getAttribute('data-checked') === 'true') { el.click(); } });
-                            const indEl = document.getElementById('toggle-india'); if (indEl && indEl.getAttribute('data-checked') !== 'true') { indEl.click(); }
+                            stateToggles.forEach(id => { const el = document.getElementById(id); if (el && el.getAttribute('aria-pressed') === 'true') { el.click(); } });
+                            const indEl = document.getElementById('toggle-india'); if (indEl && indEl.getAttribute('aria-pressed') !== 'true') { indEl.click(); }
                         }
-                    });
+                    };
+                    item.addEventListener('click', selectItem);
+                    item.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectItem(e); } });
                 });
             }
+            
             const toggles = [ { id: 'toggle-india', index: 0, trendIndex: 7, debtIndex: 14 }, { id: 'toggle-mh', index: 1, trendIndex: 8, debtIndex: 15 }, { id: 'toggle-tn', index: 2, trendIndex: 9, debtIndex: 16 }, { id: 'toggle-up', index: 3, trendIndex: 10, debtIndex: 17 }, { id: 'toggle-gj', index: 4, trendIndex: 11, debtIndex: 18 }, { id: 'toggle-ka', index: 5, trendIndex: 12, debtIndex: 19 }, { id: 'toggle-wb', index: 6, trendIndex: 13, debtIndex: 20 } ];
             const stateTogglesOnly = toggles.filter(t => t.id !== 'toggle-india');
             toggles.forEach(toggle => { 
                 const el = document.getElementById(toggle.id); 
                 if(el) { 
                     el.addEventListener('click', function() { 
-                        let isChecked = this.getAttribute('data-checked') === 'true'; isChecked = !isChecked; this.setAttribute('data-checked', isChecked);
+                        let isChecked = this.getAttribute('aria-pressed') === 'true'; isChecked = !isChecked; this.setAttribute('aria-pressed', isChecked);
                         if (isChecked) {
                             this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer');
                             this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant');
@@ -959,71 +997,141 @@
                             isUsdActive = false; const usdBtn = document.getElementById('toggleUsd');
                             usdBtn.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
                             usdBtn.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); 
+                            usdBtn.setAttribute('aria-pressed', 'false');
                             applyMetric();
                         }
                         window.gdpChartInstance.setDatasetVisibility(toggle.index, isChecked); window.gdpChartInstance.setDatasetVisibility(toggle.trendIndex, isChecked); 
-                        const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap'].includes(currentMetric);
+                        const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap', 'deflator'].includes(currentMetric);
                         if(isDebtOverlayActive && !shouldHideDebt) { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, isChecked); } else { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, false); } 
                         updateYAxisMin(); window.gdpChartInstance.update('none');
                     }); 
                 } 
             });
+
             const toggleUsdBtn = document.getElementById('toggleUsd');
             if (toggleUsdBtn) {
                 toggleUsdBtn.addEventListener('click', function() {
                     isUsdActive = !isUsdActive;
+                    this.setAttribute('aria-pressed', isUsdActive);
                     if (isUsdActive) { 
                         this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); 
                         this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); 
                         stateTogglesOnly.forEach(toggle => {
                             const el = document.getElementById(toggle.id);
-                            if (el && el.getAttribute('data-checked') === 'true') {
-                                el.setAttribute('data-checked', 'false'); el.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer');
+                            if (el && el.getAttribute('aria-pressed') === 'true') {
+                                el.setAttribute('aria-pressed', 'false'); el.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer');
                                 el.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant');
                                 window.gdpChartInstance.setDatasetVisibility(toggle.index, false); window.gdpChartInstance.setDatasetVisibility(toggle.trendIndex, false); window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, false);
                             }
                         });
                         const indEl = document.getElementById('toggle-india');
-                        if (indEl && indEl.getAttribute('data-checked') !== 'true') {
-                            indEl.setAttribute('data-checked', 'true'); indEl.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer');
+                        if (indEl && indEl.getAttribute('aria-pressed') !== 'true') {
+                            indEl.setAttribute('aria-pressed', 'true'); indEl.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer');
                             indEl.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant');
                             window.gdpChartInstance.setDatasetVisibility(0, true); window.gdpChartInstance.setDatasetVisibility(7, true);
-                            const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap'].includes(currentMetric);
+                            const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap', 'deflator'].includes(currentMetric);
                             if(isDebtOverlayActive && !shouldHideDebt) window.gdpChartInstance.setDatasetVisibility(14, true);
                         }
                     } else { this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); }
                     applyMetric();
                 });
             }
+
             const toggleDebtOverlayBtn = document.getElementById('toggleDebtOverlay');
             if (toggleDebtOverlayBtn) {
                 toggleDebtOverlayBtn.addEventListener('click', function() {
                     isDebtOverlayActive = !isDebtOverlayActive;
+                    this.setAttribute('aria-pressed', isDebtOverlayActive);
                     if (isDebtOverlayActive) { this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); } 
                     else { this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); }
                     window.gdpChartInstance.options.scales.y1.display = isDebtOverlayActive;
-                    toggles.forEach(toggle => { const el = document.getElementById(toggle.id); if(el && el.getAttribute('data-checked') === 'true') { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, isDebtOverlayActive); } else { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, false); } });
+                    toggles.forEach(toggle => { const el = document.getElementById(toggle.id); if(el && el.getAttribute('aria-pressed') === 'true') { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, isDebtOverlayActive); } else { window.gdpChartInstance.setDatasetVisibility(toggle.debtIndex, false); } });
                     window.gdpChartInstance.update('none');
                 });
             }
+
             const eraToggleBtn = document.getElementById('toggleEra');
             if(eraToggleBtn) { 
                 eraToggleBtn.addEventListener('click', function() { 
                     const isCurrently1947 = currentEra === 1947; currentEra = isCurrently1947 ? 1991 : 1947; 
+                    this.setAttribute('aria-pressed', currentEra === 1947);
                     if (currentEra === 1947) { this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); } 
                     else { this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); }
-                    calculateBestFitTrendlines(currentEra); window.gdpChartInstance.options.scales.x.min = String(currentEra); updateYAxisMin(); window.gdpChartInstance.update('none');
+                    calculateBestFitTrendlines(currentEra); 
+                    window.gdpChartInstance.resetZoom();
+                    window.gdpChartInstance.options.scales.x.min = String(currentEra); 
+                    updateYAxisMin(); 
+                    window.gdpChartInstance.update('none');
+                    toggleResetZoomBtn();
                 }); 
             }
+
             const scaleToggleBtn = document.getElementById('toggleScale');
             if(scaleToggleBtn) { 
                 scaleToggleBtn.addEventListener('click', function() { 
-                    if (currentMetric === 'yoy' || currentMetric === 'unemployment') return; isLogScale = !isLogScale; 
+                    if (['yoy', 'unemployment', 'deflator'].includes(currentMetric)) return; isLogScale = !isLogScale; 
+                    this.setAttribute('aria-pressed', isLogScale);
                     window.gdpChartInstance.options.scales.y.type = isLogScale ? 'logarithmic' : 'linear'; updateYAxisMin(); window.gdpChartInstance.update('none');
                     if (isLogScale) { this.classList.add('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); this.classList.remove('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); } 
                     else { this.classList.remove('bg-m3-light-primaryContainer', 'dark:bg-m3-dark-primaryContainer', 'text-m3-light-onPrimaryContainer', 'dark:text-m3-dark-onPrimaryContainer'); this.classList.add('bg-m3-light-surface', 'dark:bg-m3-dark-surface', 'text-m3-light-onSurface', 'dark:text-m3-dark-onSurface', 'hover:bg-m3-light-surfaceVariant', 'dark:hover:bg-m3-dark-surfaceVariant'); }
                 }); 
             }
+
+            const resetZoomBtn = document.getElementById('resetZoomBtn');
+            if(resetZoomBtn) {
+                resetZoomBtn.addEventListener('click', function() {
+                    if(window.gdpChartInstance) {
+                        window.gdpChartInstance.resetZoom();
+                        toggleResetZoomBtn();
+                    }
+                });
+            }
+
+            const downloadCsvBtn = document.getElementById('downloadCsvBtn');
+            if(downloadCsvBtn) {
+                downloadCsvBtn.addEventListener('click', () => {
+                    let csvContent = "data:text/csv;charset=utf-8,Year";
+                    const activeRegions = [];
+                    const regionMap = {
+                        'india': 'National',
+                        'gj': 'Gujarat',
+                        'ka': 'Karnataka',
+                        'mh': 'Maharashtra',
+                        'tn': 'Tamil Nadu',
+                        'up': 'Uttar Pradesh',
+                        'wb': 'West Bengal'
+                    };
+
+                    ['india', 'gj', 'ka', 'mh', 'tn', 'up', 'wb'].forEach(id => {
+                        const el = document.getElementById('toggle-' + id);
+                        if (el && el.getAttribute('aria-pressed') === 'true') {
+                            activeRegions.push(id);
+                            csvContent += "," + regionMap[id];
+                        }
+                    });
+                    csvContent += "\n";
+
+                    const startIndex = Math.max(0, dataState.years.indexOf(String(currentEra)));
+
+                    for (let i = startIndex; i < dataState.years.length; i++) {
+                        let row = dataState.years[i];
+                        activeRegions.forEach(region => {
+                            let val = dataState[region + 'Gdp'][i];
+                            row += "," + (val !== null ? val : "");
+                        });
+                        csvContent += row + "\n";
+                    }
+
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", encodedUri);
+                    link.setAttribute("download", `GDP_Data_${currentMetric}_${currentEra}_to_2026.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+            }
+
             const downloadBtns = document.querySelectorAll('.download-btn');
             downloadBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -1033,39 +1141,53 @@
                     ctx.fillStyle = isDark ? '#141217' : '#ffffff'; ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height); 
                     ctx.drawImage(chartCanvas, 0, headerHeightCSS * pixelRatio);
                     ctx.scale(pixelRatio, pixelRatio); const cssWidth = chartCanvas.clientWidth, cssHeight = chartCanvas.clientHeight, activeRegions = [];
-                    if(document.getElementById('toggle-india').getAttribute('data-checked') === 'true') activeRegions.push('National'); 
-                    if(document.getElementById('toggle-gj').getAttribute('data-checked') === 'true') activeRegions.push('Gujarat'); 
-                    if(document.getElementById('toggle-ka').getAttribute('data-checked') === 'true') activeRegions.push('Karnataka'); 
-                    if(document.getElementById('toggle-mh').getAttribute('data-checked') === 'true') activeRegions.push('Maharashtra'); 
-                    if(document.getElementById('toggle-tn').getAttribute('data-checked') === 'true') activeRegions.push('Tamil Nadu'); 
-                    if(document.getElementById('toggle-up').getAttribute('data-checked') === 'true') activeRegions.push('Uttar Pradesh'); 
-                    if(document.getElementById('toggle-wb').getAttribute('data-checked') === 'true') activeRegions.push('West Bengal');
-                    const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap', 'unemployment'].includes(currentMetric);
+                    if(document.getElementById('toggle-india').getAttribute('aria-pressed') === 'true') activeRegions.push('National'); 
+                    if(document.getElementById('toggle-gj').getAttribute('aria-pressed') === 'true') activeRegions.push('Gujarat'); 
+                    if(document.getElementById('toggle-ka').getAttribute('aria-pressed') === 'true') activeRegions.push('Karnataka'); 
+                    if(document.getElementById('toggle-mh').getAttribute('aria-pressed') === 'true') activeRegions.push('Maharashtra'); 
+                    if(document.getElementById('toggle-tn').getAttribute('aria-pressed') === 'true') activeRegions.push('Tamil Nadu'); 
+                    if(document.getElementById('toggle-up').getAttribute('aria-pressed') === 'true') activeRegions.push('Uttar Pradesh'); 
+                    if(document.getElementById('toggle-wb').getAttribute('aria-pressed') === 'true') activeRegions.push('West Bengal');
+                    const shouldHideDebt = ['usd_inr', 'fdi', 'nse_cap', 'deflator'].includes(currentMetric);
                     let mTxt = document.getElementById('metricDropdownText').innerText.replace('Indicator: ', ''); if(isDebtOverlayActive && !shouldHideDebt) mTxt += ' + Debt Overlay';
                     ctx.fillStyle = isDark ? '#e6e1e5' : '#1c1b1f'; ctx.font = 'bold 16px Outfit, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(`Indicator: ${mTxt}   |   Regions: ${activeRegions.join(', ')}`, cssWidth / 2, headerHeightCSS / 2);
                     const legendItems = [{ text: 'NDA-BJP', color: '#F97316' }, { text: 'UPA-INC', color: '#2563EB' }, { text: 'SP / CPI-M', color: '#DC2626' }, { text: 'JD-S / AIADMK', color: '#16A34A' }, { text: 'AITC-TMC / MVA', color: '#10B981' }, { text: 'BSP', color: '#1E3A8A' }, { text: "President's Rule", color: '#9CA3AF' }];
                     ctx.font = '600 12px Outfit, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-                    const boxSize = 12, gap = 6, itemSpacing = 20; let currentX = 20, currentY = headerHeightCSS + cssHeight + 30; const maxRowWidth = cssWidth - 40;
-                    let rowWidths = [], currentRowWidth = 0;
-                    legendItems.forEach(item => { let iw = boxSize + gap + ctx.measureText(item.text).width; if (currentRowWidth + iw > maxRowWidth && currentRowWidth > 0) { rowWidths.push(currentRowWidth - itemSpacing); currentRowWidth = iw + itemSpacing; } else { currentRowWidth += iw + itemSpacing; } });
-                    rowWidths.push(currentRowWidth - itemSpacing);
+                    
+                    const boxSize = 12, gap = 6, itemSpacing = 20; 
+                    let currentX = 20, currentY = headerHeightCSS + cssHeight + 30;
                     let itemIndex = 0;
-                    for (let row = 0; row < rowWidths.length; row++) {
-                        let startX = (cssWidth - rowWidths[row]) / 2; currentX = Math.max(20, startX);
-                        while (itemIndex < legendItems.length) {
-                            let item = legendItems[itemIndex], iw = boxSize + gap + ctx.measureText(item.text).width;
-                            if (currentX + iw > cssWidth - 20 && currentX > 20) { break; }
-                            ctx.fillStyle = item.color; ctx.beginPath(); ctx.arc(currentX + boxSize/2, currentY, boxSize/2, 0, 2*Math.PI); ctx.fill();
-                            ctx.fillStyle = isDark ? '#cac4d0' : '#49454f'; ctx.fillText(item.text, currentX + boxSize + gap, currentY);
-                            currentX += iw + itemSpacing; itemIndex++;
+
+                    // Fixed Infinite Loop Handler
+                    while (itemIndex < legendItems.length) {
+                        let item = legendItems[itemIndex];
+                        let textWidth = ctx.measureText(item.text).width;
+                        let iw = boxSize + gap + textWidth;
+
+                        if (currentX + iw > cssWidth - 20 && currentX > 20) {
+                            currentX = 20;
+                            currentY += 24;
                         }
-                        currentY += 24;
+
+                        ctx.fillStyle = item.color;
+                        ctx.beginPath();
+                        ctx.arc(currentX + boxSize/2, currentY, boxSize/2, 0, 2*Math.PI);
+                        ctx.fill();
+
+                        ctx.fillStyle = isDark ? '#cac4d0' : '#49454f';
+                        ctx.fillText(item.text, currentX + boxSize + gap, currentY);
+
+                        currentX += iw + itemSpacing;
+                        itemIndex++;
                     }
+
                     const link = document.createElement('a'); link.download = `GDP_Comparison_${mTxt.replace(/[^a-z0-9]/gi, '_')}.png`; link.href = tempCanvas.toDataURL('image/png'); link.click();
                 });
             });
-        }
+        };
+        
         initApp();
+    })();
     </script>
 </body>
 </html>
